@@ -35,11 +35,11 @@ export const Login = () => {
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col ml-8">
                     <h1 className="font-inria text-4xl mb-5">Login</h1>
 
-                    {['Username', 'Password'].map((option) => (
+                    {['Email', 'Password'].map((option) => (
                         <div key={option} className="flex flex-col mb-2 w-full">
                             <label htmlFor={option}>{option}</label>
                             <Input
-                                type={option === 'Password' ? 'password' : 'text'}
+                                type={option === 'Password' ? 'password' : 'email'}
                                 placeholder=""
                                 {...register(option.toLowerCase(), { required: true })}
                             />
