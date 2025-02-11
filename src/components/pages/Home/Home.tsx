@@ -11,7 +11,7 @@ export const Home = () =>{
     
     return (        
         <section
-        className={`grid ${sidebarState ? "grid-cols-[150px_1fr]" : "grid-cols-[60px_1fr]"} grid-rows-[60px_1fr] bg-white h-screen`}
+        className={`grid ${sidebarState ? "grid-cols-[18%_1fr]" : "grid-cols-[5.5%_1fr]"} grid-rows-[60px_1fr] h-screen`}
       >
                 
                 {/* Header */}
@@ -20,7 +20,7 @@ export const Home = () =>{
                 </div>
 
                 {/* Sidebar */}
-                <div>                                
+                <div className="w-full h-full">                                
                     <Sidebar onSidebarChange = {handleSideBarChange}/>
                 </div>
 

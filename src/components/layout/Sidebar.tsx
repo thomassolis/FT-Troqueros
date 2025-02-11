@@ -1,35 +1,49 @@
-import { Icon } from "@iconify/react/dist/iconify.js"
-import { useState, useEffect } from "react"
+import { Icon } from "@iconify/react";
+import { useState, useEffect } from "react";
+import {
+  Sidebar as ProSidebar,  // En v2+ "ProSidebar" ya no existe, ahora es "Sidebar"
+  Menu,
+  MenuItem,
+  SubMenu,
+  menuClasses // Para personalizar estilos en v2+
+} from "react-pro-sidebar";
+// import "react-pro-sidebar/dist/styles.css"; // Para react-pro-sidebar v2+
 
 
-interface SidebarProps{
-    onSidebarChange: (newState: boolean) => void;
+
+interface SidebarProps {
+  onSidebarChange: (newState: boolean) => void;
 }
-export const  Sidebar = ({onSidebarChange}: SidebarProps) =>{
-    const [openSideBar, setOpenSideBar] = useState(false);
 
-    useEffect(()=>{
-        onSidebarChange(openSideBar)
-    }, [openSideBar])
-    return(
-        <section className="">
-            <ul className="flex flex-col items-center justify-center gap-14">
-                <div className="items-center justify-center flex mt-8">
-                <li className="cursor-pointer" onClick={() => setOpenSideBar((prev) => !prev)}><Icon icon="iconamoon:menu-burger-horizontal-bold" width="24" height="24" /></li>
-                </div>   
+export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
+  const [openSideBar, setOpenSideBar] = useState<boolean>(false);
 
-                <div className="flex flex-col justify-center items-center gap-4">
-                    <li><Icon className="cursor-pointer" icon="fluent:people-28-filled" width="28" height="28" /></li>
-                    <li><Icon className="cursor-pointer" icon="mdi:truck-cargo-container" width="26" height="26" /></li>
-                    <li><Icon className="cursor-pointer" icon="healthicons:truck-driver" width="35" height="35" /></li>
-                    <li><Icon className="cursor-pointer" icon="eos-icons:service-instance" width="28" height="28" /></li>
-                    <li><Icon className="cursor-pointer" icon="fa-solid:hands-helping" width="22" height="22"/></li>
-                </div>             
+  useEffect(() => {
+    onSidebarChange(openSideBar);
+  }, [openSideBar, onSidebarChange]);
 
-                <div className="flex flex-col justify-center items-center gap-4">
-                    <li className="cursor-pointer"><Icon icon="fluent:people-team-toolbox-20-filled" width="26" height="26" /></li>
-                </div>                
-            </ul> 
-        </section>
-    )
-}
+  return (
+    <ProSidebar collapsed={!openSideBar} className="w-3 h-full bg-black duration-0">
+      <Menu className="w-full text-white">
+        <div className="mt-6">
+            <div>
+                <MenuItem 
+                        icon={<Icon icon="iconamoon:menu-burger-horizontal-bold" />} 
+                        onClick={() => setOpenSideBar((prev) => !prev)}>
+                        Menú
+                </MenuItem>
+            </div>
+
+            <div className="">            
+                <MenuItem 
+                        icon={<Icon icon="iconamoon:menu-burger-horizontal-bold" />} 
+                        onClick={() => setOpenSideBar((prev) => !prev)}>
+                        Menú
+                </MenuItem>
+            </div>        
+        </div>
+        
+      </Menu>
+    </ProSidebar>
+  );
+};
