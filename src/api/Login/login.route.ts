@@ -10,7 +10,7 @@ export const SendLoginCredentials = async (data: any, navigate: any) => {
             
             if (success) {
                 toast.success(message);
-                navigate('/home'); 
+                navigate('/Troqueros/home'); 
             } else {
                 toast.error(message);
             }

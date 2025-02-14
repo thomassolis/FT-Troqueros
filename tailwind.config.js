@@ -13,6 +13,7 @@ export default {
         fontFamily: {
           inria: ['Inria Serif', 'serif'],
           jersey: ["Jersey 15", "sans-serif"],
+          bebas: ["Bebas Neue", "sans-serif"],
 
         },
         backgroundImage: {

@@ -15,7 +15,7 @@ export const Login = () => {
             const response = await SendLoginCredentials(data, navigate);
             
             if (response?.success) {  
-                navigate('/home');
+                navigate('/Troqueros/home');
             }
         } catch (error) {
             console.error("Login failed", error);

@@ -1,15 +1,13 @@
 import { Icon } from "@iconify/react";
 import { useState, useEffect } from "react";
 import {
-  Sidebar as ProSidebar,  // En v2+ "ProSidebar" ya no existe, ahora es "Sidebar"
+  Sidebar as ProSidebar,  
   Menu,
   MenuItem,
-  SubMenu,
-  menuClasses // Para personalizar estilos en v2+
+  menuClasses,
+  sidebarClasses
 } from "react-pro-sidebar";
-// import "react-pro-sidebar/dist/styles.css"; // Para react-pro-sidebar v2+
-
-
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   onSidebarChange: (newState: boolean) => void;
@@ -17,33 +15,108 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     onSidebarChange(openSideBar);
   }, [openSideBar, onSidebarChange]);
 
-  return (
-    <ProSidebar collapsed={!openSideBar} className="w-3 h-full bg-black duration-0">
-      <Menu className="w-full text-white">
-        <div className="mt-6">
-            <div>
-                <MenuItem 
-                        icon={<Icon icon="iconamoon:menu-burger-horizontal-bold" />} 
-                        onClick={() => setOpenSideBar((prev) => !prev)}>
-                        Menú
-                </MenuItem>
-            </div>
+  const Customers = () => {
+    navigate('/Troqueros/Customers');
+  };
 
-            <div className="">            
-                <MenuItem 
-                        icon={<Icon icon="iconamoon:menu-burger-horizontal-bold" />} 
-                        onClick={() => setOpenSideBar((prev) => !prev)}>
-                        Menú
+  return (
+   <div className={`fixed top-[60px] z-50   left-0 h-[calc(100vh-60px)] bottom-0 transition-all duration-300 ${openSideBar ? "w-[250px]" : "w-[60px]"}` }>
+      <ProSidebar 
+        collapsed={!openSideBar}         
+        className="h-full transition-all duration-300"
+        rootStyles={{
+          [`.${sidebarClasses.container}`]: {
+            backgroundColor: "#1E1E2F",
+          },
+        }}
+      >
+        <Menu
+          className="w-full text-white h-[full] "
+          menuItemStyles={{
+            button: {
+              [`&.${menuClasses.button}`]: {
+                backgroundColor: "#1E1E2F",                
+              },
+              [`&:hover`]: {
+                backgroundColor: "black",                
+              },
+            },
+          }}
+        >
+          {/* Sidebar Content */}
+          <ul className="pt-6 flex flex-col gap-8  h-full ">
+            <div>
+                <li>
+                <MenuItem
+                        icon={<Icon icon="iconamoon:menu-burger-horizontal-bold" width="28" height="28" />}
+                        onClick={() => setOpenSideBar((prev) => !prev)}
+                >
+                        {openSideBar && "Menú"}
                 </MenuItem>
-            </div>        
-        </div>
-        
-      </Menu>
-    </ProSidebar>
+                </li>
+            </div>            
+
+            <div className="gap-2 flex flex-col">
+                <li>
+                <MenuItem
+                        icon={<Icon icon="ix:customer-filled" width="28" height="28" />}
+                        onClick={Customers}
+                >
+                        {openSideBar && "Clientes"}
+                </MenuItem>
+                </li>
+
+                <li>
+                <MenuItem
+                        icon={<Icon icon="mdi:truck-cargo-container" width="28" height="28" />}
+                >
+                        {openSideBar && "Vehículos"}
+                </MenuItem>
+                </li>
+
+                <li>
+                <MenuItem
+                        icon={<Icon icon="healthicons:truck-driver" width="28" height="28" />}
+                >
+                        {openSideBar && "Conductores"}
+                </MenuItem>
+                </li>
+
+                <li>
+                <MenuItem
+                        icon={<Icon icon="eos-icons:service-instance" width="28" height="28" />}
+                >
+                        {openSideBar && "Servicios"}
+                </MenuItem>
+                </li>
+
+                <li>
+                <MenuItem
+                        icon={<Icon icon="fa-solid:hands-helping" width="28" height="28" />}
+                >
+                        {openSideBar && "Proveedores"}
+                </MenuItem>
+                </li>
+            </div>            
+
+            <div>
+                <li>
+                <MenuItem
+                        icon={<Icon icon="fluent:people-28-filled" width="28" height="28" />}
+                >
+                        {openSideBar && "Equipo"}
+                </MenuItem>
+                </li>
+            </div>            
+          </ul>
+        </Menu>
+      </ProSidebar>
+    </div>
   );
 };
