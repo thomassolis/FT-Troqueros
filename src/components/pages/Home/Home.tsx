@@ -13,7 +13,7 @@ export const Home = () =>{
     }
 
     return (        
-        <section id="HOME" className={`grid ${sidebarState ? "grid-cols-[15.5%_1fr]" : "grid-cols-[5%_1fr]"} w-full h-screen overflow-y-auto pt-[60px]`}>
+        <section id="HOME" className={`grid ${sidebarState ? "grid-cols-[15.5%_1fr]" : "grid-cols-[5%_1fr]"} w-full h-screen overflow-y-auto pt-[60px]  `}>
         <Navbar />
         
         {/* Sidebar */}

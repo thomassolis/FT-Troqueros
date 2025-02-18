@@ -26,7 +26,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
   };
 
   return (
-   <div className={`fixed top-[60px] z-50   left-0 h-[calc(100vh-60px)] bottom-0 transition-all duration-300 ${openSideBar ? "w-[250px]" : "w-[60px]"}` }>
+<div className={`fixed top-[60px] z-50 left-0 h-[calc(100vh-60px)] bottom-0 transition-all duration-300`}
+    style={{ width: openSideBar ? "15.5%" : "6%" }} // ✅ Usa el mismo ancho que el grid
+>
       <ProSidebar 
         collapsed={!openSideBar}         
         className="h-full transition-all duration-300"
@@ -35,6 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
             backgroundColor: "#1E1E2F",
           },
         }}
+        style={{width:'100%'}}
       >
         <Menu
           className="w-full text-white h-[full] "
