@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { SendLoginCredentials } from "../../../api/Login/login.route"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+
 export const Login = () => {    
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [isLoading, setIsLoading] = useState(false);
@@ -11,19 +12,24 @@ export const Login = () => {
 
     const onSubmit = async (data: any) => {
         setIsLoading(true);
+
+        // Mapeamos los nombres del formulario a los nombres esperados por el backend
+        const formattedData = {
+            email: data.Email,
+            pass: data.Password  
+        };
+
         try {
-            const response = await SendLoginCredentials(data, navigate);
-            
+            const response = await SendLoginCredentials(formattedData, navigate);
             if (response?.success) {  
-                navigate('/home');
+                navigate('/Troqueros/home');
             }
         } catch (error) {
-            console.error("Login failed", error);
+            console.error("Login failed", error);            
         } finally {
             setIsLoading(false);
         }
     };
-    
 
     return (
         <section className="grid grid-cols-[50%_1fr] gap-y-[10px] h-screen">
@@ -41,13 +47,14 @@ export const Login = () => {
                             <Input
                                 type={option === 'Password' ? 'password' : 'email'}
                                 placeholder=""
-                                {...register(option.toLowerCase(), { required: true })}
+                                {...register(option, { required: true })} // Registramos "Email" y "Password"
                             />
-                            {errors[option.toLowerCase()] && (
+                            {errors[option] && (
                                 <span className="text-red-500 text-sm">This field is required</span>
                             )}
                         </div>
                     ))}
+                    
                     <div className="w-full mt-10">
                         <Button text="Login" type="submit" isLoading={isLoading} />
                     </div>
