@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 export const SendLoginCredentials = async (data: any, navigate: any) => {
     try {
         const response = await axios.post('/auth/login', data);
+        console.log(response.data);
       
         if (response.data.success) {                        
                 toast.success(response.data.message);

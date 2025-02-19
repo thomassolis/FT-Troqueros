@@ -21,6 +21,7 @@ interface TableProps {
 
 export const Table = ({ tableData, sidebarState, isLoading }: TableProps) => {
     const [selectedOptions, setSelectedOptions] = useState<{ [id: string]: string }>({});
+    
 
     const statusOptions: Record<string, string[]> = {
         "En Proceso": ["Incompletas", "Pendientes", "En Espera"],

@@ -3,30 +3,18 @@ import { Sidebar } from "../../layout/Sidebar"
 import { useState } from "react"
 import { HomeOptions } from "../../others/HomeOptions"
 import  '../../../styles/index.css'
-import { getDecodedToken } from "../../../functions/JWT/DecodeJWT"
-import { useEffect } from "react"
-import { SolicitarToken } from "../../../api/Home/home.route"
+import { AuthContext } from "../../../context/auth/authProvider"
+import { useContext } from "react";
 //COMPONENTE PADRE DE HOME
-export const Home = () =>{
-    const token = getDecodedToken();
-    console.log(token);
+export const Home = () =>{    
     const [sidebarState, setSidebarState] = useState<boolean>(false);
 
     const handleSideBarChange = (newState: boolean) =>{
         setSidebarState(newState);
     }
 
-    useEffect(()=>{
-        const PedirToken = async() =>{
-            try{
-                const response = await SolicitarToken();
-            }catch(error){
-                console.error("Error al pedir el token: ", error);
-            }
-        }
-        PedirToken();
-    }, [])
-
+  const {userRole}:any = useContext(AuthContext);
+  console.log('userRole desde home:', userRole);
     return (        
         <section id="HOME" className={`grid ${sidebarState ? "grid-cols-[15.5%_1fr]" : "grid-cols-[5%_1fr]"} w-full h-screen overflow-y-auto pt-[60px]  `}>
         <Navbar />

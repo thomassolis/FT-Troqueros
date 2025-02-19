@@ -56,7 +56,7 @@ export const DataForRequestTable = async ({tableSection}: RequestParams): Promis
 
 //Envío de id de petición y el status cada vez que se cambia en la interfaz para que se actualize en la bd
 export const UpdateRequestStatus = async({selectedOptions}:UpdateRequestStatusParams): Promise<void> =>{
-    console.log('selectedOptions desde useEffect: ',selectedOptions)
+    
     try{
         const response = await axios.post('/home/updateRequest', selectedOptions);
     }catch(e){

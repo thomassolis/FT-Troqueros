@@ -1,20 +1,33 @@
-import { Input } from "../../ui/inputs/input"
-import { Button } from "../../ui/buttons/button"
-import { useForm } from "react-hook-form"
-import { SendLoginCredentials } from "../../../api/Login/login.route"
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { getDecodedToken } from "../../../functions/JWT/DecodeJWT"
+import { Input } from "../../ui/inputs/input";
+import { Button } from "../../ui/buttons/button";
+import { useForm } from "react-hook-form";
+import { SendLoginCredentials } from "../../../api/Login/login.route";
+import { useState, useContext } from "react";
+import { AuthContext } from "../../../context/auth/authProvider";
+import { useNavigate } from "react-router-dom";
 
 export const Login = () => {    
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    
+    const auth = useContext(AuthContext);
 
+    // 🔹 Si `AuthContext` no está disponible, evitar errores
+    if (!auth) {
+        return <p>Error: El contexto de autenticación no está disponible.</p>;
+    }
+
+    // Extraer setters del contexto para actualizar la información del usuario
+    const { 
+        setUserRole, setUserName, setUserLastName, 
+        setUserEmail, setIsAuthenticated 
+    } = auth;
+
+    // 🔹 Manejo del formulario
     const onSubmit = async (data: any) => {
         setIsLoading(true);
 
-        // Mapeamos los nombres del formulario a los nombres esperados por el backend
         const formattedData = {
             email: data.Email,
             pass: data.Password  
@@ -22,10 +35,17 @@ export const Login = () => {
 
         try {
             const response = await SendLoginCredentials(formattedData, navigate);
+            
             if (response?.success) {  
-                navigate('/Troqueros/home');
-                const token = getDecodedToken();
-                console.log(token);
+                // 🔹 Guardar los datos del usuario en el contexto
+                setUserRole(response.data.rol);
+                setUserName(response.data.nombre);
+                setUserLastName(response.data.apellido);
+                setUserEmail(response.data.email);                
+                setIsAuthenticated(true); // Marcar al usuario como autenticado
+
+                // 🔹 Redirigir a la página principal
+                navigate('/home');
             }
         } catch (error) {
             console.error("Login failed", error);            
@@ -50,7 +70,7 @@ export const Login = () => {
                             <Input
                                 type={option === 'Password' ? 'password' : 'email'}
                                 placeholder=""
-                                {...register(option, { required: true })} // Registramos "Email" y "Password"
+                                {...register(option, { required: true })}
                             />
                             {errors[option] && (
                                 <span className="text-red-500 text-sm">This field is required</span>
@@ -64,5 +84,5 @@ export const Login = () => {
                 </form>
             </div>
         </section>
-    )
-}
+    );
+};

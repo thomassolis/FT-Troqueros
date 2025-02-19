@@ -22,12 +22,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
   }, [openSideBar, onSidebarChange]);
 
   const Customers = () => {
-    navigate('/Troqueros/Customers');
+    navigate('/Customers');
   };
 
   return (
 <div className={`fixed top-[60px] z-50 left-0 h-[calc(100vh-60px)] bottom-0 transition-all duration-300`}
-    style={{ width: openSideBar ? "15.5%" : "6%" }} // ✅ Usa el mismo ancho que el grid
+    style={{ width: openSideBar ? "15.5%" : "6%" }} 
 >
       <ProSidebar 
         collapsed={!openSideBar}         
