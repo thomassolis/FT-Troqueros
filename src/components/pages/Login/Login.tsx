@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form"
 import { SendLoginCredentials } from "../../../api/Login/login.route"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { getDecodedToken } from "../../../functions/JWT/DecodeJWT"
+
 export const Login = () => {    
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [isLoading, setIsLoading] = useState(false);
@@ -11,19 +13,26 @@ export const Login = () => {
 
     const onSubmit = async (data: any) => {
         setIsLoading(true);
+
+        // Mapeamos los nombres del formulario a los nombres esperados por el backend
+        const formattedData = {
+            email: data.Email,
+            pass: data.Password  
+        };
+
         try {
-            const response = await SendLoginCredentials(data, navigate);
-            
+            const response = await SendLoginCredentials(formattedData, navigate);
             if (response?.success) {  
                 navigate('/Troqueros/home');
+                const token = getDecodedToken();
+                console.log(token);
             }
         } catch (error) {
-            console.error("Login failed", error);
+            console.error("Login failed", error);            
         } finally {
             setIsLoading(false);
         }
     };
-    
 
     return (
         <section className="grid grid-cols-[50%_1fr] gap-y-[10px] h-screen">
@@ -35,19 +44,20 @@ export const Login = () => {
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col ml-8">
                     <h1 className="font-inria text-4xl mb-5">Login</h1>
 
-                    {['Username', 'Password'].map((option) => (
+                    {['Email', 'Password'].map((option) => (
                         <div key={option} className="flex flex-col mb-2 w-full">
                             <label htmlFor={option}>{option}</label>
                             <Input
-                                type={option === 'Password' ? 'password' : 'text'}
+                                type={option === 'Password' ? 'password' : 'email'}
                                 placeholder=""
-                                {...register(option.toLowerCase(), { required: true })}
+                                {...register(option, { required: true })} // Registramos "Email" y "Password"
                             />
-                            {errors[option.toLowerCase()] && (
+                            {errors[option] && (
                                 <span className="text-red-500 text-sm">This field is required</span>
                             )}
                         </div>
                     ))}
+                    
                     <div className="w-full mt-10">
                         <Button text="Login" type="submit" isLoading={isLoading} />
                     </div>

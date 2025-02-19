@@ -4,26 +4,28 @@ import { toast } from 'react-hot-toast';
 export const SendLoginCredentials = async (data: any, navigate: any) => {
     try {
         const response = await axios.post('/auth/login', data);
-       
-        if (Array.isArray(response.data) && response.data.length > 0) {
-            const { success, message } = response.data[0]; 
-            
-            if (success) {
-                toast.success(message);
-                navigate('/Troqueros/home'); 
+      
+        if (response.data.success) {                        
+                toast.success(response.data.message);
+                navigate('/home'); 
+                return response.data
             } else {
-                toast.error(message);
-            }
-            
-            return response.data[0];  
+                toast.error(response.data.message);
+                return null;
+            }            
+    } catch (error: any) {
+        console.error('Error en SendLoginCredentials:', error);
+        
+        // Verifica si el error tiene una respuesta del backend (AxiosError)
+        if (error.response && error.response.data && error.response.data.message) {
+            console.log('Mensaje del backend:', error.response.data.message);
+            toast.error(error.response.data.message);
         } else {
-            toast.error("Error en la respuesta del servidor");
-            return null;
-        }
-    } catch (error) {
-        console.error('Error en SendLoginCredentials', error);
-        toast.error("Error de conexión con el servidor");
+            console.log('Error inesperado:', error.message || error);
+            toast.error("Error inesperado");
+        }           
         return null;
     }
+    
 };
 

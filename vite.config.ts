@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-// import tailwindcss from '@tailwindcss3/vite'
+import fs from 'node:fs' // ✅ Solución para ESM
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react()
-  ],
+  server: {
+    https: {
+      key: fs.readFileSync('./ssl/key.pem'), // Ruta a la clave privada
+      cert: fs.readFileSync('./ssl/cert.pem'), // Ruta al certificado
+    },
+    port: 5173,
+  },
+  plugins: [react()],
 })
