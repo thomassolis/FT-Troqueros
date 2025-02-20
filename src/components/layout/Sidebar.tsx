@@ -8,7 +8,6 @@ import {
   sidebarClasses
 } from "react-pro-sidebar";
 import { useNavigate } from "react-router-dom";
-
 interface SidebarProps {
   onSidebarChange: (newState: boolean) => void;
 }
@@ -21,9 +20,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
     onSidebarChange(openSideBar);
   }, [openSideBar, onSidebarChange]);
 
-  const Customers = () => {
-    navigate('/Customers');
-  };
 
   return (
 <div className={`fixed top-[60px] z-50 left-0 h-[calc(100vh-60px)] bottom-0 transition-all duration-300`}
@@ -40,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
         style={{width:'100%'}}
       >
         <Menu
-          className="w-full text-white h-[full] "
+          className="w-full text-white h-[full]"
           menuItemStyles={{
             button: {
               [`&.${menuClasses.button}`]: {
@@ -69,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
                 <li>
                 <MenuItem
                         icon={<Icon icon="ix:customer-filled" width="28" height="28" />}
-                        onClick={Customers}
+                        onClick={()=> navigate('Customers')}
                 >
                         {openSideBar && "Clientes"}
                 </MenuItem>
@@ -78,6 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
                 <li>
                 <MenuItem
                         icon={<Icon icon="mdi:truck-cargo-container" width="28" height="28" />}
+                        onClick={() => navigate('Vehicles')}
                 >
                         {openSideBar && "Vehículos"}
                 </MenuItem>

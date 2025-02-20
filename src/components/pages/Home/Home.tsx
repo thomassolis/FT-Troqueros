@@ -1,34 +1,19 @@
-import { Navbar } from "../../layout/Navbar"
-import { Sidebar } from "../../layout/Sidebar"
-import { useState } from "react"
-import { HomeOptions } from "../../others/HomeOptions"
-import  '../../../styles/index.css'
-import { AuthContext } from "../../../context/auth/authProvider"
-import { useContext } from "react";
-//COMPONENTE PADRE DE HOME
-export const Home = () =>{    
-    const [sidebarState, setSidebarState] = useState<boolean>(false);
+import { HomeOptions } from "../../others/HomeOptions";
+import { useOutletContext } from "react-router-dom";
 
-    const handleSideBarChange = (newState: boolean) =>{
-        setSidebarState(newState);
-    }
 
-  const {userRole}:any = useContext(AuthContext);
-  console.log('userRole desde home:', userRole);
-    return (        
-        <section id="HOME" className={`grid ${sidebarState ? "grid-cols-[15.5%_1fr]" : "grid-cols-[5%_1fr]"} w-full h-screen overflow-y-auto pt-[60px]  `}>
-        <Navbar />
-        
-        {/* Sidebar */}
-        <div className="w-full h-full bg-troquerosGray" >                                
-            <Sidebar onSidebarChange = {handleSideBarChange}/>
-        </div>
-
-        {/* Content */}
-        <div className="bg-troquerosGray shadow-lg text-white">
-            <HomeOptions sidebarState={sidebarState}/>
-        </div>
-        </section>
-
-    )
-}
+// Definir el tipo de contexto esperado
+interface OutletContextType {
+    sidebarState: boolean;
+  }
+  
+  export const Home = () => {
+    // Obtener el estado de sidebar desde el Outlet
+    const { sidebarState } = useOutletContext<OutletContextType>();
+  
+    return (
+      <div>
+        <HomeOptions sidebarState={sidebarState} />
+      </div>
+    );
+  };
