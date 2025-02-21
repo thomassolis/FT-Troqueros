@@ -64,7 +64,7 @@ export const Table = ({ tableData, sidebarState, isLoading }: TableProps) => {
 
   return (
     <div className={`flex min-w-full flex-col items-center w-full relative overflow-x-auto max-sm:ml-6 rounded-b-lg max-h-60 max-md:max-w-[95%] max-sm:max-w-[90%]`}>
-      <table className="text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 w-full">
+      <table className="text-sm  rtl:text-right text-gray-500 dark:text-gray-400 w-full">
         <thead className="text-xs text-gray-700 uppercase dark:bg-white dark:text-gray-400 w-full sticky top-0 shadow-2xl">
           <tr className="w-full">
             {headers.map((key, index) => (

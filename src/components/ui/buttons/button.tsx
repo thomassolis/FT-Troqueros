@@ -8,6 +8,7 @@ interface ButtonProps {
     bgColor?: string,
     hoverBgColor?: string,
     textColor?: string
+    className2?: string | null
 }
 
 export const Button = ({ 
@@ -17,13 +18,14 @@ export const Button = ({
         isSelected,
         bgColor = 'bg-orange-600',
         hoverBgColor = 'bg-troquerosOrange',
-        textColor = 'text-black'
+        textColor = 'text-black',
+        className2
     }: ButtonProps) => {
         return (
             <button 
                 type={type} 
                 className={`
-                    p-3 rounded-md w-full  flex justify-center items-center font-jersey ${textColor}
+                    p-3 rounded-md w-full  flex justify-center items-center font-jersey ${className2} ${textColor}
                     ${isSelected ? `${bgColor}` : `${hoverBgColor} hover:${bgColor}`}
                 `}
                 disabled={isLoading}
