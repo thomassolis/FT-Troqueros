@@ -23,7 +23,7 @@ interface SidebarProps {
 
 export const TableTabs = ({ sidebarState }: SidebarProps) => {
     const [tableData, setTableData] = useState<TableRow[]>([]);
-    const [selectedTab, setSelectedTab] = useState<number>(0); // ✅ Se inicia en el primer tab
+    const [selectedTab, setSelectedTab] = useState<number>(0); 
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -48,7 +48,7 @@ export const TableTabs = ({ sidebarState }: SidebarProps) => {
                 Status: row["Status"] || "",
             }));
     
-            setTableData(formattedData); // ✅ Ahora `setTableData` recibe `TableRow[]`
+            setTableData(formattedData);
         } catch (e) {
             console.error("Error en RequestDataForHomeTable", e);
         }finally{

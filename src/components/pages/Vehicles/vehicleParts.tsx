@@ -1,11 +1,11 @@
 import { PrevisualizationTab } from "../../ui/tabs/Tabs"
 import { Button } from "../../ui/buttons/button"
 import { Icon } from "@iconify/react/dist/iconify.js"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "../../ui/inputs/input"
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useEffect } from "react"
-import { GetDataForPrevisualizationTable } from "../../../api/Home/Vehicles/vehicles.routes"
+import { useNavigate, useLocation } from "react-router-dom"
+
 interface submitData {
     id_chasis: string
 }
@@ -13,47 +13,41 @@ interface submitData {
 export const VehicleParts = () =>{
     const [selectedOption, setSelectedOption] = useState<string>("")
     const vehicleParts: string[] = ["Chasises", "Cabezales", "Furgones"] 
-    const { register, handleSubmit, formState: { errors } } = useForm<submitData>();
+    const { handleSubmit, formState: { errors } } = useForm<submitData>();
     const [searchValue, setSearchValue] = useState<string>("");
-
+    const navigate = useNavigate();
+    const location = useLocation();
     const onSubmit: SubmitHandler<submitData> = (data) => {
         console.log("Datos enviados:", data);
     };
     
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchValue(event.target.value);
-        console.log("Nuevo valor:", event.target.value); 
-    };
-
-
-    useEffect(()=>{        
-        const getData = async() =>{
-            try{
-                const response = await GetDataForPrevisualizationTable({
-                    tabSelected: selectedOption, 
-                    page: 1, 
-                    limit: 10, 
-                    search: searchValue 
-                });
-            }catch(error:any){
-                console.log("Error en getData: ", error);
-            }
-            getData();
-        }
-    }, [searchValue])
- 
-
+        setSearchValue(event.target.value);        
+    };     
 
     return(
         <div>
             <div className="flex w-[full] justify-between items-center mb-10">
                 <div className="w-[30%] flex gap-3 items-center">
-                    <Icon icon="tabler:arrow-back-up-double" className="text-white bg-black rounded-md" width="24" height="24" />
+                    <Icon icon="tabler:arrow-back-up-double" className="text-white bg-black rounded-md cursor-pointer" width="24" height="24" onClick={() => navigate(-1)}/>
                     <p className="text-black font-bebas text-xl">Partes de mula actuales</p>
                 </div>              
 
                 <div className="w-[15%]">
-                    <Button text={`Agregar ${selectedOption}`} bgColor="bg-troquerosOrange" hoverBgColor="bg-[#1B5316]" textColor="white"/>
+                <Button 
+                    text={`Agregar ${selectedOption}`} 
+                    hoverBgColor="bg-[#1B5316]" 
+                    textColor="white" 
+                    onClick={() => {
+                        const newPath = location.pathname.includes(selectedOption) 
+                            ? location.pathname 
+                            : `${location.pathname}/${selectedOption}`;
+
+                        console.log("🚀 Navegando a:", newPath);
+                        navigate(newPath);
+                    }} 
+                />
+
                 </div>              
             </div>            
 
@@ -66,20 +60,32 @@ export const VehicleParts = () =>{
                     <div className="">                   
                             <Input 
                                 type="text" 
-                                placeholder={`Buscar ${selectedOption}`} 
+                                placeholder={`Buscar ${selectedOption} por número de placa`} 
                                 className2={"py-5 rounded-none border border-gray-400"}
-                                {...register("id_chasis", { required: true })} // ✅ Solo deja esto
+                                onChange={handleInputChange}                                
                             />
                         
                     </div>                
 
                     <div className="">
-                        <Button type="submit" text="Buscar" hoverBgColor="bg-gray-200" className2={"py-2 rounded-none border border-gray-400"}/>
+                    <Button 
+                        type="submit" 
+                        text="Buscar" 
+                        hoverBgColor="bg-gray-200" 
+                        className2={"py-2 rounded-none border border-gray-400"}                         
+                    />
+
+
+
                     </div>
                 </form>
             </div>            
             
-            <PrevisualizationTab tabContent = {vehicleParts} onTabChange={setSelectedOption}/>
+            <PrevisualizationTab 
+                tabContent = {vehicleParts} 
+                onTabChange={setSelectedOption}
+                searchValue = {searchValue}
+            />
         </div>
     )
 }

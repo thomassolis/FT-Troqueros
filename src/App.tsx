@@ -6,6 +6,7 @@ import { CurrentCustomers } from "./components/pages/Customers/currentCustomers.
 import { AuthProvider } from "./context/auth/authProvider.tsx";
 import { Layout } from "./components/layout/Layout.tsx";
 import { VehicleParts } from "./components/pages/Vehicles/vehicleParts.tsx";
+import { ChasisCreation } from "./components/pages/Vehicles/Chasis/ChasisCreation.tsx";
 
 function App() {
 
@@ -16,13 +17,14 @@ function App() {
         <Routes>          
           <Route path="/" element={<Login />}/>                
           <Route path="/home" element={<Layout/>}>           
-              <Route index element={<Home />}/>                
-              <Route path="Customers" element={<CurrentCustomers />}/>                      
-              <Route path="Vehicles" element={<VehicleParts />}/>   
-              {/* <Route path="Chasises" element={<VehicleParts />}/>    */}
-          </Route>
-              
+            <Route index element={<Home />}/>                
+            <Route path="Customers" element={<CurrentCustomers />}/>                      
 
+            <Route path="Vehicles">
+              <Route index element={<VehicleParts />}/>
+              <Route path=":selectedOption" element={<ChasisCreation />} />                                                   
+            </Route>
+          </Route>
         </Routes>
       </BrowserRouter>      
     </AuthProvider>
