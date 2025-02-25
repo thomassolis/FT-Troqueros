@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { Input } from "../../ui/inputs/input"
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate, useLocation } from "react-router-dom"
-
+import { Back } from "../../ui/Back/Back"
 interface submitData {
     id_chasis: string
 }
@@ -28,10 +28,7 @@ export const VehicleParts = () =>{
     return(
         <div>
             <div className="flex w-[full] justify-between items-center mb-10">
-                <div className="w-[30%] flex gap-3 items-center">
-                    <Icon icon="tabler:arrow-back-up-double" className="text-white bg-black rounded-md cursor-pointer" width="24" height="24" onClick={() => navigate(-1)}/>
-                    <p className="text-black font-bebas text-xl">Partes de mula actuales</p>
-                </div>              
+                <Back text="PARTES DE MULA ACTUALES"/>           
 
                 <div className="w-[15%]">
                 <Button 

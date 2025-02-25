@@ -1,26 +1,16 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-
-const steps = [
-  'Step#1',
-  'Step#2',
-  'Step#3',
-  'Step#3',
-];
-
+import { StepperLine } from "../../../ui/stepper/Stepper";
+import { useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { Back } from "../../../ui/Back/Back";
 export const  ChasisCreation = () => {
+  const navigate = useNavigate();
+
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={1} alternativeLabel>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-    </Box>
+    <section className="flex flex-col">
+      <Back text="CREACIÓN DE CHASIS"/>
+      <div>
+        <StepperLine/>
+      </div>      
+    </section>    
   );
 }
