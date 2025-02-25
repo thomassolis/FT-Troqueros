@@ -40,9 +40,10 @@ export const Button = ({
             `}
             disabled={isLoading}
             onClick={(event) => {
-                event.preventDefault(); // ✅ Evita que el formulario interfiera
-
-                console.log("🔍 Valor de navegation en el botón:", navegation);
+                if(type !== "submit"){
+                    event.preventDefault();
+                }
+                // event.preventDefault();                
 
                 if (onClick) {
                     onClick(event);
