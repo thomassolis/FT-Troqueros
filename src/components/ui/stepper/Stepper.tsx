@@ -1,26 +1,16 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
+import { StepOne, StepTwo } from "./Steps";
 
-const steps = [
-  'Step#1',
-  'Step#2',
-  'Step#3',
-  'Step#3',
-];
 
-export const  StepperLine = () => {
-  return (
-    <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={0} alternativeLabel>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-    </Box>
-  );
-}
+export const stepConfig: Record<string, string[]> = {
+    Cabezales: ["Datos Generales", "Motor", "Estructura", "Finalización"],
+    Chasises: ["Información Básica", "Revisión Técnica", "Estado Final"],
+    Furgones: ["Paso 1", "Paso 2", "Paso 3", "Paso 4"],
+  };
+  
+  // 📌 Mapeo de los componentes de cada paso
+  export const formSteps: Record<string, any[]> = {
+    Cabezales: [StepOne, StepTwo],
+    Chasis: [StepOne, StepTwo],
+    Furgones: [StepTwo, StepOne],
+  };
+  

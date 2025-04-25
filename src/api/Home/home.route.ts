@@ -21,8 +21,7 @@ interface UpdateRequestStatusParams {
 
 export const SolicitarToken = async (): Promise<void> => {
     try{
-        const response = await axios.post('/home');
-        console.log('response desde SolicitarToken:', response);
+        const response = await axios.post('/home');        
     }catch(e){
         console.log(e);
     }

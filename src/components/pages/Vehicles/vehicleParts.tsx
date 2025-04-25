@@ -1,17 +1,20 @@
 import { PrevisualizationTab } from "../../ui/tabs/Tabs"
 import { Button } from "../../ui/buttons/button"
-import { Icon } from "@iconify/react/dist/iconify.js"
+import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType"
 import { useState, useEffect } from "react"
 import { Input } from "../../ui/inputs/input"
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate, useLocation } from "react-router-dom"
 import { Back } from "../../ui/Back/Back"
+import { useContext } from "react"
+
 interface submitData {
     id_chasis: string
 }
 
 export const VehicleParts = () =>{
-    const [selectedOption, setSelectedOption] = useState<string>("")
+    const { vehicleType, setVehicleType } = useContext(vehicleTypeContext)!;
+    // const [selectedOption, setSelectedOption] = useState<string>("")
     const vehicleParts: string[] = ["Chasises", "Cabezales", "Furgones"] 
     const { handleSubmit, formState: { errors } } = useForm<submitData>();
     const [searchValue, setSearchValue] = useState<string>("");
@@ -20,6 +23,7 @@ export const VehicleParts = () =>{
     const onSubmit: SubmitHandler<submitData> = (data) => {
         console.log("Datos enviados:", data);
     };
+    console.log(vehicleType)
     
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchValue(event.target.value);        
@@ -32,16 +36,14 @@ export const VehicleParts = () =>{
 
                 <div className="w-[15%]">
                 <Button 
-                    text={`Agregar ${selectedOption}`} 
+                    text={`Agregar ${vehicleType}`} 
                     hoverBgColor="bg-[#1B5316]" 
                     textColor="white" 
                     onClick={() => {
-                        const newPath = location.pathname.includes(selectedOption) 
+                        const newPath = location.pathname.includes(vehicleType) 
                             ? location.pathname 
-                            : `${location.pathname}/${selectedOption}`;
-
-                        console.log("🚀 Navegando a:", newPath);
-                        navigate(newPath);
+                            : `${location.pathname}/${vehicleType}`;                        
+                        navigate(`${newPath}/create`);
                     }} 
                 />
 
@@ -57,7 +59,7 @@ export const VehicleParts = () =>{
                     <div className="">                   
                             <Input 
                                 type="text" 
-                                placeholder={`Buscar ${selectedOption} por número de placa`} 
+                                placeholder={`Buscar ${vehicleType} por número de placa`} 
                                 className2={"py-5 rounded-none border border-gray-400"}
                                 onChange={handleInputChange}                                
                             />
@@ -80,7 +82,7 @@ export const VehicleParts = () =>{
             
             <PrevisualizationTab 
                 tabContent = {vehicleParts} 
-                onTabChange={setSelectedOption}
+                onTabChange={setVehicleType}
                 searchValue = {searchValue}
             />
         </div>

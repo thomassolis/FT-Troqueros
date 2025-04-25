@@ -23,8 +23,7 @@ export const AuthProvider = ({children}: any) =>{
     const [userLastName, setUserLastName] = useState<string|any>(null);
     const [banTime, setBanTime] = useState<string|any>(null);
     const [userEmail, setUserEmail] = useState<string|any>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    console.log('userRole desde contexto: ',userRole)
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);    
 
     return(
         <AuthContext.Provider value = {{userRole, setUserRole, userName, setUserName, userLastName, setUserLastName, banTime, setBanTime, userEmail, setUserEmail, isAuthenticated, setIsAuthenticated}}>

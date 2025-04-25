@@ -1,10 +1,11 @@
 import { Navigation } from "lucide-react";
+import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
 
 
 interface ButtonProps {
-    text: string;
+    text?: string | ReactNode;
     type?: "button" | "submit" | "reset";
     isLoading?: boolean;
     isSelected?: boolean;
@@ -48,7 +49,6 @@ export const Button = ({
                 if (onClick) {
                     onClick(event);
                 } else if (navegation && navegation !== "") {
-                    console.log("🚀 Redirigiendo a:", navegation);
                     navigate(navegation);
                 } else {
                     console.warn("⚠ No se ha definido una ruta de navegación");

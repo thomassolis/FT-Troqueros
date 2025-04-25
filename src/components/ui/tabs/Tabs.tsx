@@ -12,6 +12,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, searchValue }: Ta
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<string>(tabContent[0]);
 
+
     const tabHeaders: Record<string, string[]> = {
         "Chasises": ["PLACA", "STATUS", "ACCIONES"],
         "Cabezales": ["PLACA", "STATUS", "ACCIONES"],
@@ -21,6 +22,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, searchValue }: Ta
     // Ejecutar la función del padre cada vez que cambie la opción
     useEffect(() => {
         onTabChange(selectedOption);
+        console.log('selectedOption: ',selectedOption)
     }, [selectedOption, onTabChange]);
 
     return (
