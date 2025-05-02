@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../buttons/button";
-import { StepperLine } from "./StepperLine";
+import { Button } from "../../ui/buttons/button";
+import { StepperLine } from "../../ui/stepper/StepperLine";
 import { StepOne, StepTwo, StepThree } from "./Steps";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { FormValues } from "../../types/VehiclesFormTypes";
+import { FormValues } from "../../types/VehicleForm/VehiclesFormTypes";
 import { useParams } from "react-router-dom";
 import { sendDataForCreation } from "../../../api/Home/Vehicles/vehicles.routes";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
@@ -32,10 +32,8 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
   console.log('currentAction: ',currentAction); 
 
   useEffect(() => {
-    if (vehicleID) {
-      console.log('Fetching vehicle data...');
-      // setIsLoading(true);
-      
+    if (vehicleID) {      
+      setIsLoading(true);    
       const fetchData = async () => {
         try {
           const data = await getVehicleData({ vehicleType, vehicleID });
@@ -44,7 +42,7 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
         } catch (error) {
           console.error('Error fetching vehicle data:', error);
         } finally {
-          // setIsLoading(false);
+          setIsLoading(false);
         }
       };
   
@@ -66,17 +64,19 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
   // Definir los campos para cada paso según la opción seleccionada
   const stepFields = {
     Cabezales: [
-      ["campoStep1_1", "campoStep1_2"], // Campos del paso 1 para Cabezales
-      ["campoStep2_1", "campoStep2_2"]  // Campos del paso 2 para Cabezales
+      ["deliveryDate", "campoStep1_2"], // Campos del paso 1 para Cabezales
+      ["campoStep2_1", "campoStep2_2"],  // Campos del paso 2 para Cabezales
+      ["campoStep4_1", "campoStep4_2"]  // Campos del paso 3 para Chasises
     ],
     Chasises: [
-      ["campoStep1_1", "campoStep1_2"], // Campos del paso 1 para Chasises
+      ["deliveryDate", "campoStep1_2"], // Campos del paso 1 para Chasises
       ["campoStep2_1", "campoStep2_2"], // Campos del paso 2 para Chasises
       ["campoStep3_1", "campoStep3_2"]  // Campos del paso 3 para Chasises
     ],
     Furgones: [
-      ["campoStep2_1", "campoStep2_2"], // Campos del paso 1 para Furgones (empieza en StepTwo)
-      ["campoStep1_1", "campoStep1_2"]  // Campos del paso 2 para Furgones
+      ["deliveryDate", "campoStep2_2"], // Campos del paso 1 para Furgones (empieza en StepTwo)
+      ["campoStep1_1", "campoStep1_2"],  // Campos del paso 2 para Furgones
+      ["campoStep3_1", "campoStep3_2"],  // Campos del paso 3 para Chasises
     ]
   };
 
@@ -103,7 +103,7 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
 
   // Enviar el formulario
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
+    // setIsLoading(true);
 
     if(currentAction === 'create'){
       const response = await sendDataForCreation({data, vehicleType});
@@ -148,7 +148,7 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
             />
           )}
           
-          {activeStep === 2 && selectedOption === "Chasises" && (
+          {activeStep === 2 &&(
             <StepThree 
               register={register} 
               errors={errors}

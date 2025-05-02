@@ -8,31 +8,43 @@ import { Layout } from "./components/layout/Layout.tsx";
 import { VehicleParts } from "./components/pages/Vehicles/vehicleParts.tsx";
 import { ChasisCreation } from "./components/pages/Vehicles/Chasis/ChasisCreation.tsx";
 import { VehicleTypeProvider } from "./context/vehicleType/vehicleType.tsx";
-
+import { SeeChasis } from "./components/pages/Vehicles/SeeInformation/SeeChasisInfo.tsx";
+import { SearchValueProvider } from "./context/searchValueForFilter/searchValue.tsx";
+import { NotFoundPage } from "./components/pages/NotFound/NotFoundPage.tsx";
 function App() {
 
   return (
     <AuthProvider>
       <VehicleTypeProvider>
-        <BrowserRouter>
-          <div> <Toaster position="top-center" reverseOrder={false} /> </div>        
-          <Routes>          
-            <Route path="/" element={<Login />}/>                
-            <Route path="/home" element={<Layout/>}>           
-              <Route index element={<Home />}/>                
-              <Route path="Customers" element={<CurrentCustomers />}/>                      
+        <SearchValueProvider>
+          <BrowserRouter>
+            <div> <Toaster position="top-center" reverseOrder={false} /> </div>        
+            <Routes>          
+              <Route path="/" element={<Login />}/>                
+              <Route path="/home" element={<Layout/>}>           
+                <Route index element={<Home />}/>                
 
-              <Route path="Vehicles">
-                <Route index element={<VehicleParts />}/>
-                <Route path=":selectedOption/create" element={<ChasisCreation />} /> 
+                <Route path="Customers" >
+                  <Route index element={<CurrentCustomers />}/>
+                  <Route path="create" element={<ChasisCreation />} /> 
+                  <Route path=":ruc/see" element={<SeeChasis />} /> 
+                  <Route path=":ruc/modify" element={<ChasisCreation />} /> 
+                </Route>
 
-                <Route path=":vehicleType/:vehicleID/modify" element={<ChasisCreation />} /> 
+                <Route path="Vehicles">
+                  <Route index element={<VehicleParts />}/>
+                  <Route path=":selectedOption/create" element={<ChasisCreation />} /> 
 
-                <Route path=":vehicleType/:vehicleID/see" element={<ChasisCreation />} /> 
+                  <Route path=":vehicleType/:vehicleID/modify" element={<ChasisCreation />} /> 
+
+                  <Route path=":vehicleType/:vehicleID/see" element={<SeeChasis />} /> 
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </BrowserRouter>      
+
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </BrowserRouter>      
+        </SearchValueProvider>
       </VehicleTypeProvider>
       
     </AuthProvider>

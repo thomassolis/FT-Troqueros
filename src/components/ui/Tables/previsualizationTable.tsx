@@ -8,14 +8,18 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
 import { changeVehicleValue } from "../../../functions/changeVehicleType/changeVehicleType";
+import Swal from 'sweetalert2'
+import { sendDataForDelete } from "../../../api/Home/Vehicles/vehicles.routes";
+import { useLocation } from "react-router-dom";
+import { GetDataForPrevisualizationTableCustomers } from "../../../api/Home/Customers/customers.route";
+import { searchValueContext } from "../../../context/searchValueForFilter/searchValue";
 
 interface PrevisualizationTableProps {
     headerTable: string[];
-    tabSelected: string;
-    searchValue: string;
+    tabSelected?: string;    
 }
 interface GetDataForPrevisualizationTableProps {
-    tabSelected: string;
+    tabSelected: string | undefined;
     page: number;
     limit: number;
     search?: string    
@@ -25,7 +29,7 @@ interface TableData {
     [key: string]: any;
 }
 
-export const PrevisualizationTable = ({ headerTable, tabSelected, searchValue }: PrevisualizationTableProps) => {
+export const PrevisualizationTable = ({ headerTable, tabSelected }: PrevisualizationTableProps) => {
     const [tableData, setTableData] = useState<TableData[]>([]);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
@@ -33,32 +37,56 @@ export const PrevisualizationTable = ({ headerTable, tabSelected, searchValue }:
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate()
     const {vehicleType} = useContext(vehicleTypeContext)!;
+    const {searchValue} = useContext(searchValueContext)!;
 
-
-    const vehicle = changeVehicleValue(vehicleType)
+      const location = useLocation();
+      const pathSegments = location.pathname.split('/');
+      const currentAction = pathSegments[pathSegments.length - 1];              
+    
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
     useEffect(() => {       
         const GetDataForTable = async () => {
             try {
                 setIsLoading(true);
-                const response = await GetDataForPrevisualizationTable({
-                    tabSelected,
-                    page: currentPage, 
-                    limit: pageSize,
-                    search: searchValue
-                });                
+                if(currentAction === 'Vehicles'){
+                    const response = await GetDataForPrevisualizationTable({
+                        tabSelected,
+                        page: currentPage, 
+                        limit: pageSize,
+                        search: searchValue
+                    });                
+        
+                    if (!response) {
+                        console.error("Error: La API no devolvió datos válidos.");
+                        return;
+                    }                
+        
     
-                if (!response) {
-                    console.error("Error: La API no devolvió datos válidos.");
-                    return;
-                }                
+                    //Cambiar a vehiculos
+                    setTableData(response.vehiculos.data || []);                
+                    setTotalRecords(response.vehiculos.totalRegistros);
+                    setPageSize(response.vehiculos.limite);                
+                }else if (currentAction === 'Customers'){
+                    const response = await GetDataForPrevisualizationTableCustomers({
+                        page: currentPage, 
+                        limit: pageSize,
+                        search: searchValue
+                    });                
+        
+                    if (!response) {
+                        console.error("Error: La API no devolvió datos válidos.");
+                        return;
+                    }                
+        
     
-
-                //Cambiar a vehiculos
-                setTableData(response.vehiculos.data || []);                
-                setTotalRecords(response.vehiculos.totalRegistros);
-                setPageSize(response.vehiculos.limite);                
+                    //Cambiar a vehiculos
+                    setTableData(response.customers.data || []);                
+                    setTotalRecords(response.customers.totalRegistros);
+                    setPageSize(response.customers.limite);                
+                }   
+                
+                
             } catch (e) {
                 console.error("Error en GetDataForPrevisualizationTable: ", e);
             }finally{
@@ -76,6 +104,62 @@ export const PrevisualizationTable = ({ headerTable, tabSelected, searchValue }:
     const handlePageClick = (selectedPage: number) => {        
         setCurrentPage(selectedPage);
     };    
+    const deleteValue = async({id, vehicleType}:any) =>{
+        try{
+            const response = await sendDataForDelete({id, vehicleType});            
+            return response;
+        }catch(error){
+            console.log('Error en deleteValue: ',error)
+        }
+    }
+
+    const deleteRow = async (id: string, vehicleType: string | null | undefined, placa: string) => {
+        const vehicle = changeVehicleValue(vehicleType);
+    
+        try {
+            Swal.fire({
+                title: `¿Seguro que deseas eliminar el ${vehicle} ${placa}?`,
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: "Cancelar",
+                denyButtonText: `Eliminar`
+            }).then(async (result) => {
+                if (result.isDenied) {
+                    const response = await deleteValue({ id, vehicleType });
+                    
+                    if (response.success) {
+                        // Eliminar el elemento del estado tableData
+                        setTableData(prevData => 
+                            prevData.filter(item => 
+                                (vehicleType === 'Chasises' && item.id_chasis !== id) ||
+                                (vehicleType === 'Furgones' && item.id_furgon !== id) ||
+                                (vehicleType === 'Cabezales' && item.id_cabezal !== id)
+                            )
+                        );
+                        
+                        Swal.fire({
+                            title: 'Eliminado!',
+                            text: response.message,
+                            icon: 'success'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.message || `Error al eliminar ${vehicle}`,
+                            icon: 'error'
+                        });
+                    }
+                }
+            });
+        } catch (error) {
+            console.log('Error en deleteRow', error);
+            Swal.fire({
+                title: 'Error!',
+                text: `Error al eliminar ${vehicle}`,
+                icon: 'error'
+            });
+        }
+    };
 
     return (
         <>
@@ -94,7 +178,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected, searchValue }:
                             tableData.map((item, index) => (
                                 <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center">
                                     {Object.entries(item)
-                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal")
+                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "ruc")
                                         .map(([key, value], idx) => (
                                             <td key={idx} className="px-6 py-4 whitespace-nowrap text-black">
                                                 {headerTable[idx] === "STATUS" ? (
@@ -111,13 +195,16 @@ export const PrevisualizationTable = ({ headerTable, tabSelected, searchValue }:
                                                 width="24" 
                                                 height="24" 
                                                 className="cursor-pointer"
-                                                onClick={() => navigate(
-                                                    `/home/Vehicles/${vehicleType}/${
-                                                    vehicleType === 'Chasises' ? item.id_chasis :
-                                                    vehicleType === 'Furgones' ? item.id_furgon :
-                                                    vehicleType === 'Cabezales' && item.id_cabezal 
-                                                    }/see`
-                                                )}
+                                                onClick={() => {
+                                                    if (currentAction === 'Vehicles') {
+                                                      const id = vehicleType === 'Chasises' ? item.id_chasis :
+                                                                 vehicleType === 'Furgones' ? item.id_furgon :
+                                                                 vehicleType === 'Cabezales' ? item.id_cabezal : '';
+                                                      navigate(`/home/Vehicles/${vehicleType}/${id}/see`);
+                                                    } else {
+                                                      navigate(`/home/Customers/${item.ruc}/see`);
+                                                    }
+                                                  }}
                                             />    
                                         </td>                                                                        
                                         <td className="py-4 whitespace-nowrap text-blue-800">
@@ -126,17 +213,37 @@ export const PrevisualizationTable = ({ headerTable, tabSelected, searchValue }:
                                             width="24" 
                                             height="24" 
                                             className="cursor-pointer" 
-                                            onClick={() => navigate(
-                                                `/home/Vehicles/${vehicleType}/${
-                                                vehicleType === 'Chasises' ? item.id_chasis :
-                                                vehicleType === 'Furgones' ? item.id_furgon :
-                                                vehicleType === 'Cabezales' && item.id_cabezal 
-                                                }/modify`
-                                            )}
+                                            onClick={() => {
+                                                if(currentAction === 'Vehicles'){                                                    
+                                                    const vehicleID = vehicleType === 'Chasises' ? item.id_chasis :
+                                                    vehicleType === 'Furgones' ? item.id_furgon :
+                                                    vehicleType === 'Cabezales' && item.id_cabezal 
+                                                    navigate(`/home/Vehicles/${vehicleType}/${vehicleID}/modify`)
+                                                }else{
+                                                    navigate(`/home/Customers/${item.ruc}/modify`)
+                                                }                                                
+                                            }}
                                             />
                                         </td>                                                                        
                                         <td className="py-4 whitespace-nowrap text-red-700">
-                                            <Icon icon="material-symbols:delete" width="24" height="24" className="cursor-pointer"/>    
+                                            <Icon 
+                                                icon="material-symbols:delete" 
+                                                width="24" 
+                                                height="24" 
+                                                className="cursor-pointer" 
+                                                onClick={()=>
+                                                    deleteRow(
+                                                    vehicleType==='Chasises'?(
+                                                        item.id_chasis
+                                                    ): vehicleType==='Furgones'?(
+                                                        item.id_furgon
+                                                    ):(
+                                                        item.id_cabezal
+                                                    )
+                                                    ,vehicleType, item.placa
+                                                )
+                                                }
+                                            />    
                                         </td>                                                                        
                                     </div>                                    
                                 </tr>

@@ -1,16 +1,19 @@
-import { StepOne, StepTwo } from "./Steps";
-
+import { StepOne, StepThree, StepTwo } from "../../forms/VehiclesForm/Steps";
 
 export const stepConfig: Record<string, string[]> = {
-    Cabezales: ["Datos Generales", "Motor", "Estructura", "Finalización"],
-    Chasises: ["Información Básica", "Revisión Técnica", "Estado Final"],
-    Furgones: ["Paso 1", "Paso 2", "Paso 3", "Paso 4"],
+    Cabezales: ["Datos Generales", "Información Básica", "Documentos"],
+    Chasises: ["Datos Generales", "Información Básica", "Documentos"],
+    Furgones: ["Datos Generales", "Información Básica", "Documentos"],
   };
+
+  export const stepConfigCustomers: Record<string, string[]> = {
+    Customers: ['one', 'two', 'three', 'four']
+  }
   
   // 📌 Mapeo de los componentes de cada paso
   export const formSteps: Record<string, any[]> = {
-    Cabezales: [StepOne, StepTwo],
-    Chasis: [StepOne, StepTwo],
-    Furgones: [StepTwo, StepOne],
+    Cabezales: [StepOne, StepTwo, StepThree],
+    Chasis: [StepOne, StepTwo, StepThree],
+    Furgones: [StepOne, StepTwo, StepThree],
   };
   

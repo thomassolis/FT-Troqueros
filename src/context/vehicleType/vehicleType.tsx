@@ -1,7 +1,7 @@
 import { createContext, useState, Dispatch, SetStateAction } from "react";
 
 interface contextVehicleType {
-    vehicleType?: string | null
+    vehicleType: 'Cabezales' | 'Chasises' | 'Furgones'
     setVehicleType?: Dispatch<SetStateAction<string | null>>;
 }
 

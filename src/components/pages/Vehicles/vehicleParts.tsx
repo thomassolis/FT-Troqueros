@@ -7,27 +7,18 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate, useLocation } from "react-router-dom"
 import { Back } from "../../ui/Back/Back"
 import { useContext } from "react"
+import { FilterSearch } from "../../ui/FilterSearch/FilterSearch"
 
-interface submitData {
-    id_chasis: string
-}
 
 export const VehicleParts = () =>{
     const { vehicleType, setVehicleType } = useContext(vehicleTypeContext)!;
     // const [selectedOption, setSelectedOption] = useState<string>("")
     const vehicleParts: string[] = ["Chasises", "Cabezales", "Furgones"] 
-    const { handleSubmit, formState: { errors } } = useForm<submitData>();
-    const [searchValue, setSearchValue] = useState<string>("");
     const navigate = useNavigate();
     const location = useLocation();
-    const onSubmit: SubmitHandler<submitData> = (data) => {
-        console.log("Datos enviados:", data);
-    };
     console.log(vehicleType)
     
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchValue(event.target.value);        
-    };     
+  
 
     return(
         <div>
@@ -38,6 +29,7 @@ export const VehicleParts = () =>{
                 <Button 
                     text={`Agregar ${vehicleType}`} 
                     hoverBgColor="bg-[#1B5316]" 
+                    bgColor='bg-red-400'
                     textColor="white" 
                     onClick={() => {
                         const newPath = location.pathname.includes(vehicleType) 
@@ -51,39 +43,12 @@ export const VehicleParts = () =>{
             </div>            
 
             <div className="flex w-full items-center justify-center mb-5">
-
-                <div className="flex w-[8%]  items-center justify-center py-2 border border-gray-400 bg-white">
-                    <h1 className="text-black">Placa</h1>
-                </div>
-                <form onSubmit={handleSubmit(onSubmit)} className="flex">
-                    <div className="">                   
-                            <Input 
-                                type="text" 
-                                placeholder={`Buscar ${vehicleType} por número de placa`} 
-                                className2={"py-5 rounded-none border border-gray-400"}
-                                onChange={handleInputChange}                                
-                            />
-                        
-                    </div>                
-
-                    <div className="">
-                    <Button 
-                        type="submit" 
-                        text="Buscar" 
-                        hoverBgColor="bg-gray-200" 
-                        className2={"py-2 rounded-none border border-gray-400"}                         
-                    />
-
-
-
-                    </div>
-                </form>
+                <FilterSearch vehicleType = {vehicleType}/>
             </div>            
             
             <PrevisualizationTab 
                 tabContent = {vehicleParts} 
-                onTabChange={setVehicleType}
-                searchValue = {searchValue}
+                onTabChange={setVehicleType}                
             />
         </div>
     )

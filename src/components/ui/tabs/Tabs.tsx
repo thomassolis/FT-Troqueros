@@ -4,11 +4,10 @@ import { PrevisualizationTable } from "../Tables/previsualizationTable";
 
 interface TabsProps {
     tabContent: string[];
-    onTabChange: (selectedOption: string) => void; // Prop para enviar la opción al padre
-    searchValue: string;
+    onTabChange: (selectedOption: string) => void; // Prop para enviar la opción al padre    
 }
 
-export const PrevisualizationTab = ({ tabContent, onTabChange, searchValue }: TabsProps) => {
+export const PrevisualizationTab = ({ tabContent, onTabChange }: TabsProps) => {
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<string>(tabContent[0]);
 
@@ -52,8 +51,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, searchValue }: Ta
                     {tabHeaders[opt] ? (
                         <PrevisualizationTable 
                             headerTable={tabHeaders[opt]} 
-                            tabSelected={opt} 
-                            searchValue = {searchValue}
+                            tabSelected={opt}                             
                         />
                     ) : (
                         <p className="text-gray-500">No hay datos disponibles para esta categoría.</p>

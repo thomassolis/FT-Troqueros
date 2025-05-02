@@ -27,11 +27,11 @@ import {
     watch?: UseFormWatch<FormValues>;
     nextStep?: () => void;
     prevStep?: () => void;
+    setPdfFile? :[]
     vehicleData: {
-      placa: string    
+      placa?: string    
     }
 
-    // --
     vehicleType: 'Cabezales' | 'Chasises' | 'Furgones'
   }
 

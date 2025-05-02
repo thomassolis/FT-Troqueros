@@ -71,6 +71,7 @@ export const Login = () => {
                                 type={option === 'Password' ? 'password' : 'email'}
                                 placeholder=""
                                 {...register(option, { required: true })}
+                                className2={'py-4'}
                             />
                             {errors[option] && (
                                 <span className="text-red-500 text-sm">This field is required</span>

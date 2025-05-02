@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import axios from "../../axios.ts";
 import { toast } from 'react-hot-toast';
-import { FormValues } from "../../../components/types/VehiclesFormTypes.tsx";
+import { FormValues } from "../../../components/types/VehicleForm/VehiclesFormTypes.tsx";
 import { changeVehicleValue } from "../../../functions/changeVehicleType/changeVehicleType.ts";
 interface GetDataForPrevisualizationTableProps {
     tabSelected: string;
@@ -12,6 +12,7 @@ interface GetDataForPrevisualizationTableProps {
 
 //Tabla que mostrará los chasises, furgones y cabezales que hay en el sistema
 export const GetDataForPrevisualizationTable = async({tabSelected, page, limit, search}: GetDataForPrevisualizationTableProps) => {        
+    console.log('search: ',search)
     try{           
         const response = await axios.get(`/${tabSelected}`, {
             params:{
@@ -100,5 +101,20 @@ export const sendDataForUpdate = async({data, vehicleType, vehicleID}:any) =>{
     }catch(error:any){
         console.log('error en sendDataForUpdate', sendDataForUpdate);
         toast.error(error.response.data.message)
+    }
+}
+
+interface sendDataForDeleteProps{
+    id:string
+    vehicleType:string
+}
+export const sendDataForDelete = async({id, vehicleType}:sendDataForDeleteProps)=>{
+    try{
+        const response = await axios.delete(`/${vehicleType}/delete/${id}`);
+        console.log('responseee:',response)
+
+        return response.data
+    }catch(error){
+        console.log(error);
     }
 }

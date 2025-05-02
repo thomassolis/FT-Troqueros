@@ -4,11 +4,8 @@ import { Document, Page } from 'react-pdf';
 import * as pdfjs from 'pdfjs-dist';
 
 // Configura el worker con la versión local
-try {
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-  } catch (e) {
-    pdfjs.GlobalWorkerOptions.workerSrc = require('pdfjs-dist/build/pdf.worker.min.js');
-  }
+
 
 export const InsertFiles = () => {
     const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -126,7 +123,7 @@ export const InsertFiles = () => {
                             
                             <div className="border border-gray-200 rounded-md overflow-hidden">
                                 <Document
-                                    file={pdfFile}
+                                    file={URL.createObjectURL(pdfFile)}
                                     onLoadSuccess={onDocumentLoadSuccess}
                                     loading={<div className="py-20 text-center text-gray-500">Cargando PDF...</div>}
                                     error={<div className="py-20 text-center text-red-500">Error al cargar el PDF</div>}

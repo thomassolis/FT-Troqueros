@@ -7,8 +7,7 @@ interface PaginacionProps {
 }
 
 export const Paginacion = ({ totalRecords, pageSize, handlePageClick }: PaginacionProps) => {
-    const pageCount = Math.ceil(totalRecords / pageSize);
-
+    const pageCount = Math.ceil(totalRecords / pageSize);   
     return (
         <div className="flex justify-center mt-4">
             <ReactPaginate
