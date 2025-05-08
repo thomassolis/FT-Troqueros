@@ -1,27 +1,27 @@
 interface VehicleData {
-    fecha_caducidad_poliza: string | null;
-    fecha_expedicion_poliza: string | null;
-    fecha_renovacion_revisado: string | null;
-    fecha_ultimo_revisado: string | null;
-    foto_poliza: string | null | null;
-    foto_revisado: string | null | null;
-    id_chasis: string | null;
-    numero_poliza: string | null;
-    placa: string | null;
-    status: string | null;
+    fecha_caducidad_poliza?: string | null;
+    fecha_expedicion_poliza?: string | null;
+    fecha_renovacion_revisado?: string | null;
+    fecha_ultimo_revisado?: string | null;
+    foto_poliza?: string | null | null;
+    foto_revisado?: string | null | null;
+    id_chasis?: string | null;
+    numero_poliza?: string | null;
+    placa?: string | null;
+    status?: string | null;
   }
   
   interface PolicyData {    
-    placa : string | null;
-    status: string | null;    
+    placa? : string | null;
+    status?: string | null;    
   }
   
   interface InspectionData {
-    fecha_ultimo_revisado: string | null;
-    fecha_renovacion_revisado: string | null;
-    poliza: string | null;
-    fecha_expedicion_poliza: string | null;
-    fecha_caducidad_poliza: string | null;
+    fecha_ultimo_revisado?: string | null;
+    fecha_renovacion_revisado?: string | null;
+    poliza?: string | null;
+    fecha_expedicion_poliza?: string | null;
+    fecha_caducidad_poliza?: string | null | undefined;
   }
   
   function splitVehicleData(data: VehicleData): { policy: PolicyData; inspection: InspectionData } {

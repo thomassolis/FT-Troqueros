@@ -27,8 +27,8 @@ function App() {
                 <Route path="Customers" >
                   <Route index element={<CurrentCustomers />}/>
                   <Route path="create" element={<ChasisCreation />} /> 
-                  <Route path=":ruc/see" element={<SeeChasis />} /> 
-                  <Route path=":ruc/modify" element={<ChasisCreation />} /> 
+                  <Route path=":clienteID/see" element={<SeeChasis />} /> 
+                  <Route path=":clienteID/modify" element={<ChasisCreation />} /> 
                 </Route>
 
                 <Route path="Vehicles">

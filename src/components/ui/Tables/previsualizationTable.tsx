@@ -13,6 +13,7 @@ import { sendDataForDelete } from "../../../api/Home/Vehicles/vehicles.routes";
 import { useLocation } from "react-router-dom";
 import { GetDataForPrevisualizationTableCustomers } from "../../../api/Home/Customers/customers.route";
 import { searchValueContext } from "../../../context/searchValueForFilter/searchValue";
+import { DeleteRow } from "../../pages/Vehicles/deleteValue/DeleteValue";
 
 interface PrevisualizationTableProps {
     headerTable: string[];
@@ -35,13 +36,20 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const [pageSize, setPageSize] = useState<number>(10);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    // const [module, setModule] = useState<string>('')
+
     const navigate = useNavigate()
     const {vehicleType} = useContext(vehicleTypeContext)!;
     const {searchValue} = useContext(searchValueContext)!;
-
-      const location = useLocation();
-      const pathSegments = location.pathname.split('/');
-      const currentAction = pathSegments[pathSegments.length - 1];              
+    const location = useLocation();
+    const pathSegments = location.pathname.split('/');
+    const module = pathSegments[pathSegments.length - 1];
+    //   useEffect(() => {
+    //     const pathSegments = location.pathname.split('/');
+    //     setModule(pathSegments[pathSegments.length - 1]);
+    //     console.log('module: ', module)        
+    //   }, [location.pathname]);
+               
     
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
@@ -49,29 +57,33 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
         const GetDataForTable = async () => {
             try {
                 setIsLoading(true);
-                if(currentAction === 'Vehicles'){
+                if(module === 'Vehicles'){
+                    console.log('Vehicles')
                     const response = await GetDataForPrevisualizationTable({
-                        tabSelected,
+                        tabSelected: tabSelected ?? '',
                         page: currentPage, 
                         limit: pageSize,
-                        search: searchValue
+                        search: searchValue ?? ''
                     });                
+                    console.log('response',response);
         
                     if (!response) {
+                        alert("ja!")
                         console.error("Error: La API no devolvió datos válidos.");
                         return;
                     }                
         
     
                     //Cambiar a vehiculos
-                    setTableData(response.vehiculos.data || []);                
+                    setTableData(response.vehiculos.data || []);             
                     setTotalRecords(response.vehiculos.totalRegistros);
                     setPageSize(response.vehiculos.limite);                
-                }else if (currentAction === 'Customers'){
+                }
+                else if (module === 'Customers'){
                     const response = await GetDataForPrevisualizationTableCustomers({
                         page: currentPage, 
                         limit: pageSize,
-                        search: searchValue
+                        search: searchValue ?? ''
                     });                
         
                     if (!response) {
@@ -104,61 +116,20 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const handlePageClick = (selectedPage: number) => {        
         setCurrentPage(selectedPage);
     };    
-    const deleteValue = async({id, vehicleType}:any) =>{
-        try{
-            const response = await sendDataForDelete({id, vehicleType});            
-            return response;
-        }catch(error){
-            console.log('Error en deleteValue: ',error)
-        }
-    }
+    // const deleteValue = async({id, vehicleType}:any) =>{
+    //     try{
+    //         const response = await sendDataForDelete({id, vehicleType});            
+    //         return response;
+    //     }catch(error){
+    //         console.log('Error en deleteValue: ',error)
+    //     }
+    // }
 
-    const deleteRow = async (id: string, vehicleType: string | null | undefined, placa: string) => {
+    const deleteRow = async (id: string, nombre: string, vehicleType?: string | undefined) => {
         const vehicle = changeVehicleValue(vehicleType);
     
-        try {
-            Swal.fire({
-                title: `¿Seguro que deseas eliminar el ${vehicle} ${placa}?`,
-                showDenyButton: true,
-                showCancelButton: false,
-                confirmButtonText: "Cancelar",
-                denyButtonText: `Eliminar`
-            }).then(async (result) => {
-                if (result.isDenied) {
-                    const response = await deleteValue({ id, vehicleType });
-                    
-                    if (response.success) {
-                        // Eliminar el elemento del estado tableData
-                        setTableData(prevData => 
-                            prevData.filter(item => 
-                                (vehicleType === 'Chasises' && item.id_chasis !== id) ||
-                                (vehicleType === 'Furgones' && item.id_furgon !== id) ||
-                                (vehicleType === 'Cabezales' && item.id_cabezal !== id)
-                            )
-                        );
-                        
-                        Swal.fire({
-                            title: 'Eliminado!',
-                            text: response.message,
-                            icon: 'success'
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: response.message || `Error al eliminar ${vehicle}`,
-                            icon: 'error'
-                        });
-                    }
-                }
-            });
-        } catch (error) {
-            console.log('Error en deleteRow', error);
-            Swal.fire({
-                title: 'Error!',
-                text: `Error al eliminar ${vehicle}`,
-                icon: 'error'
-            });
-        }
+        //Función que mostrará la opción de eliminar dentro de la UI usando un modal
+        DeleteRow({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module:module, tableData});
     };
 
     return (
@@ -178,11 +149,11 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                             tableData.map((item, index) => (
                                 <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center">
                                     {Object.entries(item)
-                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "ruc")
+                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente")
                                         .map(([key, value], idx) => (
                                             <td key={idx} className="px-6 py-4 whitespace-nowrap text-black">
                                                 {headerTable[idx] === "STATUS" ? (
-                                                    <Select statusOptions={statusOptions}/>
+                                                    <Select statusOptions={statusOptions} apiRequest = {true} id = {item.id_chasis} defaultValue = {item.status} tableData = {tableData}/>
                                                 ) : value} 
                                             </td>
                                         ))
@@ -196,13 +167,13 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                 height="24" 
                                                 className="cursor-pointer"
                                                 onClick={() => {
-                                                    if (currentAction === 'Vehicles') {
+                                                    if (module === 'Vehicles') {
                                                       const id = vehicleType === 'Chasises' ? item.id_chasis :
                                                                  vehicleType === 'Furgones' ? item.id_furgon :
                                                                  vehicleType === 'Cabezales' ? item.id_cabezal : '';
                                                       navigate(`/home/Vehicles/${vehicleType}/${id}/see`);
                                                     } else {
-                                                      navigate(`/home/Customers/${item.ruc}/see`);
+                                                      navigate(`/home/Customers/${item.id_cliente}/see`);
                                                     }
                                                   }}
                                             />    
@@ -214,13 +185,13 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                             height="24" 
                                             className="cursor-pointer" 
                                             onClick={() => {
-                                                if(currentAction === 'Vehicles'){                                                    
+                                                if(module === 'Vehicles'){                                                    
                                                     const vehicleID = vehicleType === 'Chasises' ? item.id_chasis :
                                                     vehicleType === 'Furgones' ? item.id_furgon :
                                                     vehicleType === 'Cabezales' && item.id_cabezal 
                                                     navigate(`/home/Vehicles/${vehicleType}/${vehicleID}/modify`)
                                                 }else{
-                                                    navigate(`/home/Customers/${item.ruc}/modify`)
+                                                    navigate(`/home/Customers/${item.id_cliente}/modify`)
                                                 }                                                
                                             }}
                                             />
@@ -232,16 +203,21 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                 height="24" 
                                                 className="cursor-pointer" 
                                                 onClick={()=>
-                                                    deleteRow(
-                                                    vehicleType==='Chasises'?(
-                                                        item.id_chasis
-                                                    ): vehicleType==='Furgones'?(
-                                                        item.id_furgon
+                                                    {module === 'Vehicles' ? (
+                                                        deleteRow(
+                                                            vehicleType==='Chasises'?(
+                                                                item.id_chasis
+                                                            ): vehicleType==='Furgones'?(
+                                                                item.id_furgon
+                                                            ):(
+                                                                item.id_cabezal
+                                                            )
+                                                            ,item.placa, vehicleType
+                                                        )   
                                                     ):(
-                                                        item.id_cabezal
-                                                    )
-                                                    ,vehicleType, item.placa
-                                                )
+                                                        deleteRow(item.id_cliente, item.nombre)   
+                                                    )                                                        
+                                                    }
                                                 }
                                             />    
                                         </td>                                                                        

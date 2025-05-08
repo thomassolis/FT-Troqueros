@@ -1,21 +1,49 @@
 import { SmallLabel } from "../../../ui/Labels/smallLabel";
-import splitVehicleData from "../../../../functions/splitVehicleData/splitVehicleData";
+import splitVehicleData from "../../../../functions/cleanData/splitVehicleData/splitVehicleData";
+import { SplitCustomerData } from "../../../../functions/cleanData/splitCustomerData/splitCustomerData";
+
+interface VehicleData {
+  fecha_caducidad_poliza?: string | null;
+  fecha_expedicion_poliza?: string | null;
+  fecha_renovacion_revisado?: string | null;
+  fecha_ultimo_revisado?: string | null;
+  foto_poliza?: string | null;
+  foto_revisado?: string | null;
+  id_chasis?: string | null;
+  numero_poliza?: string | null;
+  placa?: string | null;
+  status?: string | null;
+}
+
+interface CustomerData {
+  id_cliente: string;
+  nombre: string;
+  ruc: string;
+  direccion: string;
+  nombrePersonaContacto: string;
+  telPersonaContacto: string;
+  emailPersonaContacto: string;
+  nombrePersonaFinanciera: string;
+  telContactoFinanciero: string;
+  emailContactoFinanciero: string;
+  fechaUltimoPedido: string;
+}
+
+type SeeVehicleInformationData = VehicleData | CustomerData;
 
 interface SeeVehicleInformationProps{
-    titles: [string, string]
-    vehicleData: {
-        fecha_caducidad_poliza: string | null;
-        fecha_expedicion_poliza: string | null;
-        fecha_renovacion_revisado: string | null ;
-        fecha_ultimo_revisado: string | null ;
-        foto_poliza: string | null;
-        foto_revisado: string | null;
-        id_chasis: string | null;
-        numero_poliza: string | null;
-        placa: string | null;
-        status: string | null;
-    }
+    titles: string[]
+    module: string;
+    vehicleData: SeeVehicleInformationData;
 }
+
+const isVehicleData = (data: any): data is VehicleData => {
+  return 'placa' in data || 'numero_poliza' in data;
+};
+
+const isCustomerData = (data: any): data is CustomerData => {
+  return 'id_cliente' in data || 'nombrePersonaContacto' in data;
+};
 
 // Función para formatear las claves del objeto a un formato más legible
 const formatKey = (key:any) => {
@@ -27,10 +55,21 @@ const formatKey = (key:any) => {
 
 
 
-  export const SeeVehicleInformation = ({ titles, vehicleData }: SeeVehicleInformationProps) => {
-    const { policy, inspection } = splitVehicleData(vehicleData); // <-- ¿Debería ser "policy"?
-  
-    const datasets = [policy, inspection];
+  export const SeeVehicleInformation = ({ titles, vehicleData, module }: SeeVehicleInformationProps) => {
+    console.log('vehicleData', vehicleData);
+    let datasets: any[] = [];
+
+    if (['Chasises', 'Furgones', 'Cabezales'].includes(module) && isVehicleData(vehicleData)) {
+      const { policy, inspection } = splitVehicleData(vehicleData);    
+      datasets = [policy, inspection];
+    } else if (module === 'Customers' && isCustomerData(vehicleData)) {
+      try {
+        const { generalData, contactPerson, businessContact } = SplitCustomerData(vehicleData);
+        datasets = [generalData, contactPerson, businessContact];
+      } catch (error) {
+        console.error("Error al dividir los datos del cliente:", error);
+      }
+    }
   
     return (
       <section className="w-full flex flex-col items-center mt-14">
@@ -52,7 +91,7 @@ const formatKey = (key:any) => {
                       {formatKey(key)}:
                     </span>
                     <span className="text-gray-800">
-                      {value} 
+                      {String(value)}
                     </span>
                   </div>
                 ))}

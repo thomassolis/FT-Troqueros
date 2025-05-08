@@ -8,19 +8,24 @@ export const CurrentCustomers: React.FC = () => {
     const navigate = useNavigate();
     return (
       <section className="mt-2 w-full flex flex-col items-center justify-center">          
-        <div className="w-full flex justify-between">
-          <Back text="Clientes Actuales"/>
+        <div className="w-[95%] flex justify-between">
 
-          <Button 
-            text={`Agregar Cliente`} 
-            hoverBgColor="bg-[#1B5316]" 
-            bgColor='bg-red-400'
-            textColor="white" 
-            className2={'w-[14%] font-bold'}
-            onClick={() => {                
-                navigate(`/home/Customers/create`);
-            }} 
-          />
+          <div className="w-[40%]">
+            <Back text="Clientes Actuales"/>
+          </div>          
+
+          <div className="w-[20%]">
+            <Button 
+              text={`Agregar Cliente`} 
+              hoverBgColor="bg-[#1B5316]" 
+              bgColor='bg-red-400'
+              textColor="white" 
+              className2={'font-bold'}
+              onClick={() => {                
+                  navigate(`/home/Customers/create`);
+              }} 
+            />
+          </div>          
         </div>
         
         <div className="w-[70%] flex flex-col items-center gap-5">

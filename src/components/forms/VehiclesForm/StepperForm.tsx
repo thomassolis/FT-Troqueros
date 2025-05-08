@@ -18,6 +18,15 @@ interface StepperFormProps {
   selectedOption: 'Cabezales' | 'Chasises' | 'Furgones';
 }
 
+type StepField =
+  | "placa"
+  | "fechaRenovacion"
+  | "fechaCaducidad"
+  | "fechaExpedicion"
+  | "numPoliza"
+  | "fechaUltRevisado";
+
+
 export const StepperForm = ({ selectedOption }: StepperFormProps) => {
   const [activeStep, setActiveStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,8 +94,9 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
 
   // Navegar al siguiente paso con validación
   const nextStep = async () => {
-    const currentFields = stepFields[selectedOption]?.[activeStep] || [];
+    const currentFields = stepFields[selectedOption]?.[activeStep] as StepField[] || [];
     const isStepValid = await trigger(currentFields);
+    
     if (isStepValid) {
       setActiveStep((prev) => prev + 1);
     }
@@ -163,7 +173,7 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
           <div className="w-[10%] flex">
             <Button                 
               onClick={prevStep} 
-              className2="bg-gray-500 p-2 w-full"
+              className2="bg-gray-500 p-2 w-full"              
               text="Atrás"
             />
           </div>

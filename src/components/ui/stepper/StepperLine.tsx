@@ -1,31 +1,35 @@
 import { stepConfig } from "./Stepper";
 import { stepConfigCustomers } from "./Stepper";
 import { useLocation } from "react-router-dom";
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import { useState,  useEffect } from "react";
+import { GetModuleFromURL } from "../../../functions/GetURL/GetURLInfo";
 
 interface StepperLineProps {
-  selectedOption: string;
+  selectedOption?: string;
   step: number;
 }
 
 export const StepperLine = ({ selectedOption, step }: StepperLineProps) => {
 
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/');
-  const module = pathSegments[pathSegments.length - 2];
-  const [steps, setSteps] = useState([]);
+  const module = GetModuleFromURL();
+  
+  const [steps, setSteps] = useState<string[]>([]);
 
   useEffect(() => {
     if (module === 'Customers') {
       setSteps(stepConfigCustomers['Customers']);
     } else {
-      setSteps(stepConfig[selectedOption] || ["Paso Único"]);
+      if (selectedOption && stepConfig[selectedOption]) {
+        setSteps(stepConfig[selectedOption]);
+      } else {
+        setSteps(["Paso Único"]);
+      }
     }
+    
   }, [module, selectedOption]); // Dependencias del efecto
   
 

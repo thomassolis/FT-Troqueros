@@ -1,4 +1,3 @@
-import { Navigation } from "lucide-react";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { BeatLoader } from "react-spinners";

@@ -50,11 +50,11 @@ import {
     nextStep?: () => void;
     prevStep?: () => void;
     vehicleData: {
-      numero_poliza: string,
-      fecha_expedicion_poliza: string,
-      fecha_caducidad_poliza:string,
-      fecha_renovacion_revisado:string,
-      fecha_ultimo_revisado:string
+      numero_poliza?: string,
+      fecha_expedicion_poliza?: string,
+      fecha_caducidad_poliza?:string,
+      fecha_renovacion_revisado?:string,
+      fecha_ultimo_revisado?:string      
     }
 
     // --

@@ -12,7 +12,6 @@ interface GetDataForPrevisualizationTableProps {
 
 //Tabla que mostrará los chasises, furgones y cabezales que hay en el sistema
 export const GetDataForPrevisualizationTable = async({tabSelected, page, limit, search}: GetDataForPrevisualizationTableProps) => {        
-    console.log('search: ',search)
     try{           
         const response = await axios.get(`/${tabSelected}`, {
             params:{
@@ -65,7 +64,7 @@ export const sendDataForCreation = async({data, vehicleType}:sendDataForCreation
 
 interface getVehicleDataProps{
     vehicleType: string
-    vehicleID: string
+    vehicleID: string | undefined
 }
 export const getVehicleData = async({vehicleType, vehicleID}:getVehicleDataProps) =>{
     try{        
@@ -77,18 +76,20 @@ export const getVehicleData = async({vehicleType, vehicleID}:getVehicleDataProps
     }
 }
 
-export const sendDataForUpdate = async({data, vehicleType, vehicleID}:any) =>{
-    console.log('data que envío para update: ', data, vehicleID);
-    const vehicle = changeVehicleValue(vehicleType);
-
-
-
-    console.log('vehicle: ',vehicle)
+interface sendDataForUpdateProps{
+    data?:{};
+    vehicleType:"Cabezales" | "Chasises" | "Furgones"
+    vehicleID: string | undefined
+    available?: string
+}
+export const sendDataForUpdate = async({data, vehicleType, vehicleID, available}:sendDataForUpdateProps) =>{
+    console.log('data que envío para update: ', data, vehicleID, available);
     
     const dataForUpddate = {
-        id: vehicleID,
-        ...data
-      };
+            id: vehicleID,            
+            ...data
+          };
+      console.log('DataForUpdateTest', dataForUpddate);
     try{
         const response = await axios.put(`/${vehicleType}/update`, dataForUpddate);
         if(response.data.success){
@@ -103,10 +104,29 @@ export const sendDataForUpdate = async({data, vehicleType, vehicleID}:any) =>{
         toast.error(error.response.data.message)
     }
 }
+interface statusUpdate{
+    vehicleType:"Cabezales" | "Chasises" | "Furgones";
+    status: string;
+    vehicleID: string | undefined
+}
+export const statusUpdate = async({vehicleType, vehicleID, status}: statusUpdate) =>{
+    const data = {
+        id: vehicleID,
+        status: status
+    }
+
+    console.log('Data a enviar del status: ', data);
+    try{
+        const response = await axios.patch(`/${vehicleType}/update_status`, data);        
+        console.log('response back',response);
+    }catch(error){
+        console.log('Error en statusUpdate: ', error)
+    }
+}
 
 interface sendDataForDeleteProps{
-    id:string
-    vehicleType:string
+    id?:string | undefined
+    vehicleType? : string |undefined
 }
 export const sendDataForDelete = async({id, vehicleType}:sendDataForDeleteProps)=>{
     try{

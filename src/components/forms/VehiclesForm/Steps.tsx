@@ -48,7 +48,7 @@ export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setV
   
   useEffect(() => {
     if (vehicleData && setValue) {
-      setValue('numPoliza', vehicleData.numero_poliza);
+      setValue('numPoliza', vehicleData.numero_poliza ?? '');
   
       if (vehicleData.fecha_expedicion_poliza) {
         setValue('fechaExpedicion', convertirFechaString(vehicleData.fecha_expedicion_poliza));
@@ -123,49 +123,12 @@ export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setV
                 {...register('fechaUltRevisado')}
                 />
 
-<Input 
+            <Input 
                 type="date" 
                 className2={'py-5'}                
                 {...register('fechaRenovacion')}
                 />
             </div>
-
-            {/* <div className="flex gap-20 items-center w-full justify-center mt-12">
-              <SmallLabel text='Fecha de expedición de póliza'/>
-              <Input 
-                type="date" 
-                className2={'py-5'}                
-                {...register('fechaExpedicion')}
-                
-                />
-            </div>      
-
-            <div className="flex gap-20 items-center w-full justify-center mt-12">
-              <SmallLabel text='Fecha de caducidad de póliza'/>
-              <Input 
-                type="date" 
-                className2={'py-5'}                
-                {...register('fechaCaducidad')}
-                />
-            </div>
-
-            <div className="flex gap-20 items-center w-full justify-center mt-12">
-              <SmallLabel text='Fecha de último revisado'/>
-              <Input 
-                type="date" 
-                className2={'py-5'}                
-                {...register('fechaUltRevisado')}
-                />
-            </div>  
-
-            <div className="flex gap-20 items-center w-full justify-center mt-12">
-              <SmallLabel text='Fecha de renovación de revisado'/>
-              <Input 
-                type="date" 
-                className2={'py-5'}                
-                {...register('fechaRenovacion')}
-                />
-            </div>             */}
           </div>      
       </div>
     </section>    

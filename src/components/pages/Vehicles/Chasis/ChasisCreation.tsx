@@ -5,25 +5,40 @@ import { vehicleTypeContext } from "../../../../context/vehicleType/vehicleType"
 import { useLocation } from "react-router-dom";
 import { changeVehicleValue } from "../../../../functions/changeVehicleType/changeVehicleType";
 import { StepperFormCustomers } from "../../../forms/CustomersForm/StepperFormCustomers";
+import { GetModuleFromURL } from "../../../../functions/GetURL/GetURLInfo";
+import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo";
+
 export const  ChasisCreation = () => {    
   const {vehicleType, setVehicleType} = useContext(vehicleTypeContext)!;
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/').filter(Boolean); 
-  const moduleType = pathSegments[pathSegments.length - 2];
-  const lastSegment = pathSegments[pathSegments.length - 1];
-console.log('moduleType: ',moduleType)
+    
+  const module = GetModuleFromURL();
+  const procedure = GetProcedureFromURL();
   const vehicle = changeVehicleValue(vehicleType)
 
   return (
     <section className="flex flex-col">
-      {lastSegment && lastSegment==='modify' ? (
-        <Back text={`EDICIÓN DE ${vehicle}`} className2="mb-12 ml-6"/>      
-      ):(
-        <Back text={`CREACIÓN DE ${vehicle}`} className2="mb-12 ml-6"/>      
-      )}      
+
+{
+  module === "Customers" ? (
+    procedure === 'modify' ? (
+      <Back text={`EDICIÓN DE CLIENTE`} className2="mb-12 ml-6" />
+    ) : procedure === 'create' ? (
+      <Back text={`CREACIÓN DE CLIENTE`} className2="mb-12 ml-6" />
+    ) : null
+  ) : module === "Chasises" || module === "Furgones" || module === "Cabezales" ? (
+    procedure === 'modify' ? (
+      <Back text={`EDICIÓN DE ${vehicle}`} className2="mb-12 ml-6" />
+    ): procedure === 'create' ? (
+      <Back text={`CREACIÓN DE ${vehicle}`} className2="mb-12 ml-6" />
+    ): null
+  ):null
+}
+
+
+
       <div>
-        {moduleType === 'Customers' ? (
-          <StepperFormCustomers/>          
+        {module === 'Customers' ? (
+          <StepperFormCustomers/>
         ):(
           <StepperForm selectedOption = {vehicleType}/>
         )}        

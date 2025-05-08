@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useNavigate } from "react-router-dom"
 
 interface BackProps {
-    text?: string;
+    text: string | null;
     className2?: string
 }
 

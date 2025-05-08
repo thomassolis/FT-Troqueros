@@ -7,23 +7,36 @@ import {
     UseFormWatch 
   } from 'react-hook-form';
 
-  export interface FormValues {
+  export interface CustomersFormValues {
     nombre: string;
     ruc: string;
     direccion: string;    
     nombrePersonaContacto: string;
-    TelPersonaContacto: string;
+    telPersonaContacto: string;
     emailPersonaContacto: string;
+    nombrePersonaFinanciera: string;
+    telContactoFinanciero: string;
+    emailContactoFinanciero: string;
   }
 
 export interface StepOneCustomers {
-    register: UseFormRegister<FormValues>;    
-    setValue?: UseFormSetValue<FormValues>;
+    register: UseFormRegister<CustomersFormValues>;    
+    setValue?: UseFormSetValue<CustomersFormValues>;
+    errors: FieldErrors<CustomersFormValues>;
     nextStep?: () => void;
     prevStep?: () => void;
     setPdfFile? :[]
-    vehicleData: {
-      placa: string    
+    // setCustomersData: {}
+    customersData?: {
+      nombre?: string;
+      ruc?: string;
+      direccion?: string;
+      nombrePersonaContacto?:string
+      telPersonaContacto?:string;
+      emailPersonaContacto?:string
+      nombrePersonaFinanciera?:string;
+      telContactoFinanciero?:string;
+      emailContactoFinanciero?:string
     }    
   }
 

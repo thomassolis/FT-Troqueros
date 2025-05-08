@@ -2,36 +2,45 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
-import { StepOne, StepTwo } from "./Steps/StepOne";
-import { FormValues } from "../../types/VehicleForm/VehiclesFormTypes";
+import { StepOne, StepTwo, StepThree, StepFour } from "./Steps/StepOne";
+import { CustomersFormValues } from "../../types/CustomersForm/CustomersForm";
 import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { GetCustomerDataByID } from "../../../api/Home/Customers/customers.route";
+import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
+import { SendDataForCreationCustomer } from "../../../api/Home/Customers/customers.route";
+import { sendDataForUpdateCustomers } from "../../../api/Home/Customers/customers.route";
 
 export const StepperFormCustomers = () => {
+  const [customersData, setCustomersData] = useState({});
+  const {clienteID} = useParams();
+  const [isLoading, setIsLoading] = useState(false);
+  const procedure = GetProcedureFromURL();
 
+  useEffect(()=>{
+    if(clienteID){
+      setIsLoading(true);
+      const FetchCustomerDataByID = async() =>{
+        try{
+          const response = await GetCustomerDataByID({clienteID});     
+          setCustomersData(response);
+          console.log('responseresponse',response)
+        }catch(error){
+          console.error('Error en StepperFormCustomers', error);
+        } finally{
+          setIsLoading(false);
+        }
+      }
 
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/');
-  const currentAction = pathSegments[pathSegments.length - 1];
+      FetchCustomerDataByID();
+    }
+    
+  }, [clienteID])
 
-
-//     if (vehicleID) {      
-//       setIsLoading(true);    
-//       const fetchData = async () => {
-//         try {
-//           const data = await getVehicleData({ vehicleType, vehicleID });
-//           console.log('Data received:', data);
-//           setVehicleData(data);
-//         } catch (error) {
-//           console.error('Error fetching vehicle data:', error);
-//         } finally {
-//           setIsLoading(false);
-//         }
-//       };
   
-//       fetchData();
-//     }
-//   }, [vehicleID]); 
-  
+  const [activeStep, setActiveStep] = useState(0);
+
   const {
     register,
     handleSubmit,
@@ -41,80 +50,87 @@ export const StepperFormCustomers = () => {
     setValue,
     getValues,
     control,
-  } = useForm<FormValues>();
-
-  // Definir los campos para cada paso según la opción seleccionada
-//   const stepFields = {
-//     Cabezales: [
-//       ["deliveryDate", "campoStep1_2"], // Campos del paso 1 para Cabezales
-//       ["campoStep2_1", "campoStep2_2"],  // Campos del paso 2 para Cabezales
-//       ["campoStep4_1", "campoStep4_2"]  // Campos del paso 3 para Chasises
-//     ],
-//     Chasises: [
-//       ["deliveryDate", "campoStep1_2"], // Campos del paso 1 para Chasises
-//       ["campoStep2_1", "campoStep2_2"], // Campos del paso 2 para Chasises
-//       ["campoStep3_1", "campoStep3_2"]  // Campos del paso 3 para Chasises
-//     ],
-//     Furgones: [
-//       ["deliveryDate", "campoStep2_2"], // Campos del paso 1 para Furgones (empieza en StepTwo)
-//       ["campoStep1_1", "campoStep1_2"],  // Campos del paso 2 para Furgones
-//       ["campoStep3_1", "campoStep3_2"],  // Campos del paso 3 para Chasises
-//     ]
-//   };
+  } = useForm<CustomersFormValues>();
 
   const navigate = useNavigate();
   const formData = watch();
 
   // Navegar al siguiente paso con validación
-  const nextStep = async () => {
-    // const currentFields = stepFields[selectedOption]?.[activeStep] || [];
-    // const isStepValid = await trigger(currentFields);
-    // if (isStepValid) {
-    //   setActiveStep((prev) => prev + 1);
-    // }
+  const nextStep = async () => {    
+      setActiveStep((prev) => prev + 1);    
   };
 
   // Navegar al paso anterior
   const prevStep = () => {
-    // if (activeStep > 0) {
-    //   setActiveStep((prev) => prev - 1);
-    // } else {
-    //   navigate(-1);
-    // }
+    if (activeStep > 0) {
+      setActiveStep((prev) => prev - 1);
+    } else {
+      navigate(-1);
+    }
   };
 
   // Enviar el formulario
   const onSubmit = async (data: any) => {
-    // setIsLoading(true);
-
-    // if(currentAction === 'create'){
-    //   const response = await sendDataForCreation({data, vehicleType});
-    //   if(response.success){
-    //     navigate('/home/Vehicles');
-    //   }
-    // }else if (currentAction === 'modify'){
-    //   const response = await sendDataForUpdate({data, vehicleType, vehicleID});
-    //   if(response.success){
-    //     navigate('/home/Vehicles');
-    //   }
-    // }
+    setIsLoading(true);
+    console.log('data: ',data);
+    if(procedure === 'create'){
+      const response = await SendDataForCreationCustomer({data});
+      if(response.success){
+        navigate('/home/Customers');
+      }
+      }else if (procedure === 'modify'){
+        const response = await sendDataForUpdateCustomers({data, clienteID});
+        if(response.success){
+          navigate('/home/Vehicles');
+        }
+      }
     
-    // setIsLoading(false);            
+    setIsLoading(false);            
   };
+
 
   return (
     <section className="flex flex-col items-center w-full" id="InicioDeFormulario">
-      <StepperLine /*selectedOption={selectedOption} step={activeStep} *//>
+      <StepperLine step={activeStep} />
       
       <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center">
         <div className="w-[85%]">
-                    
-            <StepTwo
-              register={register} 
-              setValue={setValue}
-              errors={errors}                                   
-            />
-          
+          {activeStep === 0 && (
+              <StepOne
+                register={register} 
+                setValue={setValue}
+                errors={errors}           
+                customersData={customersData}                
+              />
+          )}
+
+          {activeStep === 1 && (
+              <StepTwo
+                register={register} 
+                setValue={setValue}
+                errors={errors}                  
+                customersData={customersData}                     
+              />
+          )}
+
+          {activeStep === 2 && (
+              <StepThree
+                register={register} 
+                setValue={setValue}
+                errors={errors}     
+                customersData={customersData}                                  
+              />
+          )}
+
+          {activeStep === 3 && (
+              <StepFour
+                register={register} 
+                setValue={setValue}
+                errors={errors}  
+                customersData={customersData}                                     
+              />
+          )}
+
         </div>
         
         <div className="w-[90%] flex items-center justify-between mt-12">
@@ -125,17 +141,27 @@ export const StepperFormCustomers = () => {
               text="Atrás"
             />
           </div>
-          
+
           <div className="w-[10%] flex">
-           
+            {activeStep < 3 ? (
               <Button
-                onClick={nextStep}
+                onClick={async () => {
+                  const isStepValid = await trigger(); // valida los campos actuales
+                  if (isStepValid) nextStep();
+                }}
                 className2="bg-blue-500 p-2 w-full"
                 text="Siguiente"
               />
-           
-          </div>                      
-        </div>        
+            ) : (
+              <Button
+                type="submit"
+                className2="bg-green-600 p-2 w-full"
+                text="Enviar"
+              />
+            )}
+          </div>
+        </div>
+      
       </form>
     </section>
   );
