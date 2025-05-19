@@ -53,6 +53,7 @@ interface SendDataForCreationCustomerProps{
 }
 export const SendDataForCreationCustomer = async({data}: SendDataForCreationCustomerProps) =>{    
     try{
+        
         const response = await axios.post('/clients/add', data,{
                   headers: {
         'Content-Type': 'multipart/form-data',

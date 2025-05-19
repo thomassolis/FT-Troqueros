@@ -24,9 +24,10 @@ export const InsertFiles: React.FC<InsertFilesProps> = ({ onFileReady, fileName,
         if (procedure === 'modify' && files && files.length > 0) {
             const loadedFiles = files.map((file: any) => ({
                 name: file.link1.name,
-                url: file.link1.url,
+                url: file.link1.url
             }));
             setAllFiles(loadedFiles);
+            
 
         }
     }, [files, procedure]);
@@ -34,16 +35,17 @@ export const InsertFiles: React.FC<InsertFilesProps> = ({ onFileReady, fileName,
     // Manejar la carga de archivos cuando el usuario sube uno nuevo
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            const newFiles = Array.from(e.target.files).map((file) => ({
+            const filesArray = Array.from(e.target.files);
+
+            // Para mostrar en la UI
+            const previewFiles = filesArray.map((file) => ({
                 name: file.name,
-                url: URL.createObjectURL(file)
+                url: URL.createObjectURL(file),
             }));
+            setAllFiles((prevFiles) => [...prevFiles, ...previewFiles]);
 
-            // Actualizar la lista de archivos con los nuevos archivos cargados
-            setAllFiles((prevFiles) => [...prevFiles, ...newFiles]);
-
-            // Llamada al callback para cada archivo cargado
-            newFiles.forEach((file) => onFileReady(file as any, file.name));
+            // Enviar el File real al padre (por cada archivo)
+            filesArray.forEach((file) => onFileReady(file, fileName));
         }
     };
 

@@ -110,6 +110,7 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
 
   // Enviar el formulario
   const onSubmit = async (data: any) => {
+    console.log(getValues());
     // setIsLoading(true);
 
     if(currentAction === 'create'){
