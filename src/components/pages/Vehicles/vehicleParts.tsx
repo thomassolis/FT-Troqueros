@@ -16,9 +16,6 @@ export const VehicleParts = () =>{
     const vehicleParts: string[] = ["Chasises", "Cabezales", "Furgones"] 
     const navigate = useNavigate();
     const location = useLocation();
-    console.log(vehicleType)
-    
-  
 
     return(
         <div>

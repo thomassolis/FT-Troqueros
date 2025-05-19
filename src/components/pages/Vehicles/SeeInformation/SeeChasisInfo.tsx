@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getVehicleData } from "../../../../api/Home/Vehicles/vehicles.routes"
+import { getVehicleData } from "../../../../api/Vehicles/vehicles.routes"
 import { useContext } from "react"
 import { vehicleTypeContext } from "../../../../context/vehicleType/vehicleType"
 import { useParams } from "react-router-dom"
@@ -7,7 +7,7 @@ import { Back } from "../../../ui/Back/Back"
 import { PrevisualizationTab } from "../../../ui/tabs/Tabs"
 import { InformationTab } from "../../../ui/tabs/informationTabs"
 import { GetModuleFromURL } from "../../../../functions/GetURL/GetURLInfo"
-import { GetCustomerDataByID } from "../../../../api/Home/Customers/customers.route"
+import { GetCustomerDataByID } from "../../../../api/Customers/customers.route"
 
 export const SeeChasis = () =>{
     const {vehicleType} = useContext(vehicleTypeContext)!;
@@ -15,9 +15,6 @@ export const SeeChasis = () =>{
     const {clienteID} = useParams();
     const [vehicleData, setVehicleData] = useState({});
     const module = GetModuleFromURL()
-    console.log('vehicle: ', module)
-    console.log('ID: ', clienteID)
-    
 
     useEffect(()=>{
         
@@ -30,7 +27,6 @@ export const SeeChasis = () =>{
                     }if(module === 'Customers'){
                         response = await GetCustomerDataByID({clienteID});
                     }
-                    console.log('response::',response)
                     setVehicleData(response);
                 }catch(error){
                     console.log('Error en chasisInformation: ', error)
@@ -53,9 +49,9 @@ export const SeeChasis = () =>{
                 }/>        
             <InformationTab 
                 tabTitles={
-                    module === 'Vehicles'
+                    module === 'Chasises' || module === 'Furgones' || module === 'Cabezales'
                     ? ['Información', 'Mantenimiento', 'Documentos']
-                    : ['Información', 'Documentos', 'Historial']
+                    : ['Información', 'Historial', 'Documentos']
                 }
                 vehicleData={vehicleData}
                 />

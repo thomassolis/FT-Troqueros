@@ -4,7 +4,7 @@ import { InsertFiles } from "../../ui/Files/insertFiles";
 import { SmallLabel } from "../../ui/Labels/smallLabel";
 import { StepOneProps } from "../../types/VehicleForm/VehiclesFormTypes";
 import { StepStepTwoProps } from "../../types/VehicleForm/VehiclesFormTypes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue, errors}) => {  
   useEffect(() => {    
@@ -12,10 +12,6 @@ export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue
       setValue('placa', vehicleData.placa);
     }
   }, [vehicleData, setValue]);
-
-  useEffect(() => {    
-    console.log('placa: ',vehicleData.placa)
-  }, [vehicleData]);
   
   
   return (
@@ -135,7 +131,21 @@ export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setV
   );
 };
 
-export const StepThree: React.FC<StepOneProps> = ({register, /*setPdfFile, pdfFile, handleFileReady*/}) => {
+export const StepThree: React.FC<StepOneProps> = ({register, setValue}) => {
+
+    // const { setValue } = useForm();
+    const [polizaFile, setPolizaFile] = useState<File | null>(null);
+    const [revisadoFile, setRevisadoFile] = useState<File | null>(null);
+      // Maneja la carga de archivos desde el componente InsertFiles
+    const handleFileReady = (file: File | null, name: string) => {
+        if (name === "foto_poliza") {
+            setPolizaFile(file);
+            setValue(name, file);
+        } else if (name === "foto_revisado") {
+            setRevisadoFile(file);
+            setValue(name, file);
+        }
+    };
   return(
     <section id="Step3" >
       <h1 className="text-black mt-6 ml-6 items-center">Adjunto de documentos</h1>      
@@ -146,12 +156,18 @@ export const StepThree: React.FC<StepOneProps> = ({register, /*setPdfFile, pdfFi
 
           <div className="flex gap-20 items-center w-full justify-center mt-12">
             <label htmlFor="nombre" className="text-black ">Adjunto de póliza del chasis</label>            
-            <InsertFiles /*setPdfFile={setPdfFile} pdfFile ={pdfFile} onFileReady={handleFileReady}*//>
+              <InsertFiles 
+                onFileReady={handleFileReady} 
+                fileName="foto_poliza" 
+              />
           </div>
           
           <div className="flex gap-20 items-center w-full justify-center mt-12">
             <label htmlFor="nombre" className="text-black ">Adjunto de revisado del chasis</label>
-            <InsertFiles/>
+              <InsertFiles 
+                onFileReady={handleFileReady} 
+                fileName="foto_poliza" 
+              />
           </div>
 
         </div>      

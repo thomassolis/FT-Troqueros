@@ -83,6 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
                 <li>
                 <MenuItem
                         icon={<Icon icon="healthicons:truck-driver" width="28" height="28" />}
+                        onClick={() => navigate('Drivers')}
                 >
                         {openSideBar && "Conductores"}
                 </MenuItem>
@@ -91,6 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
                 <li>
                 <MenuItem
                         icon={<Icon icon="eos-icons:service-instance" width="28" height="28" />}
+                        onClick={() => navigate('Services')}
                 >
                         {openSideBar && "Servicios"}
                 </MenuItem>
@@ -99,6 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
                 <li>
                 <MenuItem
                         icon={<Icon icon="fa-solid:hands-helping" width="28" height="28" />}
+                        onClick={() => navigate('Providers')}
                 >
                         {openSideBar && "Proveedores"}
                 </MenuItem>
@@ -109,6 +112,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
                 <li>
                 <MenuItem
                         icon={<Icon icon="fluent:people-28-filled" width="28" height="28" />}
+                        onClick={() => navigate('Team')}
                 >
                         {openSideBar && "Equipo"}
                 </MenuItem>

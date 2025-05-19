@@ -7,7 +7,7 @@ export const stepConfig: Record<string, string[]> = {
   };
 
   export const stepConfigCustomers: Record<string, string[]> = {
-    Customers: ['Información de Empresa', 'Persona de Contacto', 'Contacto Financiero', 'Adjuntos']
+    Customers: ['Información de Empresa', 'Persona de Contacto', 'Datos Bancarios', 'Adjuntos']
   }
   
   // 📌 Mapeo de los componentes de cada paso

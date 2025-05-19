@@ -1,29 +1,21 @@
 import { useEffect, useState, useContext } from "react";
-import { GetDataForPrevisualizationTable } from "../../../api/Home/Vehicles/vehicles.routes";
+import { GetDataForPrevisualizationTable } from "../../../api/Vehicles/vehicles.routes";
 import { Paginacion } from "../paginación/pagination";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { FadeLoader } from "react-spinners";
 import { Select } from "../Select/Select";
 import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
 import { changeVehicleValue } from "../../../functions/changeVehicleType/changeVehicleType";
-import Swal from 'sweetalert2'
-import { sendDataForDelete } from "../../../api/Home/Vehicles/vehicles.routes";
 import { useLocation } from "react-router-dom";
-import { GetDataForPrevisualizationTableCustomers } from "../../../api/Home/Customers/customers.route";
+import { GetDataForPrevisualizationTableCustomers } from "../../../api/Customers/customers.route";
 import { searchValueContext } from "../../../context/searchValueForFilter/searchValue";
 import { DeleteRow } from "../../pages/Vehicles/deleteValue/DeleteValue";
+import { GetFullDriversDataForTable } from "../../../api/Drivers/Drivers.route";
 
 interface PrevisualizationTableProps {
     headerTable: string[];
     tabSelected?: string;    
-}
-interface GetDataForPrevisualizationTableProps {
-    tabSelected: string | undefined;
-    page: number;
-    limit: number;
-    search?: string    
 }
 
 interface TableData {
@@ -44,42 +36,28 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
-    //   useEffect(() => {
-    //     const pathSegments = location.pathname.split('/');
-    //     setModule(pathSegments[pathSegments.length - 1]);
-    //     console.log('module: ', module)        
-    //   }, [location.pathname]);
                
     
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
+    
     useEffect(() => {       
         const GetDataForTable = async () => {
             try {
                 setIsLoading(true);
-                if(module === 'Vehicles'){
-                    console.log('Vehicles')
+        setTableData([]); // Limpiar datos antes de cargar nuevos
+                if(module === 'Vehicles'){                    
                     const response = await GetDataForPrevisualizationTable({
                         tabSelected: tabSelected ?? '',
                         page: currentPage, 
                         limit: pageSize,
                         search: searchValue ?? ''
-                    });                
-                    console.log('response',response);
-        
-                    if (!response) {
-                        alert("ja!")
-                        console.error("Error: La API no devolvió datos válidos.");
-                        return;
-                    }                
-        
-    
+                    });                                        
                     //Cambiar a vehiculos
                     setTableData(response.vehiculos.data || []);             
                     setTotalRecords(response.vehiculos.totalRegistros);
                     setPageSize(response.vehiculos.limite);                
-                }
-                else if (module === 'Customers'){
+                }else if (module === 'Customers'){                    
                     const response = await GetDataForPrevisualizationTableCustomers({
                         page: currentPage, 
                         limit: pageSize,
@@ -96,7 +74,17 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     setTableData(response.customers.data || []);                
                     setTotalRecords(response.customers.totalRegistros);
                     setPageSize(response.customers.limite);                
-                }   
+                }else if (module === 'Drivers'){                    
+                    const response = await GetFullDriversDataForTable({
+                        page: currentPage, 
+                        limit: pageSize,
+                        search: searchValue ?? ''
+                    });                     
+
+                    setTableData(response.data.data || []);  
+                    setTotalRecords(response.data.totalRegistros);                    
+                    setPageSize(response.data.limite); 
+                }
                 
                 
             } catch (e) {
@@ -104,8 +92,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
             }finally{
                 setIsLoading(false);
             }
-        };
-    
+        };      
         if (currentPage > 0) {
             GetDataForTable();
         }
@@ -116,14 +103,6 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const handlePageClick = (selectedPage: number) => {        
         setCurrentPage(selectedPage);
     };    
-    // const deleteValue = async({id, vehicleType}:any) =>{
-    //     try{
-    //         const response = await sendDataForDelete({id, vehicleType});            
-    //         return response;
-    //     }catch(error){
-    //         console.log('Error en deleteValue: ',error)
-    //     }
-    // }
 
     const deleteRow = async (id: string, nombre: string, vehicleType?: string | undefined) => {
         const vehicle = changeVehicleValue(vehicleType);
@@ -149,11 +128,24 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                             tableData.map((item, index) => (
                                 <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center">
                                     {Object.entries(item)
-                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente")
+                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente" && key !== "id_conductor")
                                         .map(([key, value], idx) => (
                                             <td key={idx} className="px-6 py-4 whitespace-nowrap text-black">
                                                 {headerTable[idx] === "STATUS" ? (
-                                                    <Select statusOptions={statusOptions} apiRequest = {true} id = {item.id_chasis} defaultValue = {item.status} tableData = {tableData}/>
+                                                    <Select 
+                                                        statusOptions={statusOptions} 
+                                                        apiRequest = {true} 
+                                                        id = {vehicleType === 'Chasises'? (
+                                                                item.id_chasis
+                                                            ): vehicleType === 'Furgones' ? (
+                                                                item.id_furgon
+                                                            ): vehicleType === 'Cabezales' ? (
+                                                                item.id_cabezal
+                                                            ): null} 
+                                                        // id = {item.id_chasis} 
+                                                        defaultValue = {item.status} 
+                                                        tableData = {tableData}
+                                                    />
                                                 ) : value} 
                                             </td>
                                         ))

@@ -1,80 +1,70 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { Icon } from "@iconify/react";
-import { sendDataForUpdate } from "../../../api/Home/Vehicles/vehicles.routes";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
-import { statusUpdate } from "../../../api/Home/Vehicles/vehicles.routes";
+import { statusUpdate } from "../../../api/Vehicles/vehicles.routes";
+
+interface TableData {
+    id: string;
+    status: string;
+    [key: string]: any;  // Permitir cualquier clave adicional
+}
 
 interface SelectProps {
-    statusOptions: string [];
-    apiRequest: boolean
-    id: string    
-    defaultValue:string;
-    tableData:[]
+    statusOptions: string[];
+    apiRequest: boolean;
+    id: string;
+    defaultValue: string;
+    tableData: TableData[];
 }
 
 // Función para asignar color según el valor seleccionado
 const getStatusColor = (status: string) => {
-    console.log('status en colores: ',status)
     return status === "Disponible" ? "text-green-600" : "text-red-500";
 };
 
-export const Select = ({statusOptions, apiRequest, id, defaultValue, tableData}:SelectProps) => {
-    console.log('id recibido', id);
-    console.log('DEFAULT', defaultValue);
-    
-    const {vehicleType} = useContext(vehicleTypeContext)!;
-    
-    console.log('vehicleType',vehicleType)
-
-    // Estado inicial con la primera opción del array    
-    const [selectedOption, setSelectedOption] = useState<string>(statusOptions[0]);
-
-    useEffect(()=>{
-        console.log('USEeFFECT')
-        if(defaultValue === null || defaultValue === 'No Disponible'){
-            setSelectedOption(statusOptions[0]);
-        }else{
-            setSelectedOption(statusOptions[1]);
-        }
-    }, [selectedOption, tableData])    
-
-    // Manejador de cambios en el select
-    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        console.log('Chamgeee');
-        setSelectedOption(event.target.value);
-    };
+export const Select = ({ statusOptions, apiRequest, id, defaultValue, tableData }: SelectProps) => {
+    const { vehicleType } = useContext(vehicleTypeContext)!;
+    const [selectedOption, setSelectedOption] = useState<string>(defaultValue || statusOptions[0]);
+    const initialRender = useRef(true);
 
     useEffect(() => {
-        console.log('SELECTED OPTION',selectedOption)
-        if (selectedOption !== statusOptions[0]) {
-            if (apiRequest) {
-                const response = statusUpdate({
+        setSelectedOption(defaultValue);
+    }, [defaultValue]);
+
+    const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const newValue = event.target.value;
+        setSelectedOption(newValue);
+        if (apiRequest ) {
+            try {
+                await statusUpdate({
                     vehicleType: vehicleType,
                     vehicleID: id,
-                    status: selectedOption
-                }) 
+                    status: newValue
+                });
+            } catch (error) {
+                console.error("Error updating status:", error);
+                // Revertir el cambio si falla
+                setSelectedOption(defaultValue);
             }
         }
-    }, [selectedOption]);
-
-
-    
+        
+        initialRender.current = false;
+    };
 
     return (
         <div className="relative w-full">
             <select
-                className={`appearance-none rounded-md p-2 px-3 w-full border border-gray-300 font-bold ${getStatusColor(selectedOption)}`}
+                className={`appearance-none rounded-md p-2 px-3 w-full border border-gray-300 font-bold transition-colors duration-300 ${getStatusColor(selectedOption)}`}
                 onChange={handleChange}
-                // value={selectedOption}
-                defaultValue={selectedOption}
+                value={selectedOption}
+                style={{ color: selectedOption === "Disponible" ? "green" : "red" }}
             >
                 {statusOptions.map((option, index) => (
-                    <option key={index} value={option} className="text-black">
+                    <option key={index} value={option} className="text-black font-semibold">
                         {option}
                     </option>
                 ))}
             </select>
-            {/* Ícono de flecha personalizada */}
             <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                 <Icon icon="ic:baseline-arrow-drop-down" width="24" height="24" className="text-gray-500"/>
             </div>

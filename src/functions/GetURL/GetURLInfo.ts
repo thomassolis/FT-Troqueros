@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 
 export const  GetModuleFromURL = () => {
     const location = useLocation();
+    
     const pathSegments = location.pathname.split('/');
     
     const procedure = pathSegments[pathSegments.length - 1];

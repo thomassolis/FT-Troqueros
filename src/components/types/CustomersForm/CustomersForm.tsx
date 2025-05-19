@@ -14,9 +14,12 @@ import {
     nombrePersonaContacto: string;
     telPersonaContacto: string;
     emailPersonaContacto: string;
-    nombrePersonaFinanciera: string;
-    telContactoFinanciero: string;
-    emailContactoFinanciero: string;
+    nombreBanco?:string;
+    tipoCuenta?:string;
+    numeroCuenta?:string
+    nombreCuenta?:string
+
+
   }
 
 export interface StepOneCustomers {
@@ -25,6 +28,7 @@ export interface StepOneCustomers {
     errors: FieldErrors<CustomersFormValues>;
     nextStep?: () => void;
     prevStep?: () => void;
+    control?:any
     setPdfFile? :[]
     // setCustomersData: {}
     customersData?: {
@@ -34,9 +38,11 @@ export interface StepOneCustomers {
       nombrePersonaContacto?:string
       telPersonaContacto?:string;
       emailPersonaContacto?:string
-      nombrePersonaFinanciera?:string;
-      telContactoFinanciero?:string;
-      emailContactoFinanciero?:string
+
+      nombreBanco?:string;
+      tipoCuenta?:string;
+      numeroCuenta?:string
+      nombreCuenta?:string
     }    
   }
 

@@ -7,12 +7,12 @@ import { StepOne, StepTwo, StepThree } from "./Steps";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { FormValues } from "../../types/VehicleForm/VehiclesFormTypes";
 import { useParams } from "react-router-dom";
-import { sendDataForCreation } from "../../../api/Home/Vehicles/vehicles.routes";
+import { sendDataForCreation } from "../../../api/Vehicles/vehicles.routes";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
 import { getDataFromVehicle } from "../../../hook/useEffect/vehicleDataUseEffect";
-import { getVehicleData } from "../../../api/Home/Vehicles/vehicles.routes";
+import { getVehicleData } from "../../../api/Vehicles/vehicles.routes";
 import { useLocation } from "react-router-dom";
-import { sendDataForUpdate } from "../../../api/Home/Vehicles/vehicles.routes";
+import { sendDataForUpdate } from "../../../api/Vehicles/vehicles.routes";
 
 interface StepperFormProps {
   selectedOption: 'Cabezales' | 'Chasises' | 'Furgones';
@@ -38,15 +38,12 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
   const pathSegments = location.pathname.split('/');
   const currentAction = pathSegments[pathSegments.length - 1];
 
-  console.log('currentAction: ',currentAction); 
-
   useEffect(() => {
     if (vehicleID) {      
       setIsLoading(true);    
       const fetchData = async () => {
         try {
           const data = await getVehicleData({ vehicleType, vehicleID });
-          console.log('Data received:', data);
           setVehicleData(data);
         } catch (error) {
           console.error('Error fetching vehicle data:', error);

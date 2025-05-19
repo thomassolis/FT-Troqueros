@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
-import { sendDataForDelete } from "../../../../api/Home/Vehicles/vehicles.routes";
-import { sendDataForDeleteCustomers } from "../../../../api/Home/Customers/customers.route";
+import { sendDataForDelete } from "../../../../api/Vehicles/vehicles.routes";
+import { sendDataForDeleteCustomers } from "../../../../api/Customers/customers.route";
 
 type VehicleRow = {
     id_chasis?: string;
@@ -20,9 +20,7 @@ interface DeleteRowProps {
     tableData: any
 }
 export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module, tableData}: DeleteRowProps) =>{
-    console.log('module', module);
-    console.log('tableData: ', tableData);
-    console.log('id: ', id);
+
     let response:{
         message: string,
         success: boolean
@@ -57,20 +55,20 @@ export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, se
                 if (response.success) {
                     // Eliminar el elemento del estado tableData
                     setTableData((prevData: VehicleRow[]) => 
-                        prevData.filter((item: VehicleRow) => 
-                        {module === 'Vehicles' ? (
-                            (vehicleType === 'Chasises' && item.id_chasis !== id) ||
-                            (vehicleType === 'Furgones' && item.id_furgon !== id) ||
-                            (vehicleType === 'Cabezales' && item.id_cabezal !== id)
-                        ):(
-                            item.id_cliente !== id
-                        )
-
-                        }                            
-                        )
+                        prevData.filter((item: VehicleRow) => {
+                            if (module === 'Vehicles') {
+                                if (vehicleType === 'Chasises') return item.id_chasis !== id;
+                                if (vehicleType === 'Furgones') return item.id_furgon !== id;
+                                if (vehicleType === 'Cabezales') return item.id_cabezal !== id;
+                                return true;
+                            } else {
+                                return item.id_cliente !== id;
+                            }
+                        })
                     );
+
                     Swal.fire({
-                        title: 'Eliminado!',
+                        title: '¡Eliminado!',
                         text: response.message,
                         icon: 'success'
                     });

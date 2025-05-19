@@ -6,16 +6,17 @@ interface VehicleData {
     nombrePersonaContacto: string;   
     telPersonaContacto: string;   
     emailPersonaContacto: string;   
-    nombrePersonaFinanciera: string;   
-    telContactoFinanciero: string;   
-    emailContactoFinanciero: string;   
+    nombreBanco: string;   
+    nombreCuenta: string;   
+    tipoCuenta: string;
+    numeroCuenta: string
     fechaUltimoPedido: string;
 }
 
 interface SplitCustomerDataProps {
     generalData: generalData;
     contactPerson: contactPerson;
-    businessContact: businessContact;
+    dataBank: dataBank;
 }
 
 interface generalData {
@@ -30,10 +31,11 @@ interface contactPerson {
     emailPersonaContacto: string;
 }
 
-interface businessContact {
-    nombrePersonaFinanciera: string;
-    telContactoFinanciero: string;
-    emailContactoFinanciero: string;
+interface dataBank {
+    nombreBanco: string;
+    tipoCuenta: string;
+    nombreCuenta:string    
+    numeroCuenta: string
 }
 
 export const SplitCustomerData = (data: VehicleData): SplitCustomerDataProps => {
@@ -53,11 +55,12 @@ export const SplitCustomerData = (data: VehicleData): SplitCustomerDataProps => 
         emailPersonaContacto: data.emailPersonaContacto
     };
 
-    const businessContact: businessContact = {
-        nombrePersonaFinanciera: data.nombrePersonaFinanciera,
-        telContactoFinanciero: data.telContactoFinanciero,
-        emailContactoFinanciero: data.emailContactoFinanciero
+    const dataBank: dataBank = {
+        nombreBanco: data.nombreBanco,
+        tipoCuenta: data.tipoCuenta,
+        nombreCuenta: data.nombreCuenta,        
+        numeroCuenta: data.numeroCuenta
     };
 
-    return { generalData, contactPerson, businessContact };
+    return { generalData, contactPerson, dataBank };
 };

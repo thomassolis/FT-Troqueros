@@ -7,10 +7,10 @@ import { CustomersFormValues } from "../../types/CustomersForm/CustomersForm";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { GetCustomerDataByID } from "../../../api/Home/Customers/customers.route";
+import { GetCustomerDataByID } from "../../../api/Customers/customers.route";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
-import { SendDataForCreationCustomer } from "../../../api/Home/Customers/customers.route";
-import { sendDataForUpdateCustomers } from "../../../api/Home/Customers/customers.route";
+import { SendDataForCreationCustomer } from "../../../api/Customers/customers.route";
+import { sendDataForUpdateCustomers } from "../../../api/Customers/customers.route";
 
 export const StepperFormCustomers = () => {
   const [customersData, setCustomersData] = useState({});
@@ -25,7 +25,6 @@ export const StepperFormCustomers = () => {
         try{
           const response = await GetCustomerDataByID({clienteID});     
           setCustomersData(response);
-          console.log('responseresponse',response)
         }catch(error){
           console.error('Error en StepperFormCustomers', error);
         } finally{
@@ -48,7 +47,7 @@ export const StepperFormCustomers = () => {
     watch,
     formState: { errors },
     setValue,
-    getValues,
+    getValues,    
     control,
   } = useForm<CustomersFormValues>();
 
@@ -72,7 +71,6 @@ export const StepperFormCustomers = () => {
   // Enviar el formulario
   const onSubmit = async (data: any) => {
     setIsLoading(true);
-    console.log('data: ',data);
     if(procedure === 'create'){
       const response = await SendDataForCreationCustomer({data});
       if(response.success){
@@ -81,7 +79,7 @@ export const StepperFormCustomers = () => {
       }else if (procedure === 'modify'){
         const response = await sendDataForUpdateCustomers({data, clienteID});
         if(response.success){
-          navigate('/home/Vehicles');
+          navigate('/home/Customers');
         }
       }
     
@@ -93,7 +91,7 @@ export const StepperFormCustomers = () => {
     <section className="flex flex-col items-center w-full" id="InicioDeFormulario">
       <StepperLine step={activeStep} />
       
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center">
+      <form onSubmit={handleSubmit(onSubmit)} /*enctype="multipart/form-data"*/ className="w-full flex flex-col items-center">
         <div className="w-[85%]">
           {activeStep === 0 && (
               <StepOne
@@ -127,7 +125,8 @@ export const StepperFormCustomers = () => {
                 register={register} 
                 setValue={setValue}
                 errors={errors}  
-                customersData={customersData}                                     
+                customersData={customersData}  
+                control={control}
               />
           )}
 

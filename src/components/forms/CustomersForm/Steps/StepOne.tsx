@@ -4,19 +4,22 @@ import { StepOneCustomers } from "../../../types/CustomersForm/CustomersForm"
 import { StepOneCustomerProps } from "../../../types/CustomersForm/CustomersForm"
 import { useEffect } from "react"
 import { InsertFiles } from "../../../ui/Files/insertFiles"
-
+import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
+import { Controller } from "react-hook-form"
 export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, errors, customersData}) =>{
 
     useEffect(() => {
         if (customersData && setValue) {
-          setValue('nombre', customersData.nombre ?? '');
+            if (customersData.ruc) {
+                setValue('nombre', customersData.nombre ?? '');
+            }
       
-          if (customersData.ruc) {
-            setValue('ruc', customersData.ruc ?? '');
-          }         
-          if (customersData.direccion) {
-            setValue('direccion', customersData.direccion ?? '');
-          }         
+            if (customersData.ruc) {
+                setValue('ruc', customersData.ruc ?? '');
+            }         
+            if (customersData.direccion) {
+                setValue('direccion', customersData.direccion ?? '');
+            }         
 
         }
       }, [customersData, setValue]);
@@ -86,14 +89,15 @@ export const StepTwo: React.FC<StepOneCustomerProps> = ({register, setValue, cus
 
     useEffect(() => {
         if (customersData && setValue) {
-          setValue('nombrePersonaContacto', customersData.nombrePersonaContacto ?? '');
-      
-          if (customersData.ruc) {
-            setValue('telPersonaContacto', customersData.telPersonaContacto ?? '');
-          }         
-          if (customersData.direccion) {
-            setValue('emailPersonaContacto', customersData.emailPersonaContacto ?? '');
-          }         
+            if (customersData.ruc) {
+                setValue('nombrePersonaContacto', customersData.nombrePersonaContacto ?? '');
+            }
+            if (customersData.ruc) {
+                setValue('telPersonaContacto', customersData.telPersonaContacto ?? '');
+            }         
+            if (customersData.direccion) {
+                setValue('emailPersonaContacto', customersData.emailPersonaContacto ?? '');
+            }         
 
         }
       }, [customersData, setValue]);
@@ -135,7 +139,7 @@ export const StepTwo: React.FC<StepOneCustomerProps> = ({register, setValue, cus
                             {...register('telPersonaContacto')}  
                         />
                         <Input 
-                            type="string" 
+                            type="email" 
                             className2={'py-5'} 
                             placeholder="Email de persona de contacto"               
                             {...register('emailPersonaContacto')}  
@@ -150,14 +154,18 @@ export const StepTwo: React.FC<StepOneCustomerProps> = ({register, setValue, cus
 export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, customersData}) =>{
     useEffect(() => {
         if (customersData && setValue) {
-          setValue('nombrePersonaFinanciera', customersData.nombrePersonaFinanciera ?? '');
-      
-          if (customersData.ruc) {
-            setValue('telContactoFinanciero', customersData.telContactoFinanciero ?? '');
-          }         
-          if (customersData.direccion) {
-            setValue('emailContactoFinanciero', customersData.emailContactoFinanciero ?? '');
-          }         
+            if (customersData.ruc) {
+                setValue('nombreBanco', customersData.nombreBanco ?? '');
+            }
+            if (customersData.ruc) {
+                setValue('tipoCuenta', customersData.tipoCuenta ?? '');
+            }         
+            if (customersData.direccion) {
+                setValue('nombreCuenta', customersData.nombreCuenta ?? '');
+            }       
+            if (customersData.direccion) {
+              setValue('numeroCuenta', customersData.numeroCuenta ?? '');
+            }
 
         }
       }, [customersData, setValue]);
@@ -171,15 +179,19 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, c
                     <div className="flex flex-col gap-12 items-start w-full  mt-12 ">
 
                         <div className="h-10 flex items-center">
-                            <SmallLabel text="Nombre de persona de contacto financiero"/>
+                            <SmallLabel text="Tipo de Banco"/>
                         </div>
                         
                         <div className="h-10 flex items-center">
-                            <SmallLabel text="Teléfono de contacto financiero"/>
+                            <SmallLabel text="Tipo de Cuenta"/>
                         </div>                    
 
                         <div className="h-10 flex items-center">
-                            <SmallLabel text="Email de contacto financiero"/>
+                            <SmallLabel text="Nombre de Cuenta"/>
+                        </div>
+
+                        <div className="h-10 flex items-center">
+                            <SmallLabel text="Número de Cuenta"/>
                         </div>
                         
                     </div>
@@ -188,20 +200,27 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, c
                         <Input 
                             type="string" 
                             className2={'py-5'} 
-                            placeholder="Nombre de contacto financiero"               
-                            {...register('nombrePersonaFinanciera')}  
+                            placeholder="Ejm. Banco General"               
+                            {...register('nombreBanco')}  
                         />
                         <Input 
                             type="string" 
                             className2={'py-5'} 
-                            placeholder="Teléfono de contacto financiero"               
-                            {...register('telContactoFinanciero')}  
+                            placeholder="Ejm. Ahorro"               
+                            {...register('tipoCuenta')}  
                         />
                         <Input 
                             type="string" 
                             className2={'py-5'} 
-                            placeholder="Email de contacto financiero"               
-                            {...register('emailContactoFinanciero')}
+                            placeholder="Ejm. Danger Man"               
+                            {...register('nombreCuenta')}
+                        />
+
+                        <Input 
+                            type="string" 
+                            className2={'py-5'} 
+                            placeholder="Ejm. 888888888"               
+                            {...register('numeroCuenta')}
                         />
                     </div>
                 </div>            
@@ -211,29 +230,51 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, c
 }
 
 
-export const StepFour: React.FC<StepOneCustomerProps> = ({register, /*setPdfFile, pdfFile, handleFileReady*/}) => {
-  return(
-        <section className="w-full ">                    
+export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, customersData }) => {
+    const procedure = GetProcedureFromURL();
+    
+    return (
+        <section className="w-full">                    
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Adjunte los siguientes documentos para crear un nuevo cliente</h1>
             
             <div className="flex justify-center">
                 <div className="flex w-[80%]">
-                    <div className="flex flex-col gap-12 items-start w-full  mt-12 ">
-
+                    <div className="flex flex-col gap-12 items-start w-full mt-12">
                         <div className="flex items-center w-[90%]">
                             <SmallLabel text="Copia de cédula de representante legal"/>
-                            <InsertFiles/>
+                            <Controller
+                                name="cedRepresentanteLegal"
+                                control={control}
+                                render={({ field }) => (
+                                    <InsertFiles
+                                        files={procedure === 'modify' ? customersData.cedRepresentanteLegal || [] : []}
+                                        procedure={procedure}
+                                        onFileReady={(file, name) => field.onChange(file)}
+                                        fileName={field.name}
+                                    />
+                                )}
+                            />
                         </div>
                         
                         <div className="flex items-center w-[90%]">
                             <SmallLabel text="Copia de aviso de operaciones"/>
-                            <InsertFiles/>  
+                            <Controller
+                                name="avisoOperaciones"
+                                control={control}
+                                render={({ field }) => (
+                                    <InsertFiles
+                                        files={procedure === 'modify' ? customersData.avisoOperaciones || [] : []}
+                                        procedure={procedure}
+                                        onFileReady={(file, name) => field.onChange(file)}
+                                        fileName={field.name}
+                                    />
+                                )}
+                            />
                         </div>                                            
                     </div>
-                    
                 </div>            
             </div>            
         </section>
-  )
+    )
 }
 

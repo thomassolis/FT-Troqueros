@@ -56,7 +56,6 @@ const formatKey = (key:any) => {
 
 
   export const SeeVehicleInformation = ({ titles, vehicleData, module }: SeeVehicleInformationProps) => {
-    console.log('vehicleData', vehicleData);
     let datasets: any[] = [];
 
     if (['Chasises', 'Furgones', 'Cabezales'].includes(module) && isVehicleData(vehicleData)) {
@@ -64,8 +63,8 @@ const formatKey = (key:any) => {
       datasets = [policy, inspection];
     } else if (module === 'Customers' && isCustomerData(vehicleData)) {
       try {
-        const { generalData, contactPerson, businessContact } = SplitCustomerData(vehicleData);
-        datasets = [generalData, contactPerson, businessContact];
+        const { generalData, contactPerson, dataBank } = SplitCustomerData(vehicleData);
+        datasets = [generalData, contactPerson, dataBank];
       } catch (error) {
         console.error("Error al dividir los datos del cliente:", error);
       }

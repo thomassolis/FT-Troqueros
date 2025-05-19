@@ -2,6 +2,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useState } from 'react';
 import { SeeVehicleInformation } from '../../others/Vehicles/seeInformation/seeInformation';
 import { GetModuleFromURL } from '../../../functions/GetURL/GetURLInfo';
+import { FilesFather } from '../../others/Files/FilesFather';
 
 interface InformationTabProps {
     tabTitles: [string, string, string]
@@ -21,13 +22,12 @@ interface InformationTabProps {
 
 export const InformationTab = ({tabTitles, vehicleData}: InformationTabProps) => {
     const [selectedTab, setSelectedTab] = useState<number>(0);
-    console.log('vehicleData en tab: ', vehicleData);
+
     const module = GetModuleFromURL();
-    console.log('MODULE: ', module);
 
     const titles = (module === 'Chasises' || module === 'Furgones' || module === 'Cabezales')
       ? ['Chasis:', 'Documentación:']
-      : ['Cliente:', 'Persona de Contacto:', 'Contacto Financiero'];
+      : ['Cliente:', 'Persona de Contacto:', 'Datos Bancarios'];
 
     return(
     <Tabs
@@ -53,8 +53,15 @@ export const InformationTab = ({tabTitles, vehicleData}: InformationTabProps) =>
       titles={titles}
     />
     </TabPanel>
+
     <TabPanel>
-      {/* <h2>Any content 2</h2> */}
+          <></>       
+    </TabPanel>
+
+        <TabPanel>
+          <FilesFather
+            vehicleData={vehicleData}
+          />          
     </TabPanel>
   </Tabs>
     )  

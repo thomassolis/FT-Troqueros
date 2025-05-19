@@ -1,8 +1,8 @@
 import { Search } from "lucide-react";
-import axios from "../../axios.ts";
+import axios from "../axios.ts";
 import { toast } from 'react-hot-toast';
-import { FormValues } from "../../../components/types/VehicleForm/VehiclesFormTypes.tsx";
-import { changeVehicleValue } from "../../../functions/changeVehicleType/changeVehicleType.ts";
+import { FormValues } from "../../components/types/VehicleForm/VehiclesFormTypes.tsx";
+import { changeVehicleValue } from "../../functions/changeVehicleType/changeVehicleType.ts";
 interface GetDataForPrevisualizationTableProps {
     tabSelected: string;
     page: number;
@@ -69,7 +69,6 @@ interface getVehicleDataProps{
 export const getVehicleData = async({vehicleType, vehicleID}:getVehicleDataProps) =>{
     try{        
         const response = await axios.get(`/${vehicleType}/${vehicleID}`);
-        console.log('response en getVehicleData',response)
         return response.data.data;
     }catch(error){
         console.log('Error en getVehicleData: ', error)
@@ -83,13 +82,11 @@ interface sendDataForUpdateProps{
     available?: string
 }
 export const sendDataForUpdate = async({data, vehicleType, vehicleID, available}:sendDataForUpdateProps) =>{
-    console.log('data que envío para update: ', data, vehicleID, available);
     
     const dataForUpddate = {
             id: vehicleID,            
             ...data
           };
-      console.log('DataForUpdateTest', dataForUpddate);
     try{
         const response = await axios.put(`/${vehicleType}/update`, dataForUpddate);
         if(response.data.success){
@@ -114,11 +111,9 @@ export const statusUpdate = async({vehicleType, vehicleID, status}: statusUpdate
         id: vehicleID,
         status: status
     }
-
-    console.log('Data a enviar del status: ', data);
+    
     try{
         const response = await axios.patch(`/${vehicleType}/update_status`, data);        
-        console.log('response back',response);
     }catch(error){
         console.log('Error en statusUpdate: ', error)
     }
@@ -131,8 +126,6 @@ interface sendDataForDeleteProps{
 export const sendDataForDelete = async({id, vehicleType}:sendDataForDeleteProps)=>{
     try{
         const response = await axios.delete(`/${vehicleType}/delete/${id}`);
-        console.log('responseee:',response)
-
         return response.data
     }catch(error){
         console.log(error);

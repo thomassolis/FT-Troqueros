@@ -21,7 +21,6 @@ export const PrevisualizationTab = ({ tabContent, onTabChange }: TabsProps) => {
     // Ejecutar la función del padre cada vez que cambie la opción
     useEffect(() => {
         onTabChange(selectedOption);
-        console.log('selectedOption: ',selectedOption)
     }, [selectedOption, onTabChange]);
 
     return (

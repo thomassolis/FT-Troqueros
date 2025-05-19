@@ -20,23 +20,24 @@ export const FilterSearch = ({vehicleType}:FilterSearchProps) =>{
         const lastSegment = pathSegments[pathSegments.length - 1];
         const {searchValue, setSearchValue} = useContext(searchValueContext)!;
 
-        const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {            
-            console.log('setSearchValue2: ',setSearchValue);
-                setSearchValue(event.target.value);        
-                 
+        const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {                        
+                setSearchValue(event.target.value);                         
         };   
         const onSubmit: SubmitHandler<submitData> = (data) => {
             console.log("Datos enviados:", data);
-        };
-
-        useEffect(()=>{
-            console.log('SearchValueee', searchValue);
-        },[searchValue])
+        };        
     return(
         <div className="flex">
                 <div className="flex w-[8%] px-12  items-center justify-center py-2 border border-gray-400 bg-white">
                     <h1 className="text-black">
-                        {lastSegment === 'Customers' ? ('Nombre'):('Placa')}                        
+                        {lastSegment === 'Customers' ? (
+                            'Nombre'
+                            ):lastSegment === 'Vehicles' ? (
+                                'Placa'
+                            ):lastSegment === 'Drivers' ? (
+                                'Nombre'
+                            ): ''
+                        }                        
                     </h1>
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)} className="flex">
@@ -44,7 +45,14 @@ export const FilterSearch = ({vehicleType}:FilterSearchProps) =>{
                         <Input 
                             type="text" 
                             placeholder=
-                                {lastSegment === 'Customers' ? (`Buscar cliente por nombre`):(`Buscar ${vehicleType} por número de placa`)}                                
+                                {lastSegment === 'Customers' ? (
+                                    `Buscar cliente por nombre`
+                                ): lastSegment === 'Vehicles' ? (
+                                    `Buscar ${vehicleType} por número de placa`
+                                ): lastSegment === 'Drivers' ? (
+                                    `Buscar Conductor por Nombre`
+                                ): ''
+                            }                                
                             
                             className2={"py-5 rounded-none border border-gray-400"}
                             onChange={handleInputChange}                                
