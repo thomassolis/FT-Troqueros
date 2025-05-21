@@ -48,6 +48,7 @@ const getAllFilesFromVehicleData = (vehicleData: any): any[] => {
 
 // Ejemplo de uso en tu componente
 export const FilesFather = ({ vehicleData }: FilesFatherProps) => {
+    console.log('vehicleData: ', vehicleData);
     const files = getAllFilesFromVehicleData(vehicleData);
     let titles: string[] = [];
 

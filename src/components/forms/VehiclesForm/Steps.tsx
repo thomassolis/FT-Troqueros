@@ -5,8 +5,16 @@ import { SmallLabel } from "../../ui/Labels/smallLabel";
 import { StepOneProps } from "../../types/VehicleForm/VehiclesFormTypes";
 import { StepStepTwoProps } from "../../types/VehicleForm/VehiclesFormTypes";
 import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
+import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
+import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
+import { useContext } from "react";
+import { changeVehicleValue } from "../../../functions/changeVehicleType/changeVehicleType";
 
 export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue, errors}) => {  
+  const {vehicleType} = useContext(vehicleTypeContext)!;
+  const vehicle = changeVehicleValue(vehicleType);
+
   useEffect(() => {    
     if (vehicleData && setValue && vehicleData.placa) {      
       setValue('placa', vehicleData.placa);
@@ -15,10 +23,11 @@ export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue
   
   
   return (
-    <div className="mt-14  " id="Step1">
-      <p className="text-black mt-6 text-left">Llena el siguiente formulario para crear una nueva petición:</p>      
+    <div className="" id="Step1">
+      <h1 className="text-black mt-10 ml-6 text-lg font-semibold">{`Llena el siguiente formulario para crear el nuevo ${vehicle} `}</h1>      
+
       <div className="flex gap-20 items-center w-full justify-center mt-12">
-        <SmallLabel text="Número de placa:"/>        
+        <SmallLabel text="Número de placa: " />        
 
         <div className="gap-5 flex items-center">
           <Input 
@@ -131,42 +140,51 @@ export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setV
   );
 };
 
-export const StepThree: React.FC<StepOneProps> = ({register, setValue}) => {
+export const StepThree: React.FC<StepOneProps> = ({register, setValue, vehicleData, control}) => {
 
-    // const { setValue } = useForm();
-    const [polizaFile, setPolizaFile] = useState<File | null>(null);
-    const [revisadoFile, setRevisadoFile] = useState<File | null>(null);
-      // Maneja la carga de archivos desde el componente InsertFiles
-    const handleFileReady = (file: File | null, name: string) => {
-        if (name === "foto_poliza") {
-            setPolizaFile(file);
-            setValue(name, file);
-        } else if (name === "foto_revisado") {
-            setRevisadoFile(file);
-            setValue(name, file);
-        }
-    };
+  const procedure = GetProcedureFromURL();
+  const {vehicleType} = useContext(vehicleTypeContext)!;
+
+  const vehicle = changeVehicleValue(vehicleType);
+  
+
   return(
     <section id="Step3" >
-      <h1 className="text-black mt-6 ml-6 items-center">Adjunto de documentos</h1>      
+      <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Adjunto de documentos</h1>      
 
       <div className="mt-1 ml-6 flex flex-col items-center">      
 
         <div className="flex flex-col w-full">    
 
           <div className="flex gap-20 items-center w-full justify-center mt-12">
-            <label htmlFor="nombre" className="text-black ">Adjunto de póliza del chasis</label>            
-              <InsertFiles 
-                onFileReady={handleFileReady} 
-                fileName="foto_poliza" 
+            <label htmlFor="nombre" className="text-black ">{`Adjunto de póliza del ${vehicle}`}</label>            
+              <Controller
+                  name="foto_poliza"
+                  control={control}                  
+                  render={({ field }) => (
+                      <InsertFiles
+                          files={procedure === 'modify' ? (Array.isArray(vehicleData.foto_poliza) ? vehicleData.foto_poliza : []) : []}
+                          procedure={procedure}
+                          onFileReady={(file, name) => field.onChange(file)}
+                          fileName={field.name}
+                      />
+                  )}
               />
           </div>
           
           <div className="flex gap-20 items-center w-full justify-center mt-12">
-            <label htmlFor="nombre" className="text-black ">Adjunto de revisado del chasis</label>
-              <InsertFiles 
-                onFileReady={handleFileReady} 
-                fileName="foto_poliza" 
+            <label htmlFor="nombre" className="text-black ">{`Adjunto de revisado del ${vehicle}`}</label>
+              <Controller
+                  name="foto_revisado"
+                  control={control}
+                  render={({ field }) => (
+                      <InsertFiles
+                          files={procedure === 'modify' ? (Array.isArray(vehicleData.foto_revisado) ? vehicleData.foto_revisado : []) : []}
+                          procedure={procedure}
+                          onFileReady={(file, name) => field.onChange(file)}
+                          fileName={field.name}
+                      />
+                  )}
               />
           </div>
 

@@ -26,9 +26,15 @@ export const CurrentCustomers: React.FC = () => {
 
           <div className="w-[40%]">
             {module === 'Customers'?(
-              <Back text="Clientes Actuales"/>
+              <Back 
+                text="Clientes Actuales"
+                redirectTo="/home"
+              />
             ): module === 'Drivers' ? (
-              <Back text="Conductores Actuales"/>
+              <Back 
+                text="Conductores Actuales"
+                redirectTo="/home"
+              />
             ): (null)
             }            
           </div>          

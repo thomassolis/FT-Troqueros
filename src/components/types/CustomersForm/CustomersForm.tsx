@@ -19,19 +19,20 @@ import {
     numeroCuenta?:string
     nombreCuenta?:string
 
-
+    cedRepresentanteLegal?: string[]; // en lugar de string
+    avisoOperaciones?: string[];
   }
 
 export interface StepOneCustomers {
     register: UseFormRegister<CustomersFormValues>;    
-    setValue?: UseFormSetValue<CustomersFormValues>;
+    setValue: UseFormSetValue<CustomersFormValues>;
     errors: FieldErrors<CustomersFormValues>;
     nextStep?: () => void;
     prevStep?: () => void;
     control?:any
     setPdfFile? :[]
     // setCustomersData: {}
-    customersData?: {
+    customersData: {
       nombre?: string;
       ruc?: string;
       direccion?: string;
@@ -43,6 +44,9 @@ export interface StepOneCustomers {
       tipoCuenta?:string;
       numeroCuenta?:string
       nombreCuenta?:string
+
+cedRepresentanteLegal?: string[]; // en lugar de string
+avisoOperaciones?: string[];
     }    
   }
 

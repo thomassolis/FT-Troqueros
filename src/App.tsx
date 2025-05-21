@@ -11,6 +11,9 @@ import { VehicleTypeProvider } from "./context/vehicleType/vehicleType.tsx";
 import { SeeChasis } from "./components/pages/Vehicles/SeeInformation/SeeChasisInfo.tsx";
 import { SearchValueProvider } from "./context/searchValueForFilter/searchValue.tsx";
 import { NotFoundPage } from "./components/pages/NotFound/NotFoundPage.tsx";
+import { DriversCreation } from "./components/pages/Drivers/DriversCreation.tsx";
+
+
 function App() {
 
   return (
@@ -33,9 +36,9 @@ function App() {
 
                 <Route path="Drivers" >
                   <Route index element={<CurrentCustomers />}/>
-                  {/* <Route path="create" element={<ChasisCreation />} /> 
-                  <Route path=":clienteID/see" element={<SeeChasis />} /> 
-                  <Route path=":clienteID/modify" element={<ChasisCreation />} />  */}
+                  <Route path="create" element={<DriversCreation />} />
+                  <Route path=":driverID/see" element={<SeeChasis />} />
+                  <Route path=":driverID/modify" element={<DriversCreation />} />  
                 </Route> 
 
                 <Route path="Vehicles">

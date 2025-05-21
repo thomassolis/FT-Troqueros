@@ -9,6 +9,10 @@ export const stepConfig: Record<string, string[]> = {
   export const stepConfigCustomers: Record<string, string[]> = {
     Customers: ['Información de Empresa', 'Persona de Contacto', 'Datos Bancarios', 'Adjuntos']
   }
+
+  export const stepConfigDrivers: Record<string, string[]> = {
+    Drivers: ['Información del Conductor', 'Información de Contacto', 'Documentos']
+  }
   
   // 📌 Mapeo de los componentes de cada paso
   export const formSteps: Record<string, any[]> = {

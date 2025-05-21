@@ -6,6 +6,8 @@ import { useEffect } from "react"
 import { InsertFiles } from "../../../ui/Files/insertFiles"
 import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
 import { Controller } from "react-hook-form"
+
+
 export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, errors, customersData}) =>{
 
     useEffect(() => {
@@ -230,9 +232,31 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, c
 }
 
 
-export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, customersData }) => {
-    const procedure = GetProcedureFromURL();
-    
+export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, customersData, setValue }) => {
+        const procedure = GetProcedureFromURL();
+
+    // Inicializar valores al cargar (solo en modo modify)
+    useEffect(() => {
+        if (procedure === 'modify') {
+            if (customersData.cedRepresentanteLegal) {
+                setValue(
+                    "cedRepresentanteLegal", 
+                    Array.isArray(customersData.cedRepresentanteLegal) 
+                        ? customersData.cedRepresentanteLegal 
+                        : [customersData.cedRepresentanteLegal]
+                );
+            }
+            if (customersData.avisoOperaciones) {
+                setValue(
+                    "avisoOperaciones",
+                    Array.isArray(customersData.avisoOperaciones)
+                        ? customersData.avisoOperaciones
+                        : [customersData.avisoOperaciones]
+                );
+            }
+        }
+    }, [procedure, customersData, setValue]);
+
     return (
         <section className="w-full">                    
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Adjunte los siguientes documentos para crear un nuevo cliente</h1>
@@ -247,7 +271,7 @@ export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, cu
                                 control={control}
                                 render={({ field }) => (
                                     <InsertFiles
-                                        files={procedure === 'modify' ? customersData.cedRepresentanteLegal || [] : []}
+                                        files={procedure === 'modify' ? (Array.isArray(customersData.cedRepresentanteLegal) ? customersData.cedRepresentanteLegal : []) : []}
                                         procedure={procedure}
                                         onFileReady={(file, name) => field.onChange(file)}
                                         fileName={field.name}
@@ -263,7 +287,11 @@ export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, cu
                                 control={control}
                                 render={({ field }) => (
                                     <InsertFiles
-                                        files={procedure === 'modify' ? customersData.avisoOperaciones || [] : []}
+                                        files={
+                                            procedure === 'modify' 
+                                                ? (Array.isArray(customersData.avisoOperaciones) ? customersData.avisoOperaciones : []) 
+                                                : []
+                                        }
                                         procedure={procedure}
                                         onFileReady={(file, name) => field.onChange(file)}
                                         fileName={field.name}

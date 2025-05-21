@@ -1,20 +1,26 @@
-import { ClassNames } from "@emotion/react";
+import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useNavigate } from "react-router-dom"
-
 interface BackProps {
     text: string | null;
-    className2?: string
+    className2?: string;
+    redirectTo?: string;
 }
 
-export const Back = ({text, className2}:BackProps) => {
+export const Back = ({ text, className2, redirectTo }: BackProps) => {
     const navigate = useNavigate();
-    return(
-        
+    
+    const handleBack = () => {
+        if (redirectTo) {
+            navigate(redirectTo); // navegación fija
+        } else {
+            navigate(-1); // fallback si no se pasa
+        }
+    };
+
+    return (
         <div className={`w-[30%] flex gap-3 items-center ${className2}`}>
-            <Icon icon="tabler:arrow-back-up-double" className="text-white bg-black rounded-md cursor-pointer" width="24" height="24" onClick={() => navigate(-1)}/>
+            <Icon icon="tabler:arrow-back-up-double" className="text-white bg-black rounded-md cursor-pointer" width="24" height="24" onClick={handleBack}/>
             <p className="text-black font-bebas text-xl">{text}</p>
-        </div> 
-        
-    )
-}
+        </div>
+    );
+};

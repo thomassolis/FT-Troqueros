@@ -1,4 +1,3 @@
-import { SmallLabel } from "../../../ui/Labels/smallLabel";
 import splitVehicleData from "../../../../functions/cleanData/splitVehicleData/splitVehicleData";
 import { SplitCustomerData } from "../../../../functions/cleanData/splitCustomerData/splitCustomerData";
 
@@ -23,10 +22,11 @@ interface CustomerData {
   nombrePersonaContacto: string;
   telPersonaContacto: string;
   emailPersonaContacto: string;
-  nombrePersonaFinanciera: string;
-  telContactoFinanciero: string;
-  emailContactoFinanciero: string;
   fechaUltimoPedido: string;
+  nombreBanco: string;
+  tipoCuenta: string;
+  nombreCuenta: string;
+  numeroCuenta: string;
 }
 
 type SeeVehicleInformationData = VehicleData | CustomerData;

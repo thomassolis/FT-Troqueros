@@ -32,7 +32,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
 
     const navigate = useNavigate()
     const {vehicleType} = useContext(vehicleTypeContext)!;
-    const {searchValue} = useContext(searchValueContext)!;
+    const {searchValue, setSearchValue} = useContext(searchValueContext)!;
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
@@ -40,7 +40,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
-    
+    console.log('module', module);
     useEffect(() => {       
         const GetDataForTable = async () => {
             try {
@@ -96,8 +96,11 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
         if (currentPage > 0) {
             GetDataForTable();
         }
-    }, [tabSelected, currentPage, pageSize, searchValue]);
+    }, [tabSelected, currentPage, pageSize, searchValue, module]);
     
+    useEffect(()=>{
+        setSearchValue('');
+    }, [])
 
     // Manejar cambio de página
     const handlePageClick = (selectedPage: number) => {        
@@ -164,7 +167,9 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                                  vehicleType === 'Furgones' ? item.id_furgon :
                                                                  vehicleType === 'Cabezales' ? item.id_cabezal : '';
                                                       navigate(`/home/Vehicles/${vehicleType}/${id}/see`);
-                                                    } else {
+                                                    } else if (module === 'Drivers'){
+                                                        navigate(`/home/Drivers/${item.id_conductor}/see`);
+                                                    }else {
                                                       navigate(`/home/Customers/${item.id_cliente}/see`);
                                                     }
                                                   }}
@@ -182,6 +187,8 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                     vehicleType === 'Furgones' ? item.id_furgon :
                                                     vehicleType === 'Cabezales' && item.id_cabezal 
                                                     navigate(`/home/Vehicles/${vehicleType}/${vehicleID}/modify`)
+                                                }else if (module === 'Drivers'){
+                                                    navigate(`/home/Drivers/${item.id_conductor}/modify`)
                                                 }else{
                                                     navigate(`/home/Customers/${item.id_cliente}/modify`)
                                                 }                                                

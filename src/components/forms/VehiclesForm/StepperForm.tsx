@@ -110,8 +110,6 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
 
   // Enviar el formulario
   const onSubmit = async (data: any) => {
-    console.log(getValues());
-    // setIsLoading(true);
 
     if(currentAction === 'create'){
       const response = await sendDataForCreation({data, vehicleType});
@@ -162,7 +160,8 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
               errors={errors}
               setValue={setValue}
               vehicleType = {vehicleType}   
-              vehicleData = {vehicleData}             
+              vehicleData = {vehicleData}       
+              control={control}      
             />
           )}
         </div>

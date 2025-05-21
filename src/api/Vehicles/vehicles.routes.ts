@@ -24,7 +24,7 @@ export const GetDataForPrevisualizationTable = async({tabSelected, page, limit, 
         if(response.data.success){
             return response.data;
         }else{
-            toast.error(response.data.message);
+            // toast.error(response.data.message);
         }
         
     }catch(error: any){
@@ -47,7 +47,11 @@ interface sendDataForCreationProps{
 }
 export const sendDataForCreation = async({data, vehicleType}:sendDataForCreationProps) =>{   
     try{
-        const response = await axios.post(`/${vehicleType}/add`, data);       
+        const response = await axios.post(`/${vehicleType}/add`, data,{
+                  headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+        });       
         if(response.data.success){            
             toast.success(response.data.message);
             return response.data
@@ -88,7 +92,11 @@ export const sendDataForUpdate = async({data, vehicleType, vehicleID, available}
             ...data
           };
     try{
-        const response = await axios.put(`/${vehicleType}/update`, dataForUpddate);
+        const response = await axios.put(`/${vehicleType}/update`, dataForUpddate,{
+            headers:{
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         if(response.data.success){
             toast.success(response.data.message)
             return response.data

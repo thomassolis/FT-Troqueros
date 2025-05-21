@@ -77,6 +77,7 @@ export const StepperFormCustomers = () => {
         navigate('/home/Customers');
       }
       }else if (procedure === 'modify'){
+        console.log('clienteID: ', data);
         const response = await sendDataForUpdateCustomers({data, clienteID});
         if(response.success){
           navigate('/home/Customers');
@@ -91,7 +92,7 @@ export const StepperFormCustomers = () => {
     <section className="flex flex-col items-center w-full" id="InicioDeFormulario">
       <StepperLine step={activeStep} />
       
-      <form onSubmit={handleSubmit(onSubmit)} /*enctype="multipart/form-data"*/ className="w-full flex flex-col items-center">
+      <form onSubmit={handleSubmit(onSubmit)}  className="w-full flex flex-col items-center">
         <div className="w-[85%]">
           {activeStep === 0 && (
               <StepOne

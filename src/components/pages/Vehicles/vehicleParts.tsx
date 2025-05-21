@@ -1,9 +1,6 @@
 import { PrevisualizationTab } from "../../ui/tabs/Tabs"
 import { Button } from "../../ui/buttons/button"
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType"
-import { useState, useEffect } from "react"
-import { Input } from "../../ui/inputs/input"
-import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate, useLocation } from "react-router-dom"
 import { Back } from "../../ui/Back/Back"
 import { useContext } from "react"
@@ -20,7 +17,10 @@ export const VehicleParts = () =>{
     return(
         <div>
             <div className="flex w-[full] justify-between items-center mb-10">
-                <Back text="PARTES DE MULA ACTUALES"/>           
+                <Back 
+                    text="PARTES DE MULA ACTUALES"
+                    redirectTo="/home"
+                />           
 
                 <div className="w-[15%]">
                 <Button 

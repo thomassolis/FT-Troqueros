@@ -80,8 +80,8 @@ export const sendDataForUpdateCustomers = async({data, clienteID}: SendDataForUp
         ...data,
         id_cliente: clienteID
     }
-    console.log('totalData',totalData)
     try{
+        console.log('totalData', totalData)
         const response = await axios.put('/clients/update', totalData,{
             headers:{
                 'Content-Type': 'multipart/form-data'
@@ -93,7 +93,8 @@ export const sendDataForUpdateCustomers = async({data, clienteID}: SendDataForUp
             toast.error(response.data.message);
         }
         return response.data;
-    }catch(error){
+    }catch(error:any){
+        toast.error(error.response.data.message)
         console.log('Error en sendDataForUpdateCustomers', error)
     }
 }

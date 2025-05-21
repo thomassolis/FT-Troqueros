@@ -45,13 +45,19 @@ export const SeeChasis = () =>{
                     'Información de Furgón'                
                 ): module ==='Cabezales'?(
                     'Información de Cabezal'                
-                ):null
+                ): module === 'Drivers' ? (
+                    'Información de Conductor'
+                ): null
                 }/>        
             <InformationTab 
                 tabTitles={
                     module === 'Chasises' || module === 'Furgones' || module === 'Cabezales'
                     ? ['Información', 'Mantenimiento', 'Documentos']
-                    : ['Información', 'Historial', 'Documentos']
+                    : module === 'Customers' 
+                    ? ['Información', 'Historial', 'Documentos']
+                    : module === 'Drivers'
+                    ? ['Información', 'Contacto', 'Documentos']
+                    : ['','','']
                 }
                 vehicleData={vehicleData}
                 />

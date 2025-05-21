@@ -15,13 +15,15 @@ import {
     fechaExpedicion: string;
     numPoliza: string;
     fechaUltRevisado:string;
+    foto_revisado?:string;
+    foto_poliza?:string;
   }
   
   // Props base que reciben todos los pasos
   export interface StepOne {
     register: UseFormRegister<FormValues>;
     errors: FieldErrors<FormValues>;
-    control?: Control<FormValues>;
+    control?:any;
     setValue?: UseFormSetValue<FormValues>;
     getValues?: UseFormGetValues<FormValues>;
     watch?: UseFormWatch<FormValues>;
@@ -29,7 +31,9 @@ import {
     prevStep?: () => void;
     setPdfFile? :[]
     vehicleData: {
-      placa?: string    
+      placa?: string;
+      foto_revisado?: string;
+      foto_poliza?: string;
     }
 
     vehicleType: 'Cabezales' | 'Chasises' | 'Furgones'

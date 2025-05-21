@@ -27,7 +27,9 @@ export const InformationTab = ({tabTitles, vehicleData}: InformationTabProps) =>
 
     const titles = (module === 'Chasises' || module === 'Furgones' || module === 'Cabezales')
       ? ['Chasis:', 'Documentación:']
-      : ['Cliente:', 'Persona de Contacto:', 'Datos Bancarios'];
+      : (module === 'Customers') ? ['Cliente:', 'Persona de Contacto:', 'Datos Bancarios']
+      : (module === 'Drivers') ? ['Información General']
+      : ['','','']
 
     return(
     <Tabs

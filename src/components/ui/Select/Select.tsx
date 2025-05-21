@@ -4,8 +4,8 @@ import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
 import { statusUpdate } from "../../../api/Vehicles/vehicles.routes";
 
 interface TableData {
-    id: string;
-    status: string;
+    id?: string;
+    status?: string;
     [key: string]: any;  // Permitir cualquier clave adicional
 }
 
