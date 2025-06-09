@@ -1,0 +1,49 @@
+import { RoutesActions } from "../../../api/Services/services.route";
+
+
+export const deleteRoute = async(
+  id_servicio_datos: string, 
+  setLocalHistory: React.Dispatch<React.SetStateAction<any[]>>
+) => {
+
+  console.log('id_servicio_datos', id_servicio_datos);
+  
+
+  try{
+    const response = await RoutesActions('delete', id_servicio_datos);
+    
+
+    if(response.success){
+      setLocalHistory(prev =>
+        prev.filter(item => item.id_servicio_datos !== id_servicio_datos)
+      );
+    }
+  }catch(error){
+    console.error('Error en: deleteRoute', error)
+  }
+
+};
+
+export const editRoute = async(id_servicio_datos: string, id: string, /*setEditingRouteId:any*/data:any) => {
+    console.log('id_servicio_datos', id_servicio_datos);
+    console.log('ID servicio', id);
+    console.log('Data', data);
+
+    const updateRouteData = {
+        // serviceID: id,
+        id_servicio_datos: id_servicio_datos,
+        lugar_origen: data.lugarOrigen,
+        lugar_destino: data.lugarDestino,
+        tarifa: data.tarifa
+    }    
+        
+
+    try{        
+        const response = await RoutesActions('update', updateRouteData);
+
+
+        return response;
+    }catch(error){
+        console.error('Error en: deleteRoute', error)
+    }  
+};

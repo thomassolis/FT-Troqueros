@@ -1,6 +1,7 @@
 import splitVehicleData from "../../../../functions/cleanData/splitVehicleData/splitVehicleData";
 import { SplitCustomerData } from "../../../../functions/cleanData/splitCustomerData/splitCustomerData";
-
+import { SplitDriversData } from "../../../../functions/cleanData/splitDriversData/splitDriversData";
+import splitProvidersData from "../../../../functions/cleanData/splitProvidersData/splitProvidersData";
 interface VehicleData {
   fecha_caducidad_poliza?: string | null;
   fecha_expedicion_poliza?: string | null;
@@ -29,7 +30,29 @@ interface CustomerData {
   numeroCuenta: string;
 }
 
-type SeeVehicleInformationData = VehicleData | CustomerData;
+interface DriversData {
+    id_conductor: string;   
+    nombre: string;   
+    apellido: string;
+    cedula: string;   
+    status: string;   
+    telefono: string; 
+    tipo_licencia:string;   
+    email:string;     
+}
+
+interface ProvidersData {
+    id_conductor: string;   
+    nombre: string;   
+    apellido: string;
+    cedula: string;   
+    status: string;   
+    telefono: string; 
+    tipo_licencia:string;   
+    email:string;     
+}
+
+type SeeVehicleInformationData = VehicleData | CustomerData | DriversData;
 
 interface SeeVehicleInformationProps{
     titles: string[]
@@ -45,6 +68,14 @@ const isCustomerData = (data: any): data is CustomerData => {
   return 'id_cliente' in data || 'nombrePersonaContacto' in data;
 };
 
+const isDriversData = (data: any): data is DriversData => {
+  return 'id_conductor' in data /*|| 'nombrePersonaContacto' in data*/;
+};
+
+const isProvidersData = (data:any): data is ProvidersData => {
+  return 'id_proveedor' in data
+}
+
 // Función para formatear las claves del objeto a un formato más legible
 const formatKey = (key:any) => {
     return key
@@ -57,10 +88,12 @@ const formatKey = (key:any) => {
 
   export const SeeVehicleInformation = ({ titles, vehicleData, module }: SeeVehicleInformationProps) => {
     let datasets: any[] = [];
+    console.log("vehicleData", vehicleData);
 
     if (['Chasises', 'Furgones', 'Cabezales'].includes(module) && isVehicleData(vehicleData)) {
       const { policy, inspection } = splitVehicleData(vehicleData);    
       datasets = [policy, inspection];
+
     } else if (module === 'Customers' && isCustomerData(vehicleData)) {
       try {
         const { generalData, contactPerson, dataBank } = SplitCustomerData(vehicleData);
@@ -68,6 +101,20 @@ const formatKey = (key:any) => {
       } catch (error) {
         console.error("Error al dividir los datos del cliente:", error);
       }
+      
+    }else if (module === 'Drivers' && isDriversData(vehicleData)) {
+      try {
+        const {generalData} = SplitDriversData(vehicleData);
+        datasets = [generalData];
+        console.log('generalData', datasets);
+      }catch(error){
+        console.log('Error en SeeVehicleInformation', error);
+      }
+    }
+
+    else if (module === 'Providers' && isProvidersData(vehicleData)){
+      const {generalInfo, contactInfo, paymentInfo} = splitProvidersData(vehicleData);
+      datasets = [generalInfo, contactInfo, paymentInfo];
     }
   
     return (

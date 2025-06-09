@@ -8,13 +8,19 @@ import { useEffect } from "react"
 
 export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversData, setValue}) => {
     console.log('driversData', driversData);
-    useEffect(()=>{
-        if(driversData && setValue){            
-            setValue('nombre', driversData.nombre);
-            setValue('apellido', driversData.apellido);
-            setValue('cedula', driversData.cedula);
+    useEffect(() => {
+        if (driversData && setValue) {            
+            if (driversData.nombre) {
+                setValue('nombre', driversData.nombre ?? '');
+            }
+            if (driversData.apellido) {
+                setValue('apellido', driversData.apellido ?? '');
+            }            
+            if (driversData.cedula) {
+                setValue('cedula', driversData.cedula ?? '');
+            }      
         }
-    }, [driversData, setValue])
+    }, [driversData, setValue]);
     return (
         <section className="w-full ">                        
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Complete el siguiente formulario para crear un nuevo conductor</h1>
@@ -43,8 +49,8 @@ export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversDat
                             <Input 
                                 type="string" 
                                 className2={'py-5'} 
-                                placeholder="Ejm: Juan"               
-                                {...register('nombre', {required:"Required"})}  
+                                placeholder="Ejm: Juan"                                               
+                                {...register('nombre', { required: 'Required' })}
                             />
                             {errors.nombre && (
                                 <span className="text-red-500">{errors.nombre.message}</span>
@@ -63,12 +69,20 @@ export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversDat
                                 <span className="text-red-500">{errors.apellido.message}</span>
                             )}
                         </div>                        
-                        <Input 
-                            type="string" 
-                            className2={'py-5'} 
-                            placeholder="Ejm: 8-888-8888"               
-                            {...register('cedula')}  
-                        />
+
+                        <div className="flex items-center gap-3">
+                            
+                            <Input 
+                                type="string" 
+                                className2={'py-5'} 
+                                placeholder="Ejm: 8-888-8888"               
+                                {...register('cedula', {required:'Required'})}  
+                            />
+
+                            {errors.cedula && (
+                                <span className="text-red-500">{errors.cedula.message}</span>
+                            )}
+                        </div>
                     </div>
                 </div>            
             </div>            
@@ -78,13 +92,16 @@ export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversDat
 }
 
 export const Step2: React.FC<StepsDriversProps> = ({register, errors, setValue, driversData}) => {
-        useEffect(()=>{
-        if(driversData && setValue){            
-            setValue('tipo_licencia', driversData.tipo_licencia);
-            setValue('telefono', driversData.telefono);
-            setValue('email', driversData.email);
+    useEffect(() => {
+        if (driversData && setValue) {            
+            if (driversData.telefono) {
+                setValue('telefono', driversData.telefono ?? '');
+            }
+            if (driversData.email) {
+                setValue('email', driversData.email ?? '');
+            }              
         }
-    }, [driversData, setValue])
+    }, [driversData, setValue]);
     return (
         <section className="w-full ">                        
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Complete la información de contacto del nuevo conductor</h1>
@@ -92,10 +109,6 @@ export const Step2: React.FC<StepsDriversProps> = ({register, errors, setValue, 
             <div className="flex justify-center">
                 <div className="flex w-[70%]">
                     <div className="flex flex-col gap-12 items-start w-full  mt-12 ">
-
-                        {/* <div className="h-10 flex items-center">
-                            <SmallLabel text="Tipo de licencia"/>
-                        </div> */}
                         
                         <div className="h-10 flex items-center">
                             <SmallLabel text="Teléfono"/>
@@ -126,15 +139,12 @@ export const Step2: React.FC<StepsDriversProps> = ({register, errors, setValue, 
                                 type="string" 
                                 className2={'py-5'} 
                                 placeholder="Ejm: 6666-6666"               
-                                {...register('telefono', {required:'Required'})}  
+                                {...register('telefono')}  
                             />
 
-                            {errors.telefono && (
-                                <span className="text-red-500">{errors.telefono.message}</span>
-                            )}
                         </div>                        
                         <Input 
-                            type="string" 
+                            type="email" 
                             className2={'py-5'} 
                             placeholder="Ejm: Ejemplo@gmail.com"               
                             {...register('email')}  
@@ -151,33 +161,33 @@ export const Step3: React.FC<StepsDriversProps> = ({register, control, driversDa
     const procedure = GetProcedureFromURL();  
     
         // Inicializar valores al cargar (solo en modo modify)
-    useEffect(() => {
-        if (procedure === 'modify') {
-            if (driversData.licencia) {
-                setValue(
-                    "licencia", 
-                    Array.isArray(driversData.licencia) 
-                        ? driversData.licencia 
-                        : [driversData.licencia]
-                );
-            }else if (driversData.pazSalvo) {
-                setValue(
-                    "pazSalvo",
-                    Array.isArray(driversData.pazSalvo)
-                        ? driversData.pazSalvo
-                        : [driversData.pazSalvo]
-                );
-            }else if (driversData.recordPolicivo) {
-                setValue(
-                    "recordPolicivo",
-                    Array.isArray(driversData.recordPolicivo)
-                        ? driversData.recordPolicivo
-                        : [driversData.recordPolicivo]
-                );
-            }
+    // useEffect(() => {
+    //     if (procedure === 'modify') {
+    //         if (driversData.licencia) {
+    //             setValue(
+    //                 "licencia", 
+    //                 Array.isArray(driversData.licencia) 
+    //                     ? driversData.licencia 
+    //                     : [driversData.licencia]
+    //             );
+    //         }else if (driversData.pazSalvo) {
+    //             setValue(
+    //                 "pazSalvo",
+    //                 Array.isArray(driversData.pazSalvo)
+    //                     ? driversData.pazSalvo
+    //                     : [driversData.pazSalvo]
+    //             );
+    //         }else if (driversData.recordPolicivo) {
+    //             setValue(
+    //                 "recordPolicivo",
+    //                 Array.isArray(driversData.recordPolicivo)
+    //                     ? driversData.recordPolicivo
+    //                     : [driversData.recordPolicivo]
+    //             );
+    //         }
 
-        }
-    }, [procedure, driversData, setValue]);
+    //     }
+    // }, [procedure, driversData, setValue]);
     return (
         <section className="w-full">                    
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Adjunte los siguientes documentos para crear un nuevo conductor</h1>

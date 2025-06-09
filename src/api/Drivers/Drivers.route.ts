@@ -32,11 +32,13 @@ export const GetFullDriversDataForTable = async({page, limit, search}: GetFullDr
         console.log('Error en GetFullDriversDataForTable', error);
     }
 }
-
-export const GetDriversDataByID = async(id: string)=>{
-    console.log('nuevo id', id);
+interface GetDriversDataByIDProps{
+    driverID?: string;
+}
+export const GetDriversDataByID = async({driverID}:GetDriversDataByIDProps)=>{
+    console.log('DRIVER ID', driverID);
     try{
-        const response = await axios.get(`/drivers/${id}`);        
+        const response = await axios.get(`/drivers/${driverID}`);        
         return response.data.data;
     }catch(error){
         console.log('Error en GetDriversDataByID', error);
@@ -88,5 +90,18 @@ export const sendDataForUpdateDrivers = async ({data, driverID}: sendDataForUpda
     }catch(error:any){
         toast.error(error.response.data.message)
         console.log('Error en sendDataForUpdateCustomers', error)
+    }
+}
+
+interface sendDataForDeleteDriversProps {
+    id?: string;    
+}
+export const sendDataForDeleteDrivers = async({id}: sendDataForDeleteDriversProps) =>{
+    try{
+        const response = await axios.delete(`/drivers/delete/${id}`);           
+        return response.data
+    }catch(error:any){
+        console.error('Error en sendDataForDeleteDrivers', error);
+        toast.error(error.response.data.message)
     }
 }

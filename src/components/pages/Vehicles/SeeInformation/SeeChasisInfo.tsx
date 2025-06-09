@@ -8,11 +8,15 @@ import { PrevisualizationTab } from "../../../ui/tabs/Tabs"
 import { InformationTab } from "../../../ui/tabs/informationTabs"
 import { GetModuleFromURL } from "../../../../functions/GetURL/GetURLInfo"
 import { GetCustomerDataByID } from "../../../../api/Customers/customers.route"
+import { GetDriversDataByID } from "../../../../api/Drivers/Drivers.route"
+import { getProvidersDataByID } from "../../../../api/Providers/providers.route"
 
 export const SeeChasis = () =>{
     const {vehicleType} = useContext(vehicleTypeContext)!;
     const {vehicleID} = useParams();
     const {clienteID} = useParams();
+    const {driverID} = useParams();
+    const {providerID} = useParams();
     const [vehicleData, setVehicleData] = useState({});
     const module = GetModuleFromURL()
 
@@ -26,6 +30,10 @@ export const SeeChasis = () =>{
                         response = await getVehicleData({vehicleType, vehicleID});
                     }if(module === 'Customers'){
                         response = await GetCustomerDataByID({clienteID});
+                    } if (module === 'Drivers'){
+                        response = await GetDriversDataByID({driverID})
+                    } if (module === 'Providers'){
+                        response = await getProvidersDataByID({providerID})
                     }
                     setVehicleData(response);
                 }catch(error){
@@ -47,6 +55,8 @@ export const SeeChasis = () =>{
                     'Información de Cabezal'                
                 ): module === 'Drivers' ? (
                     'Información de Conductor'
+                ): module === 'Providers' ? (
+                    'Información de Proveedor'
                 ): null
                 }/>        
             <InformationTab 
@@ -56,7 +66,9 @@ export const SeeChasis = () =>{
                     : module === 'Customers' 
                     ? ['Información', 'Historial', 'Documentos']
                     : module === 'Drivers'
-                    ? ['Información', 'Contacto', 'Documentos']
+                    ? ['Información', 'Historial', 'Documentos']
+                    : module === 'Providers'
+                    ? ['Información']
                     : ['','','']
                 }
                 vehicleData={vehicleData}

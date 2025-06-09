@@ -1,12 +1,16 @@
 import Swal from "sweetalert2";
 import { sendDataForDelete } from "../../../../api/Vehicles/vehicles.routes";
 import { sendDataForDeleteCustomers } from "../../../../api/Customers/customers.route";
+import { sendDataForDeleteDrivers } from "../../../../api/Drivers/Drivers.route";
+import { sendDataForDeleteProviders } from "../../../../api/Providers/providers.route";
 
 type VehicleRow = {
     id_chasis?: string;
     id_furgon?: string;
     id_cabezal?: string;
     id_cliente?:string
+    id_conductor?:string
+    id_proveedor?:string
   };
   
 interface DeleteRowProps {
@@ -20,7 +24,7 @@ interface DeleteRowProps {
     tableData: any
 }
 export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module, tableData}: DeleteRowProps) =>{
-
+    console.log('DeleteRow', tableData);
     let response:{
         message: string,
         success: boolean
@@ -31,7 +35,12 @@ export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, se
         title = `¿Seguro que deseas eliminar el ${vehicle} ${nombre}?`
     }   else if (module === 'Customers') {
         title = `¿Seguro que deseas eliminar el cliente ${nombre}?`
-    }   else {
+    }   else if (module === 'Drivers'){
+        title = `¿Seguro que deseas eliminar el conductor ${nombre}?`
+    } else if (module === 'Providers'){
+        title = `¿Seguro que deseas eliminar el proveedor ${nombre}?`
+    }
+    else {
         title = null
     }
     
@@ -49,7 +58,12 @@ export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, se
                 if(module === 'Vehicles'){
                     response = await sendDataForDelete({ id, vehicleType });                    
                 }else if (module === 'Customers'){
-                    response = await sendDataForDeleteCustomers({id})
+                    response = await sendDataForDeleteCustomers({id});
+                } else if (module === 'Drivers'){
+                    response = await sendDataForDeleteDrivers({id});
+                    console.log('responseDrivers', response);
+                } else if (module === 'Providers') {
+                    response = await sendDataForDeleteProviders({id});
                 }
 
                 if (response.success) {
@@ -61,7 +75,15 @@ export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, se
                                 if (vehicleType === 'Furgones') return item.id_furgon !== id;
                                 if (vehicleType === 'Cabezales') return item.id_cabezal !== id;
                                 return true;
-                            } else {
+                            } else if (module === 'Drivers'){
+                                console.log('item', item.id_conductor);
+                                return item.id_conductor !== id;
+                            } else if (module === 'Providers'){
+                                return item.id_proveedor !== id;
+                            }
+                            else {
+                                console.log('item', item.id_cliente);
+                                console.log('ID', id);
                                 return item.id_cliente !== id;
                             }
                         })

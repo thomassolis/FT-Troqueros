@@ -170,8 +170,10 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
           <div className="w-[10%] flex">
             <Button                 
               onClick={prevStep} 
-              className2="bg-gray-500 p-2 w-full"              
+              className2="p-2 w-full"              
               text="Atrás"
+              bgColor="bg-red-600"
+              textColor="text-white"
             />
           </div>
           
@@ -179,8 +181,10 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
             {activeStep < stepFields[selectedOption]?.length - 1 ? (
               <Button
                 onClick={nextStep}
-                className2="bg-blue-500 p-2 w-full"
+                className2="p-2 w-full"
                 text="Siguiente"
+                bgColor="bg-[#1B5316]"
+                textColor="text-white"
               />
             ) : (
               <Button

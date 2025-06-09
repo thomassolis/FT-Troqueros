@@ -22,7 +22,7 @@ export const Button = ({
     type = "button",
     isLoading = false,
     isSelected,
-    bgColor = "bg-orange-600",
+    bgColor = "bg-troquerosOrange",
     hoverBgColor = "bg-troquerosOrange",
     textColor = "text-black",
     className2,
@@ -35,8 +35,8 @@ export const Button = ({
         <button
             type={type}
             className={`
-                p-3 rounded-md w-full flex justify-center items-center font-jersey ${className2} ${textColor}
-                ${isSelected ? `${bgColor}` : `${hoverBgColor} hover:${bgColor}`}
+                p-3 rounded-md w-full flex justify-center items-center font-jersey font-semibold ${className2} ${textColor}
+                ${isSelected ? `${hoverBgColor}` : `${bgColor} hover:opacity-70`}
             `}
             disabled={isLoading}
             onClick={(event) => {

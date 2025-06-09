@@ -11,22 +11,22 @@ import { GetDriversDataByID } from "../../../api/Drivers/Drivers.route";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
 import { SendDataForNewDriver } from "../../../api/Drivers/Drivers.route";
 import { sendDataForUpdateDrivers } from "../../../api/Drivers/Drivers.route";
+import { StepperFormProviders } from "../ProvidersForm/StepperFormProviders";
 
 export const StepperFormDrivers = () => {
   const [driversData, setDriversData] = useState({});
   const {driverID} = useParams();
   const [isLoading, setIsLoading] = useState(false);
-  const procedure = GetProcedureFromURL();
-  console.log('procedure', procedure);
+  const procedure = GetProcedureFromURL();  
+
+  //Obtendrá los datos por ID
   useEffect(()=>{
 
-    if(driverID){
-      console.log('if useEffect');
+    if(driverID){      
       setIsLoading(true);
       const FetchCustomerDataByID = async() =>{
         try{
-          const response = await GetDriversDataByID(driverID);     
-          console.log('response: ', response);
+          const response = await GetDriversDataByID({driverID});               
           setDriversData(response);
         }catch(error){
           console.error('Error en StepperFormCustomers', error);
@@ -71,20 +71,16 @@ export const StepperFormDrivers = () => {
     }
   };
 
-  // Enviar el formulario
-  const values = getValues()
 
-  const onSubmit = async (data: any) => {
-    console.log('data: ', data);
+  const onSubmit = async (data: any) => {    
+    console.log('DATA', data);
     setIsLoading(true);
-    if(procedure === 'create'){
-      console.log('createeee');
+    if(procedure === 'create'){      
       const response = await SendDataForNewDriver({data});
       if(response.success){
         navigate('/home/Drivers');
       }
-    } else if (procedure === 'modify'){
-        console.log('clienteID: ', data);
+    } else if (procedure === 'modify'){        
         const response = await sendDataForUpdateDrivers({data, driverID});
         if(response.success){
           navigate('/home/Drivers');
@@ -96,17 +92,17 @@ export const StepperFormDrivers = () => {
 
 
   return (
-    <section className="flex flex-col items-center w-full" id="InicioDeFormulario">
+    <section className="flex flex-col items-center w-full">
       <StepperLine step={activeStep} />
       
       <form onSubmit={handleSubmit(onSubmit)} /*enctype="multipart/form-data"*/ className="w-full flex flex-col items-center">
         <div className="w-[85%]">
           {activeStep === 0 && (
-              <Step1
-                register={register} 
+              <Step1              
+                register={register}
                 setValue={setValue}
-                errors={errors}           
-                driversData={driversData}                
+                errors={errors} 
+                driversData={driversData}
               />
           )}
 
@@ -134,8 +130,10 @@ export const StepperFormDrivers = () => {
           <div className="w-[10%] flex">
             <Button                 
               onClick={prevStep} 
-              className2="bg-gray-500 p-2 w-full"
+              className2="p-2 w-full"
+              bgColor="bg-red-600"
               text="Atrás"
+              textColor="text-white"
             />
           </div>
 
@@ -146,7 +144,9 @@ export const StepperFormDrivers = () => {
                   const isStepValid = await trigger(); // valida los campos actuales
                   if (isStepValid) nextStep();
                 }}
-                className2="bg-blue-500 p-2 w-full"
+                className2="p-2 w-full"
+                textColor="text-white"
+                bgColor="bg-[#1B5316]"
                 text="Siguiente"
               />
             ) : (

@@ -1,6 +1,7 @@
 import { stepConfig } from "./Stepper";
 import { stepConfigCustomers } from "./Stepper";
 import { stepConfigDrivers } from "./Stepper";
+import { stepConfigProviders } from "./Stepper";
 import { useLocation } from "react-router-dom";
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
@@ -15,7 +16,6 @@ interface StepperLineProps {
 }
 
 export const StepperLine = ({ selectedOption, step }: StepperLineProps) => {
-  console.log('step', step);
   const module = GetModuleFromURL();
   
   const [steps, setSteps] = useState<string[]>([]);
@@ -25,6 +25,8 @@ export const StepperLine = ({ selectedOption, step }: StepperLineProps) => {
       setSteps(stepConfigCustomers['Customers']);
     } else if(module === 'Drivers'){
       setSteps(stepConfigDrivers['Drivers']);
+    }else if (module === 'Providers'){
+      setSteps(stepConfigProviders['Providers']);
     }
     else {
       if (selectedOption && stepConfig[selectedOption]) {

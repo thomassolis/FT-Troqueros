@@ -12,6 +12,7 @@ import { GetDataForPrevisualizationTableCustomers } from "../../../api/Customers
 import { searchValueContext } from "../../../context/searchValueForFilter/searchValue";
 import { DeleteRow } from "../../pages/Vehicles/deleteValue/DeleteValue";
 import { GetFullDriversDataForTable } from "../../../api/Drivers/Drivers.route";
+import { GetProviders } from "../../../api/Providers/providers.route";
 
 interface PrevisualizationTableProps {
     headerTable: string[];
@@ -79,9 +80,19 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                         page: currentPage, 
                         limit: pageSize,
                         search: searchValue ?? ''
-                    });                     
+                    });   
+                    console.log('response.data.data',response.data.data)                  
 
                     setTableData(response.data.data || []);  
+                    setTotalRecords(response.data.totalRegistros);                    
+                    setPageSize(response.data.limite); 
+                }else if (module === 'Providers'){
+                    const response = await GetProviders({
+                        page: currentPage, 
+                        limit: pageSize,
+                        search: searchValue ?? ''
+                    });
+                    setTableData(response.data.data || []); 
                     setTotalRecords(response.data.totalRegistros);                    
                     setPageSize(response.data.limite); 
                 }
@@ -109,9 +120,8 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
 
     const deleteRow = async (id: string, nombre: string, vehicleType?: string | undefined) => {
         const vehicle = changeVehicleValue(vehicleType);
-    
         //Función que mostrará la opción de eliminar dentro de la UI usando un modal
-        DeleteRow({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module:module, tableData});
+        DeleteRow({vehicle, nombre, vehicleType, id, setTableData, module:module, tableData});
     };
 
     return (
@@ -131,7 +141,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                             tableData.map((item, index) => (
                                 <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center">
                                     {Object.entries(item)
-                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente" && key !== "id_conductor")
+                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente" && key !== "id_conductor" && key !== "id_proveedor" && key !== "numero_cuenta" && key !== "tipo_banco")
                                         .map(([key, value], idx) => (
                                             <td key={idx} className="px-6 py-4 whitespace-nowrap text-black">
                                                 {headerTable[idx] === "STATUS" ? (
@@ -160,7 +170,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                 icon="mdi:eye" 
                                                 width="24" 
                                                 height="24" 
-                                                className="cursor-pointer"
+                                                className="cursor-pointer hover:text-green-500"
                                                 onClick={() => {
                                                     if (module === 'Vehicles') {
                                                       const id = vehicleType === 'Chasises' ? item.id_chasis :
@@ -169,8 +179,10 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                       navigate(`/home/Vehicles/${vehicleType}/${id}/see`);
                                                     } else if (module === 'Drivers'){
                                                         navigate(`/home/Drivers/${item.id_conductor}/see`);
-                                                    }else {
+                                                    }else if (module === 'Customers'){
                                                       navigate(`/home/Customers/${item.id_cliente}/see`);
+                                                    }else if (module === 'Providers'){
+                                                        navigate(`/home/Providers/${item.id_proveedor}/see`);
                                                     }
                                                   }}
                                             />    
@@ -180,7 +192,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                             icon="uil:edit" 
                                             width="24" 
                                             height="24" 
-                                            className="cursor-pointer" 
+                                            className="cursor-pointer hover:text-blue-500" 
                                             onClick={() => {
                                                 if(module === 'Vehicles'){                                                    
                                                     const vehicleID = vehicleType === 'Chasises' ? item.id_chasis :
@@ -189,7 +201,10 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                     navigate(`/home/Vehicles/${vehicleType}/${vehicleID}/modify`)
                                                 }else if (module === 'Drivers'){
                                                     navigate(`/home/Drivers/${item.id_conductor}/modify`)
-                                                }else{
+                                                } else if (module === 'Providers'){
+                                                    navigate(`/home/Providers/${item.id_proveedor}/modify`)
+                                                }
+                                                else{
                                                     navigate(`/home/Customers/${item.id_cliente}/modify`)
                                                 }                                                
                                             }}
@@ -200,7 +215,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                 icon="material-symbols:delete" 
                                                 width="24" 
                                                 height="24" 
-                                                className="cursor-pointer" 
+                                                className="cursor-pointer hover:text-red-500" 
                                                 onClick={()=>
                                                     {module === 'Vehicles' ? (
                                                         deleteRow(
@@ -213,10 +228,14 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                             )
                                                             ,item.placa, vehicleType
                                                         )   
-                                                    ):(
+                                                    ): module === 'Drivers' ? (
+                                                        console.log('item.c', item.nombre),
+                                                        deleteRow(item.id_conductor, item.nombreCompleto)
+                                                    ):(module === 'Providers') ? (
+                                                        deleteRow(item.id_proveedor, item.nombre)
+                                                    ): (
                                                         deleteRow(item.id_cliente, item.nombre)   
-                                                    )                                                        
-                                                    }
+                                                    )}
                                                 }
                                             />    
                                         </td>                                                                        

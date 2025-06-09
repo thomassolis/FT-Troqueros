@@ -76,8 +76,7 @@ export const StepperFormCustomers = () => {
       if(response.success){
         navigate('/home/Customers');
       }
-      }else if (procedure === 'modify'){
-        console.log('clienteID: ', data);
+      }else if (procedure === 'modify'){        
         const response = await sendDataForUpdateCustomers({data, clienteID});
         if(response.success){
           navigate('/home/Customers');
@@ -98,8 +97,8 @@ export const StepperFormCustomers = () => {
               <StepOne
                 register={register} 
                 setValue={setValue}
-                errors={errors}           
-                customersData={customersData}                
+                errors={errors}
+                customersData={customersData}
               />
           )}
 
@@ -137,7 +136,9 @@ export const StepperFormCustomers = () => {
           <div className="w-[10%] flex">
             <Button                 
               onClick={prevStep} 
-              className2="bg-gray-500 p-2 w-full"
+              className2="p-2 w-full"
+              bgColor="bg-red-600"
+              textColor="text-white"
               text="Atrás"
             />
           </div>
@@ -149,8 +150,10 @@ export const StepperFormCustomers = () => {
                   const isStepValid = await trigger(); // valida los campos actuales
                   if (isStepValid) nextStep();
                 }}
-                className2="bg-blue-500 p-2 w-full"
+                className2="p-2 w-full"
                 text="Siguiente"
+                bgColor="bg-[#1B5316]"
+                textColor="text-white"
               />
             ) : (
               <Button

@@ -30,13 +30,11 @@ export const FilterSearch = ({vehicleType}:FilterSearchProps) =>{
         <div className="flex">
                 <div className="flex w-[8%] px-12  items-center justify-center py-2 border border-gray-400 bg-white">
                     <h1 className="text-black">
-                        {lastSegment === 'Customers' ? (
+                        {lastSegment === 'Customers'||lastSegment==='Drivers'||lastSegment==='Services'||lastSegment==='Providers' ? (
                             'Nombre'
                             ):lastSegment === 'Vehicles' ? (
                                 'Placa'
-                            ):lastSegment === 'Drivers' ? (
-                                'Nombre'
-                            ): ''
+                            ):''
                         }                        
                     </h1>
                 </div>
@@ -64,7 +62,7 @@ export const FilterSearch = ({vehicleType}:FilterSearchProps) =>{
                 <Button 
                     type="submit" 
                     text="Buscar" 
-                    hoverBgColor="bg-gray-200" 
+                    bgColor="bg-gray-200" 
                     className2={"py-2 rounded-none border border-gray-400"}                         
                 />
 

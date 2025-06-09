@@ -31,7 +31,19 @@ export const FilesViewer = ({ files }: FilesViewerProps) => {
                             >
                                 <p className="text-black">
                                     <strong>
-                                        {file.source === 'foto_poliza' ? 'Póliza' : file.source === 'foto_revisado' ? 'Revisado del vehículo' : file.source === 'cedRepresentanteLegal' ? 'Cédula de Representante Legal' : file.source === 'avisoOperaciones' ? 'Aviso de Operaciones': null}
+                                        {file.source === 'foto_poliza' 
+                                        ? 'Póliza' 
+                                        : file.source === 'foto_revisado' 
+                                        ? 'Revisado del vehículo' 
+                                        : file.source === 'cedRepresentanteLegal' 
+                                        ? 'Cédula de Representante Legal' 
+                                        : file.source === 'avisoOperaciones' 
+                                        ? 'Aviso de Operaciones'
+                                        : file.source === 'licencia' 
+                                        ? 'Licencia'
+                                        : file.source === 'pazSalvo' 
+                                        ? 'Paz Y Salvo'
+                                        : null}
                                     </strong>
                                 </p>
 

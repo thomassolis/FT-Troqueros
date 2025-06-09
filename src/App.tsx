@@ -49,6 +49,20 @@ function App() {
 
                   <Route path=":vehicleType/:vehicleID/see" element={<SeeChasis />} /> 
                 </Route>
+
+                <Route path="Services" >
+                  <Route index element={<CurrentCustomers />}/>
+                  <Route path="create" element={<DriversCreation />} />
+                </Route> 
+
+                <Route path="Providers" >
+                  <Route index element={<CurrentCustomers />}/>
+                  <Route path="create" element={<DriversCreation />} />
+                  <Route path=":providerID/see" element={<SeeChasis />} />
+                  <Route path=":providerID/modify" element={<DriversCreation />} />  
+                </Route> 
+
+
               </Route>
 
               <Route path="*" element={<NotFoundPage />} />

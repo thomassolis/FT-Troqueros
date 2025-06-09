@@ -5,7 +5,7 @@ import { GetModuleFromURL } from '../../../functions/GetURL/GetURLInfo';
 import { FilesFather } from '../../others/Files/FilesFather';
 
 interface InformationTabProps {
-    tabTitles: [string, string, string]
+    tabTitles: [string, string, string] | [string]
     vehicleData: {
       fecha_caducidad_poliza?: string | null;
         fecha_expedicion_poliza?: string | null;
@@ -29,6 +29,7 @@ export const InformationTab = ({tabTitles, vehicleData}: InformationTabProps) =>
       ? ['Chasis:', 'Documentación:']
       : (module === 'Customers') ? ['Cliente:', 'Persona de Contacto:', 'Datos Bancarios']
       : (module === 'Drivers') ? ['Información General']
+      : (module === 'Providers')? ['Información General',  'Información de Contacto', 'Información de Pago']
       : ['','','']
 
     return(

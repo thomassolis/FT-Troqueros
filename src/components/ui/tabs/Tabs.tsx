@@ -4,7 +4,7 @@ import { PrevisualizationTable } from "../Tables/previsualizationTable";
 
 interface TabsProps {
     tabContent: string[];
-    onTabChange: (selectedOption: string) => void; // Prop para enviar la opción al padre    
+    onTabChange: any; // Prop para enviar la opción al padre    
 }
 
 export const PrevisualizationTab = ({ tabContent, onTabChange }: TabsProps) => {
