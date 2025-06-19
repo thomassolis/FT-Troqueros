@@ -23,8 +23,7 @@ export const FilterSearch = ({vehicleType}:FilterSearchProps) =>{
         const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {                        
                 setSearchValue(event.target.value);                         
         };   
-        const onSubmit: SubmitHandler<submitData> = (data) => {
-            console.log("Datos enviados:", data);
+        const onSubmit: SubmitHandler<submitData> = (data) => {            
         };        
     return(
         <div className="flex">

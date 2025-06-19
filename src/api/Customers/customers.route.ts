@@ -1,6 +1,6 @@
 import axios from "../axios.ts";
 import toast from "react-hot-toast";
-import { CustomersFormValues } from "../../components/types/CustomersForm/CustomersForm.tsx";
+import { CustomersFormValues } from "../../components/types/forms/CustomersForm/CustomersForm.tsx";
 
 interface GetDataForPrevisualizationTableCustomersProps{
     page: number;
@@ -11,7 +11,7 @@ interface GetDataForPrevisualizationTableCustomersProps{
 //Tabla que mostrará los chasises, furgones y cabezales que hay en el sistema
 export const GetDataForPrevisualizationTableCustomers = async({page, limit, search}: GetDataForPrevisualizationTableCustomersProps) => {     
     try{           
-        const response = await axios.get('/clients', {
+        const response = await axios.get('/clients/see_clients', {
             params:{
                 page: page,
                 limit: limit,
@@ -25,7 +25,7 @@ export const GetDataForPrevisualizationTableCustomers = async({page, limit, sear
         }
         
     }catch(error: any){
-        console.log("Error en GetDataForPrevisualizationTable: ", error);
+        console.error("Error en GetDataForPrevisualizationTable: ", error);
 
         // Verifica si el error tiene una respuesta del backend (AxiosError)
         if (error.response && error.response.data && error.response.data.message) {            
@@ -42,10 +42,10 @@ interface GetCustomerDataByIDProps{
 }
 export const GetCustomerDataByID = async({clienteID}: GetCustomerDataByIDProps) =>{    
     try{
-        const response =await axios.get(`/clients/${clienteID}`)        
+        const response =await axios.get(`/clients/see_clients_id/${clienteID}`)        
         return response.data.data;
     }catch(error){
-        console.log('Error en GetCustomerDataByID', error)
+        console.error('Error en GetCustomerDataByID', error)
     }
 }
 interface SendDataForCreationCustomerProps{
@@ -54,7 +54,7 @@ interface SendDataForCreationCustomerProps{
 export const SendDataForCreationCustomer = async({data}: SendDataForCreationCustomerProps) =>{    
     try{
         
-        const response = await axios.post('/clients/add', data,{
+        const response = await axios.post('/clients/add_client', data,{
                   headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -66,7 +66,7 @@ export const SendDataForCreationCustomer = async({data}: SendDataForCreationCust
         }        
         return response.data
     }catch(error:any){
-        console.log('Error en SendDataForCreationCustomer', error)
+        console.error('Error en SendDataForCreationCustomer', error)
         toast.error(error.response.data.message)
     }
 }
@@ -81,8 +81,7 @@ export const sendDataForUpdateCustomers = async({data, clienteID}: SendDataForUp
         id_cliente: clienteID
     }
     try{
-        console.log('totalData', totalData)
-        const response = await axios.put('/clients/update', totalData,{
+        const response = await axios.put('/clients/update_client', totalData,{
             headers:{
                 'Content-Type': 'multipart/form-data'
             }
@@ -95,7 +94,7 @@ export const sendDataForUpdateCustomers = async({data, clienteID}: SendDataForUp
         return response.data;
     }catch(error:any){
         toast.error(error.response.data.message)
-        console.log('Error en sendDataForUpdateCustomers', error)
+        console.error('Error en sendDataForUpdateCustomers', error)
     }
 }
 
@@ -103,11 +102,15 @@ interface sendDataForDeleteCustomersProps{
     id: string | undefined;    
 }
 export const sendDataForDeleteCustomers = async({id}:sendDataForDeleteCustomersProps)=>{
+    const data = {
+        id_cliente: id,
+        active: false
+    }
     try{
-        const response = await axios.delete(`/clients/delete/${id}`);
+        const response = await axios.patch(`/clients/activate_client`, data);
 
         return response.data
     }catch(error){
-        console.log(error);
+        console.error(error);
     }
 }

@@ -14,7 +14,7 @@ export const getDataFromVehicle = ({vehicleType, vehicleID}:getDataFromVehiclePr
                 const response = await getVehicleData({vehicleType, vehicleID});
                 setVehicleData(response);            
             }catch(error){
-                console.log('Error en fetchVehiceData', error);
+                console.error('Error en fetchVehiceData', error);
             }            
         }        
         fetchVehicleData();

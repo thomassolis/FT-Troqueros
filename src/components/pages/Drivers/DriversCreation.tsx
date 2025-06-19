@@ -4,6 +4,8 @@ import { GetModuleFromURL } from "../../../functions/GetURL/GetURLInfo"
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo"
 import { StepperFormProviders } from "../../forms/ProvidersForm/StepperFormProviders"
 import { ServicesForm } from "../../forms/Services/servicesForm"
+import { StepperFormRequests } from "../../forms/RequestsForm/StepperFormRequest"
+
 export const DriversCreation = () =>{
     const module = GetModuleFromURL();
     const procedure = GetProcedureFromURL();
@@ -33,6 +35,14 @@ export const DriversCreation = () =>{
                         redirectTo="/home/Services"
                     />
                     <ServicesForm/>
+                </>
+            ): module === 'Request' ? (
+                <>
+                    <Back
+                        text={`CREACIÓN DE PETICIÓN`}
+                        redirectTo="/home"
+                    />
+                    <StepperFormRequests/>
                 </>
             ):(null)}            
         </section>

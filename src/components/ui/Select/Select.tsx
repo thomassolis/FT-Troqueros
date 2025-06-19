@@ -2,7 +2,7 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { Icon } from "@iconify/react";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
 import { statusUpdate } from "../../../api/Vehicles/vehicles.routes";
-
+import { changeDriverStatus } from "../../../api/Drivers/Drivers.route";
 interface TableData {
     id?: string;
     status?: string;
@@ -15,6 +15,7 @@ interface SelectProps {
     id: string;
     defaultValue: string;
     tableData: TableData[];
+    module?:string
 }
 
 // Función para asignar color según el valor seleccionado
@@ -22,10 +23,12 @@ const getStatusColor = (status: string) => {
     return status === "Disponible" ? "text-green-600" : "text-red-500";
 };
 
-export const Select = ({ statusOptions, apiRequest, id, defaultValue, tableData }: SelectProps) => {
+export const Select = ({ statusOptions, apiRequest, id, defaultValue, tableData, module }: SelectProps) => {
     const { vehicleType } = useContext(vehicleTypeContext)!;
     const [selectedOption, setSelectedOption] = useState<string>(defaultValue || statusOptions[0]);
     const initialRender = useRef(true);
+    console.log('module en select: ', module);
+    console.log('id en select: ', id);
 
     useEffect(() => {
         setSelectedOption(defaultValue);
@@ -34,7 +37,7 @@ export const Select = ({ statusOptions, apiRequest, id, defaultValue, tableData 
     const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
         const newValue = event.target.value;
         setSelectedOption(newValue);
-        if (apiRequest ) {
+        if (apiRequest && module === 'Vehicles' ) {
             try {
                 await statusUpdate({
                     vehicleType: vehicleType,
@@ -45,6 +48,15 @@ export const Select = ({ statusOptions, apiRequest, id, defaultValue, tableData 
                 console.error("Error updating status:", error);
                 // Revertir el cambio si falla
                 setSelectedOption(defaultValue);
+            }
+        }else if (apiRequest && module === 'Drivers'){
+            try{
+                await changeDriverStatus ({
+                    id_conductor: id,
+                    status: newValue
+                })
+            }catch(error){
+                console.error("Error updating status:", error);
             }
         }
         

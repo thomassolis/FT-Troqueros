@@ -51,8 +51,6 @@ export const SubmitTableForm = async(
       id_servicio_datos: Date.now(), // ID temporal hasta que se confirme con el backend
     };
 
-    console.log('NewEntry: ', newEntry);
-
     RoutesActions('add', newEntry);
     setLocalHistory((prev:any) => [...prev, newEntry]);
     setIsAdding(false);
@@ -69,8 +67,6 @@ export const handleEdit = async (editService:any, setServiceEdit:any, row:any, s
 
 //Función para eliminar un servicio
 export const DeleteService = async (id: string, serviceName: string, reloadServices?: () => Promise<void>) => {
-  console.log('idid', id);
-  console.log('serviceName', serviceName);
 
   const result = await Swal.fire({
     title: `¿Seguro que deseas eliminar el servicio "${serviceName}"?`,

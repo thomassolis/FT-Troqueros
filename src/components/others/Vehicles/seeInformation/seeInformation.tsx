@@ -87,8 +87,7 @@ const formatKey = (key:any) => {
 
 
   export const SeeVehicleInformation = ({ titles, vehicleData, module }: SeeVehicleInformationProps) => {
-    let datasets: any[] = [];
-    console.log("vehicleData", vehicleData);
+    let datasets: any[] = [];    
 
     if (['Chasises', 'Furgones', 'Cabezales'].includes(module) && isVehicleData(vehicleData)) {
       const { policy, inspection } = splitVehicleData(vehicleData);    
@@ -105,10 +104,9 @@ const formatKey = (key:any) => {
     }else if (module === 'Drivers' && isDriversData(vehicleData)) {
       try {
         const {generalData} = SplitDriversData(vehicleData);
-        datasets = [generalData];
-        console.log('generalData', datasets);
+        datasets = [generalData];        
       }catch(error){
-        console.log('Error en SeeVehicleInformation', error);
+        console.error('Error en SeeVehicleInformation', error);
       }
     }
 

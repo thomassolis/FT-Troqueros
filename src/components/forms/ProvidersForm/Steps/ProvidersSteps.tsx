@@ -1,14 +1,13 @@
 import { SmallLabel } from "../../../ui/Labels/smallLabel"
 import { Input } from "../../../ui/inputs/input"
 import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
-import { StepsProvidersProps } from "../../../types/ProvidersForm/providersForm"
+import { StepsProvidersProps } from "../../../types/forms/ProvidersForm/providersForm"
 import { useEffect } from "react"
 
 export const Step1: React.FC<StepsProvidersProps> = ({register, errors, setValue, providersData}) => {    
 
         useEffect(() => {
-        if (providersData && setValue) {
-            console.log('Providers: ', providersData)
+        if (providersData && setValue) {            
             if (providersData.nombre) {
                 setValue('nombre', providersData.nombre ?? '');
             }

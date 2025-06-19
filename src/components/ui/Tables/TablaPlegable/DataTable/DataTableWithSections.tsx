@@ -230,6 +230,7 @@ const {register, handleSubmit, reset} = useForm();
                     <TableCell align="center">
                     <input
                         placeholder="Tarifa $"
+                        min={1}
                         type='number'
                         style={{ padding: "4px", width: "100%" }}
                         className='border border-gray-300 rounded'

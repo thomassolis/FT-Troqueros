@@ -37,7 +37,7 @@ export const SeeChasis = () =>{
                     }
                     setVehicleData(response);
                 }catch(error){
-                    console.log('Error en chasisInformation: ', error)
+                    console.error('Error en chasisInformation: ', error)
                 }
             }
             chasisInformation();

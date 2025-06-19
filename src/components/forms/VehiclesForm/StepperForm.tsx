@@ -5,7 +5,7 @@ import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
 import { StepOne, StepTwo, StepThree } from "./Steps";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { FormValues } from "../../types/VehicleForm/VehiclesFormTypes";
+import { FormValues } from "../../types/forms/VehicleForm/VehiclesFormTypes";
 import { useParams } from "react-router-dom";
 import { sendDataForCreation } from "../../../api/Vehicles/vehicles.routes";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";

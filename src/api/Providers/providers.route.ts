@@ -1,6 +1,6 @@
 import axios from "../axios.ts";
 import toast from "react-hot-toast";
-import { ProvidersFormValues } from "../../components/types/ProvidersForm/providersForm.ts";
+import { ProvidersFormValues } from "../../components/types/forms/ProvidersForm/providersForm.ts";
 
 interface GetProvidersProps {    
     page: number;
@@ -24,16 +24,14 @@ export const GetProviders = async({page, limit, search}: GetProvidersProps) =>{
             // toast.error(response.data.message);
         }
     }catch(error:any){
-        console.log('Error en GetProviders: ', error);
+        console.error('Error en GetProviders: ', error);
         
     }
 }
 //Crea nuevos proveedores
 export const createNewProvider = async({data}:any) => {
-    console.log(data);
     try{
-        const response = await axios.post('/suppliers/add', data);
-        console.log('response: ',response)
+        const response = await axios.post('/suppliers/add', data);        
 
         if(response.data.success){
             toast.success(response.data.message);
@@ -42,7 +40,7 @@ export const createNewProvider = async({data}:any) => {
         }
         return response.data;
     }catch(error: any){
-        console.log('Error en createNewProvider:', error)
+        console.error('Error en createNewProvider:', error)
         toast.error(error.response.data.message);
     }
 }
@@ -50,8 +48,7 @@ export const createNewProvider = async({data}:any) => {
 export const getProvidersDataByID = async({providerID}:any) => {
 
     try{
-        const response = await axios.get(`/suppliers/see_supplier_id/${providerID}`)
-        console.log('responseeee', response);
+        const response = await axios.get(`/suppliers/see_supplier_id/${providerID}`)        
         return response.data.data;
     }catch(error:any){
         console.error('Error en getProvidersDataByID', error);
@@ -86,7 +83,6 @@ export const sendDataForDeleteProviders = async({id}:any) => {
     }
     try{
         const response = await axios.patch('suppliers/activate_supplier',totalData)
-console.log('response:', response);
         if(response.data.success){
             toast.success(response.data.message)
         }else{
@@ -95,6 +91,6 @@ console.log('response:', response);
 
         return response.data;
     }catch(error:any){
-        console.log('Error en deleteProviders: ', error);
+        console.error('Error en deleteProviders: ', error);
     }
 }

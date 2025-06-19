@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
 import { StepOne, StepTwo, StepThree, StepFour } from "./Steps/StepOne";
-import { CustomersFormValues } from "../../types/CustomersForm/CustomersForm";
+import { CustomersFormValues } from "../../types/forms/CustomersForm/CustomersForm";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";

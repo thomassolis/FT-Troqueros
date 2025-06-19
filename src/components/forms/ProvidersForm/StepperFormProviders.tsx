@@ -9,7 +9,7 @@ import { Step1, Step2, Step3 } from "./Steps/ProvidersSteps";
 import { createNewProvider } from "../../../api/Providers/providers.route";
 import { getProvidersDataByID } from "../../../api/Providers/providers.route";
 import { updateProvidersInfo } from "../../../api/Providers/providers.route";
-import { ProvidersFormValues } from "../../types/ProvidersForm/providersForm";
+import { ProvidersFormValues } from "../../types/forms/ProvidersForm/providersForm";
 
 export const StepperFormProviders = () => {
   const [providersData, setProvidersData] = useState({});
@@ -70,8 +70,7 @@ export const StepperFormProviders = () => {
   };
 
 
-  const onSubmit = async (data: any) => {    
-    console.log('DATA', data);
+  const onSubmit = async (data: any) => {        
     setIsLoading(true);
     if(procedure === 'create'){      
       const response = await createNewProvider({data});

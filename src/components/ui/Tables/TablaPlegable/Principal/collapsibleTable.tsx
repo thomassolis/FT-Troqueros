@@ -13,7 +13,6 @@ interface CollapsibleTableProps {
 }
 
 export default function CollapsibleTable({servicesData, reloadServices}:CollapsibleTableProps) {
-console.log('servicesData', servicesData);
   const rows = servicesData?.map((service:any) => ({
     name: service.nombre,
     id: service.id_servicio,

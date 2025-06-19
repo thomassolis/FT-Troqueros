@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import axios from "../axios.ts";
 import { toast } from 'react-hot-toast';
-import { FormValues } from "../../components/types/VehicleForm/VehiclesFormTypes.tsx";
+import { FormValues } from "../../components/types/forms/VehicleForm/VehiclesFormTypes.tsx";
 import { changeVehicleValue } from "../../functions/changeVehicleType/changeVehicleType.ts";
 interface GetDataForPrevisualizationTableProps {
     tabSelected: string;
@@ -11,9 +11,17 @@ interface GetDataForPrevisualizationTableProps {
 }
 
 //Tabla que mostrará los chasises, furgones y cabezales que hay en el sistema
-export const GetDataForPrevisualizationTable = async({tabSelected, page, limit, search}: GetDataForPrevisualizationTableProps) => {        
+export const GetDataForPrevisualizationTable = async({tabSelected, page, limit, search}: GetDataForPrevisualizationTableProps) => {            
+    let action = ''
+    if(tabSelected==='Chasises'){
+        action = 'see_chassis'
+    }if(tabSelected==='Cabezales'){
+        action = 'see_truckhead'
+    }else if(tabSelected==='Furgones'){
+        action = 'see_truckvan'
+    }
     try{           
-        const response = await axios.get(`/${tabSelected}`, {
+        const response = await axios.get(`/${tabSelected}/${action}`, {
             params:{
                 page: page,
                 limit: limit,
@@ -28,7 +36,7 @@ export const GetDataForPrevisualizationTable = async({tabSelected, page, limit, 
         }
         
     }catch(error: any){
-        console.log("Error en GetDataForPrevisualizationTable: ", error);
+        console.error("Error en GetDataForPrevisualizationTable: ", error);
 
         // Verifica si el error tiene una respuesta del backend (AxiosError)
         if (error.response && error.response.data && error.response.data.message) {            
@@ -46,8 +54,17 @@ interface sendDataForCreationProps{
     vehicleType: string | undefined
 }
 export const sendDataForCreation = async({data, vehicleType}:sendDataForCreationProps) =>{   
+    console.log('vehicleType', vehicleType)
+    let action = ''
+    if(vehicleType==='Chasises'){
+        action = 'add_chassis'
+    }if(vehicleType==='Cabezales'){
+        action = 'add_truckhead'
+    }else if(vehicleType==='Furgones'){
+        action = 'add_truckvan'
+    }
     try{
-        const response = await axios.post(`/${vehicleType}/add`, data,{
+        const response = await axios.post(`/${vehicleType}/${action}`, data,{
                   headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -60,7 +77,7 @@ export const sendDataForCreation = async({data, vehicleType}:sendDataForCreation
             return response.data
         }       
     }catch(error:any){
-        console.log('Error en sendDataForCreation', error)
+        console.error('Error en sendDataForCreation', error)
         toast.error(error.response.data.message)
     }
 
@@ -71,11 +88,19 @@ interface getVehicleDataProps{
     vehicleID: string | undefined
 }
 export const getVehicleData = async({vehicleType, vehicleID}:getVehicleDataProps) =>{
+    let action = ''
+    if(vehicleType==='Chasises'){
+        action = 'see_chassis_id'
+    }if(vehicleType==='Cabezales'){
+        action = 'see_truckhead_id'
+    }else if(vehicleType==='Furgones'){
+        action = 'see_truckvan_id'
+    }
     try{        
-        const response = await axios.get(`/${vehicleType}/${vehicleID}`);
+        const response = await axios.get(`/${vehicleType}/${action}/${vehicleID}`);
         return response.data.data;
     }catch(error){
-        console.log('Error en getVehicleData: ', error)
+        console.error('Error en getVehicleData: ', error)
     }
 }
 
@@ -87,12 +112,21 @@ interface sendDataForUpdateProps{
 }
 export const sendDataForUpdate = async({data, vehicleType, vehicleID, available}:sendDataForUpdateProps) =>{
     
+    let action = ''
+    if(vehicleType==='Chasises'){
+        action = 'update_chassis'
+    }if(vehicleType==='Cabezales'){
+        action = 'update_truckhead'
+    }else if(vehicleType==='Furgones'){
+        action = 'update_truckvan'
+    }
+
     const dataForUpddate = {
             id: vehicleID,            
             ...data
           };
     try{
-        const response = await axios.put(`/${vehicleType}/update`, dataForUpddate,{
+        const response = await axios.put(`/${vehicleType}/${action}`, dataForUpddate,{
             headers:{
                 'Content-Type': 'multipart/form-data'
             }
@@ -105,7 +139,7 @@ export const sendDataForUpdate = async({data, vehicleType, vehicleID, available}
             return response.data
         }
     }catch(error:any){
-        console.log('error en sendDataForUpdate', sendDataForUpdate);
+        console.error('error en sendDataForUpdate', sendDataForUpdate);
         toast.error(error.response.data.message)
     }
 }
@@ -115,15 +149,24 @@ interface statusUpdate{
     vehicleID: string | undefined
 }
 export const statusUpdate = async({vehicleType, vehicleID, status}: statusUpdate) =>{
+    let action = ''
+    if(vehicleType==='Chasises'){
+        action = 'update_status_chassis'
+    }if(vehicleType==='Cabezales'){
+        action = 'update_status_truckhead'
+    }else if(vehicleType==='Furgones'){
+        action = 'update_status_truckvan'
+    }
+
     const data = {
         id: vehicleID,
         status: status
     }
     
     try{
-        const response = await axios.patch(`/${vehicleType}/update_status`, data);        
+        await axios.patch(`/${vehicleType}/${action}`, data);        
     }catch(error){
-        console.log('Error en statusUpdate: ', error)
+        console.error('Error en statusUpdate: ', error)
     }
 }
 
@@ -132,10 +175,30 @@ interface sendDataForDeleteProps{
     vehicleType? : string |undefined
 }
 export const sendDataForDelete = async({id, vehicleType}:sendDataForDeleteProps)=>{
+
+    let action = ''
+    let data = {} 
+    
+    if(vehicleType==='Chasises'){
+        action = 'active_chassis'        
+        data = {id_chasis:id, active:false}
+    }if(vehicleType==='Cabezales'){
+        action = 'activate_truckhead'
+        data = {id_cabezal:id, active:false}
+    }else if(vehicleType==='Furgones'){
+        action = 'activate_truckvan'
+        data = {id_furgon:id, active:false}
+    }
+    
+
     try{
-        const response = await axios.delete(`/${vehicleType}/delete/${id}`);
-        return response.data
+        let response;
+        
+        response = await axios.patch(`/${vehicleType}/${action}`, data);
+        
+        return response?.data
     }catch(error){
-        console.log(error);
+        console.error(error);
+        toast.error('Error al eliminar vehículo')
     }
 }

@@ -20,8 +20,7 @@ export const ServicesTableManagement = ({module}: ServicesTableManagement) =>{
             const response = await GetServices({
                 search: searchValue ?? '',
                 page: currentPage ?? ''
-            });
-            console.log('responsee', response);
+            });            
             setServicesData(response.data.data);
             // setPaginacion(response.data);
             setTotalRecords(response.data.totalRegistros); 

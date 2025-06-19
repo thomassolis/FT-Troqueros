@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
 import { Step1, Step2, Step3 } from "./Steps/DriversSteps";
-import { DriversFormValues } from "../../types/DriversForm/DriversForm";
+import { DriversFormValues } from "../../types/forms/DriversForm/DriversForm";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -72,8 +72,7 @@ export const StepperFormDrivers = () => {
   };
 
 
-  const onSubmit = async (data: any) => {    
-    console.log('DATA', data);
+  const onSubmit = async (data: any) => {        
     setIsLoading(true);
     if(procedure === 'create'){      
       const response = await SendDataForNewDriver({data});

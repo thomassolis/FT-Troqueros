@@ -1,6 +1,6 @@
 import { SmallLabel } from "../../ui/Labels/smallLabel"
 import { Input } from "../../ui/inputs/input"
-import { DynamicSections } from "./dynamicSections"
+import { DynamicSections } from "../../../functions/DynamicSections/Services/dynamicSections"
 import { useState } from "react"
 import { Button } from "../../ui/buttons/button"
 import { useNavigate } from "react-router-dom"
@@ -27,25 +27,38 @@ export const ServicesForm = () => {
     setOptions((prev) => prev.filter((item) => item !== id));
   };
 
-  const onSubmit = async(data:serviceTypes) => {
+  const onSubmit = async(data:serviceTypes) => {    
     // Transformamos los datos al formato requerido
-  const formData: serviceTypes = {
-    nombre_servicio: data.nombre_servicio,
-    datos_servicio: Object.fromEntries(
-      options.map(id => [
-        id,
-        {
-          lugar_origen: data.datos_servicio?.[id]?.lugar_origen ?? '',
-          lugar_destino: data.datos_servicio?.[id]?.lugar_destino ?? '',
-          tarifa: data.datos_servicio?.[id]?.tarifa ?? 0,
-        }
-      ])
-    )
-  };
+    // Verifica que todos los elementos sean objetos válidos
+const isValid = Array.isArray(data.datos_servicio) &&
+  data.datos_servicio.every(item => 
+    item === null || 
+    (typeof item === 'object' && item !== null &&
+      'lugar_origen' in item &&
+      'lugar_destino' in item &&
+      'tarifa' in item)
+  );
 
 
+    if (!isValid) {
+      console.error('datos_servicio contiene elementos inválidos');
+      return;
+    }
 
-    console.log('Datos enviados:', formData);
+const formData: serviceTypes = {
+  nombre_servicio: data.nombre_servicio,
+  datos_servicio: Array.isArray(data.datos_servicio)
+    ? data.datos_servicio
+        .filter(item => item !== null)
+        .map(item => ({
+          lugar_origen: item.lugar_origen,
+          lugar_destino: item.lugar_destino,
+          tarifa: item.tarifa
+        }))
+    : []
+};
+
+    
     try{
 
       const response = await CreateNewService(formData);
@@ -54,7 +67,7 @@ export const ServicesForm = () => {
         navigate('/home/Services');
       }
     }catch(error:unknown){
-      console.log('Error en try ', error);
+      console.error('Error en try ', error);
     }
     // Aquí harías el envío real a tu API
   }
@@ -99,7 +112,7 @@ export const ServicesForm = () => {
 
             {/* Secciones dinámicas */}
             {options.map((id) => (
-              <div key={id} className="flex flex-col gap-12">
+              <div key={id} className="flex flex-col gap-12 w-full">
                 <DynamicSections 
                   id={id}
                   numero={id} 

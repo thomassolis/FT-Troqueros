@@ -74,7 +74,7 @@ export const CurrentCustomers: React.FC = () => {
             /> 
           ): module === 'Drivers' ? (
             <PrevisualizationTable 
-              headerTable={['Nombre', 'Cédula', 'Teléfono', 'Email', 'Status', 'Acciones']}              
+              headerTable={['Nombre', 'Cédula', 'Teléfono', 'Email', 'STATUS', 'Acciones']}              
             /> 
           ): module === 'Services' ? (                                  
               <ServicesTableManagement module = {module}/>      

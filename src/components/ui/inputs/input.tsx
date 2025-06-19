@@ -1,6 +1,4 @@
-import { register } from "module";
-import { ForwardedRef, forwardRef } from "react";
-import { FaRegUser } from "react-icons/fa";
+import { forwardRef } from "react";
 
 interface InputProps {
     type: string;
@@ -9,11 +7,13 @@ interface InputProps {
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     name?:string    
     defaultValue?:string
-    value?:string
+    value?:string | number
+    min?:string | number
+    max?:string | number
 }
 
 export const Input = forwardRef <HTMLInputElement, InputProps>(
-    ({type, value, defaultValue, placeholder, className2, onChange, ...rest}, ref) =>{
+    ({type, min, max, value, defaultValue, placeholder, className2, onChange, ...rest}, ref) =>{
         return(
             <input 
                 type={type} 
@@ -23,7 +23,9 @@ export const Input = forwardRef <HTMLInputElement, InputProps>(
                 onChange={onChange} 
                 {...rest}
                 defaultValue={defaultValue}
-                value={value}
+                value={value}                
+                min={min}
+                max={max}
             />
         );
     }

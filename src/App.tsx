@@ -12,7 +12,7 @@ import { SeeChasis } from "./components/pages/Vehicles/SeeInformation/SeeChasisI
 import { SearchValueProvider } from "./context/searchValueForFilter/searchValue.tsx";
 import { NotFoundPage } from "./components/pages/NotFound/NotFoundPage.tsx";
 import { DriversCreation } from "./components/pages/Drivers/DriversCreation.tsx";
-
+import { DynamicRequestsProvider } from "./context/Requests/DynamicRequestsOptions.tsx";
 
 function App() {
 
@@ -20,54 +20,61 @@ function App() {
     <AuthProvider>
       <VehicleTypeProvider>
         <SearchValueProvider>
-          <BrowserRouter>
-            <div> <Toaster position="top-center" reverseOrder={false} /> </div>        
-            <Routes>          
-              <Route path="/" element={<Login />}/>                
-              <Route path="/home" element={<Layout/>}>           
-                <Route index element={<Home />}/>                
+          <DynamicRequestsProvider>          
+            <BrowserRouter>
+              <div> <Toaster position="top-center" reverseOrder={false} /> </div>        
+              <Routes>          
+                <Route path="/" element={<Login />}/>                
+                <Route path="/home" element={<Layout/>}>           
+                  <Route index element={<Home />}/>                
 
-                <Route path="Customers" >
-                  <Route index element={<CurrentCustomers />}/>
-                  <Route path="create" element={<ChasisCreation />} /> 
-                  <Route path=":clienteID/see" element={<SeeChasis />} /> 
-                  <Route path=":clienteID/modify" element={<ChasisCreation />} /> 
+                  <Route path="Customers" >
+                    <Route index element={<CurrentCustomers />}/>
+                    <Route path="create" element={<ChasisCreation />} /> 
+                    <Route path=":clienteID/see" element={<SeeChasis />} /> 
+                    <Route path=":clienteID/modify" element={<ChasisCreation />} /> 
+                  </Route>
+
+                  <Route path="Drivers" >
+                    <Route index element={<CurrentCustomers />}/>
+                    <Route path="create" element={<DriversCreation />} />
+                    <Route path=":driverID/see" element={<SeeChasis />} />
+                    <Route path=":driverID/modify" element={<DriversCreation />} />  
+                  </Route> 
+
+                  <Route path="Vehicles">
+                    <Route index element={<VehicleParts />}/>
+                    <Route path=":selectedOption/create" element={<ChasisCreation />} /> 
+
+                    <Route path=":vehicleType/:vehicleID/modify" element={<ChasisCreation />} /> 
+
+                    <Route path=":vehicleType/:vehicleID/see" element={<SeeChasis />} /> 
+                  </Route>
+
+                  <Route path="Services" >
+                    <Route index element={<CurrentCustomers />}/>
+                    <Route path="create" element={<DriversCreation />} />
+                  </Route> 
+
+                  <Route path="Providers" >
+                    <Route index element={<CurrentCustomers />}/>
+                    <Route path="create" element={<DriversCreation />} />
+                    <Route path=":providerID/see" element={<SeeChasis />} />
+                    <Route path=":providerID/modify" element={<DriversCreation />} />  
+                  </Route> 
+
+                  <Route path="Request/create" >
+                    <Route index element={<DriversCreation />}/>
+                    {/* <Route path="create" element={<DriversCreation />} />  */}
+                  </Route> 
+
+
                 </Route>
 
-                <Route path="Drivers" >
-                  <Route index element={<CurrentCustomers />}/>
-                  <Route path="create" element={<DriversCreation />} />
-                  <Route path=":driverID/see" element={<SeeChasis />} />
-                  <Route path=":driverID/modify" element={<DriversCreation />} />  
-                </Route> 
-
-                <Route path="Vehicles">
-                  <Route index element={<VehicleParts />}/>
-                  <Route path=":selectedOption/create" element={<ChasisCreation />} /> 
-
-                  <Route path=":vehicleType/:vehicleID/modify" element={<ChasisCreation />} /> 
-
-                  <Route path=":vehicleType/:vehicleID/see" element={<SeeChasis />} /> 
-                </Route>
-
-                <Route path="Services" >
-                  <Route index element={<CurrentCustomers />}/>
-                  <Route path="create" element={<DriversCreation />} />
-                </Route> 
-
-                <Route path="Providers" >
-                  <Route index element={<CurrentCustomers />}/>
-                  <Route path="create" element={<DriversCreation />} />
-                  <Route path=":providerID/see" element={<SeeChasis />} />
-                  <Route path=":providerID/modify" element={<DriversCreation />} />  
-                </Route> 
-
-
-              </Route>
-
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </BrowserRouter>      
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </BrowserRouter> 
+          </DynamicRequestsProvider>     
         </SearchValueProvider>
       </VehicleTypeProvider>
       

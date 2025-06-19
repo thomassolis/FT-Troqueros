@@ -5,8 +5,7 @@ interface FilesViewerProps {
 
 export const FilesViewer = ({ files }: FilesViewerProps) => {
     // Verificar si existen archivos en el objeto recibido    
-
-    console.log('files: ',files);
+    
     if (!files || files.length === 0) {
         return <p>No hay archivos disponibles.</p>;
     }

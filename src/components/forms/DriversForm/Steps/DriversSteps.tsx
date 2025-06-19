@@ -3,11 +3,10 @@ import { Input } from "../../../ui/inputs/input"
 import { Controller } from "react-hook-form"
 import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
 import { InsertFiles } from "../../../ui/Files/insertFiles"
-import { StepsDriversProps } from "../../../types/DriversForm/DriversForm"
+import { StepsDriversProps } from "../../../types/forms/DriversForm/DriversForm"
 import { useEffect } from "react"
 
-export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversData, setValue}) => {
-    console.log('driversData', driversData);
+export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversData, setValue}) => {    
     useEffect(() => {
         if (driversData && setValue) {            
             if (driversData.nombre) {

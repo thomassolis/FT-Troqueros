@@ -23,8 +23,7 @@ interface DeleteRowProps {
     module: string;
     tableData: any
 }
-export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module, tableData}: DeleteRowProps) =>{
-    console.log('DeleteRow', tableData);
+export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module, tableData}: DeleteRowProps) =>{    
     let response:{
         message: string,
         success: boolean
@@ -60,8 +59,7 @@ export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, se
                 }else if (module === 'Customers'){
                     response = await sendDataForDeleteCustomers({id});
                 } else if (module === 'Drivers'){
-                    response = await sendDataForDeleteDrivers({id});
-                    console.log('responseDrivers', response);
+                    response = await sendDataForDeleteDrivers({id});                    
                 } else if (module === 'Providers') {
                     response = await sendDataForDeleteProviders({id});
                 }
@@ -75,15 +73,12 @@ export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, se
                                 if (vehicleType === 'Furgones') return item.id_furgon !== id;
                                 if (vehicleType === 'Cabezales') return item.id_cabezal !== id;
                                 return true;
-                            } else if (module === 'Drivers'){
-                                console.log('item', item.id_conductor);
+                            } else if (module === 'Drivers'){                                
                                 return item.id_conductor !== id;
                             } else if (module === 'Providers'){
                                 return item.id_proveedor !== id;
                             }
-                            else {
-                                console.log('item', item.id_cliente);
-                                console.log('ID', id);
+                            else {                                
                                 return item.id_cliente !== id;
                             }
                         })
@@ -105,7 +100,7 @@ export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, se
             
     }});
     } catch (error) {
-        console.log('Error en deleteRow', error);
+        console.error('Error en deleteRow', error);
         Swal.fire({
             title: 'Error!',
             text: `Error al eliminar ${vehicle}`,

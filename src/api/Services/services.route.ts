@@ -19,7 +19,7 @@ export const GetServices = async({search, page}:GetServicesProps) =>{
         });
         return response.data        
     }catch(error:any){
-        console.log('Error en GetProviders: ', error);
+        console.error('Error en GetProviders: ', error);
         
     }
 }
@@ -27,8 +27,7 @@ export const GetServices = async({search, page}:GetServicesProps) =>{
 // Ruta que permite actualizar o eliminar un servicio
 export const ServicesActions = async(actionType: 'update'|'delete', id_servicio:string, name?:string) => {    
     try{
-        let response;
-        console.log('id_servic',id_servicio);
+        let response;        
         let serviceData
 
         if(actionType==='update'){
@@ -70,8 +69,7 @@ type ActionType = 'update' | 'delete' | 'add';
 
 
 // Función que permite eliminar o actualizar una ruta
-export const RoutesActions = async (actionType: ActionType, updateRouteData:any) => {
-  console.log('updateRouteData: ', updateRouteData)
+export const RoutesActions = async (actionType: ActionType, updateRouteData:any) => {  
   
   try {
     let response;

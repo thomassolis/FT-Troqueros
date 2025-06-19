@@ -18,10 +18,8 @@ export const SendLoginCredentials = async (data: any, navigate: any) => {
         
         // Verifica si el error tiene una respuesta del backend (AxiosError)
         if (error.response && error.response.data && error.response.data.message) {
-            console.log('Mensaje del backend:', error.response.data.message);
             toast.error(error.response.data.message);
-        } else {
-            console.log('Error inesperado:', error.message || error);
+        } else {            
             toast.error("Error inesperado");
         }           
         return null;

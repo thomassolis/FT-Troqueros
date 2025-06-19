@@ -41,7 +41,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
-    console.log('module', module);
+    
     useEffect(() => {       
         const GetDataForTable = async () => {
             try {
@@ -80,8 +80,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                         page: currentPage, 
                         limit: pageSize,
                         search: searchValue ?? ''
-                    });   
-                    console.log('response.data.data',response.data.data)                  
+                    });                                     
 
                     setTableData(response.data.data || []);  
                     setTotalRecords(response.data.totalRegistros);                    
@@ -154,10 +153,13 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                                 item.id_furgon
                                                             ): vehicleType === 'Cabezales' ? (
                                                                 item.id_cabezal
-                                                            ): null} 
+                                                            ): module === 'Drivers' ? (
+                                                                item.id_conductor
+                                                            ):null} 
                                                         // id = {item.id_chasis} 
                                                         defaultValue = {item.status} 
                                                         tableData = {tableData}
+                                                        module={module}
                                                     />
                                                 ) : value} 
                                             </td>
@@ -228,8 +230,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                                                             )
                                                             ,item.placa, vehicleType
                                                         )   
-                                                    ): module === 'Drivers' ? (
-                                                        console.log('item.c', item.nombre),
+                                                    ): module === 'Drivers' ? (                                                        
                                                         deleteRow(item.id_conductor, item.nombreCompleto)
                                                     ):(module === 'Providers') ? (
                                                         deleteRow(item.id_proveedor, item.nombre)

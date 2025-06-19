@@ -18,15 +18,6 @@ interface UpdateRequestStatusParams {
     selectedOptions: {[key: number]: string}
 }
 
-
-export const SolicitarToken = async (): Promise<void> => {
-    try{
-        const response = await axios.post('/home');        
-    }catch(e){
-        console.log(e);
-    }
-}
-
 //---------------------------------------------------------TABLA----------------------------------------------
 
 
@@ -59,7 +50,7 @@ export const UpdateRequestStatus = async({selectedOptions}:UpdateRequestStatusPa
     try{
         const response = await axios.post('/home/updateRequest', selectedOptions);
     }catch(e){
-        console.log('Error en: UpdateRequestStatus', e)
+        console.error('Error en: UpdateRequestStatus', e)
     }
 }
 

@@ -6,7 +6,6 @@ export const deleteRoute = async(
   setLocalHistory: React.Dispatch<React.SetStateAction<any[]>>
 ) => {
 
-  console.log('id_servicio_datos', id_servicio_datos);
   
 
   try{
@@ -25,9 +24,6 @@ export const deleteRoute = async(
 };
 
 export const editRoute = async(id_servicio_datos: string, id: string, /*setEditingRouteId:any*/data:any) => {
-    console.log('id_servicio_datos', id_servicio_datos);
-    console.log('ID servicio', id);
-    console.log('Data', data);
 
     const updateRouteData = {
         // serviceID: id,
