@@ -10,10 +10,11 @@ interface InputProps {
     value?:string | number
     min?:string | number
     max?:string | number
+    maxLength?:number
 }
 
 export const Input = forwardRef <HTMLInputElement, InputProps>(
-    ({type, min, max, value, defaultValue, placeholder, className2, onChange, ...rest}, ref) =>{
+    ({type, min, maxLength, max, value, defaultValue, placeholder, className2, onChange, ...rest}, ref) =>{
         return(
             <input 
                 type={type} 
@@ -26,6 +27,7 @@ export const Input = forwardRef <HTMLInputElement, InputProps>(
                 value={value}                
                 min={min}
                 max={max}
+                maxLength={maxLength}                
             />
         );
     }

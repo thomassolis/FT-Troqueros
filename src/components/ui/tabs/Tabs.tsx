@@ -1,16 +1,41 @@
 import {Tab, Tabs, TabList, TabPanel} from "react-tabs";
 import { useState, useEffect } from "react";
 import { PrevisualizationTable } from "../Tables/previsualizationTable";    
+import { AmountTable } from "../Tables/AmountTable/AmountTable";
+import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
+import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
+import { useLocation } from "react-router-dom";
 
 interface TabsProps {
     tabContent: string[];
-    onTabChange: any; // Prop para enviar la opción al padre    
+    onTabChange: any; // Prop para enviar la opción al padre
+    useProvider?: boolean;    
+    services?:[{
+        serviceType: string;
+        rowIndex:number;
+    }];
+    rows?: string[];
+    register?: UseFormRegister<RequestsFormValues>;
+    watch?: UseFormWatch<RequestsFormValues>;
+    setValue?: UseFormSetValue<RequestsFormValues>;
 }
 
-export const PrevisualizationTab = ({ tabContent, onTabChange }: TabsProps) => {
+export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, register, watch, setValue, useProvider, requestFormData }: TabsProps) => {
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<string>(tabContent[0]);
+    const [selectedIndex, setSelectedIndex] = useState<number>(0);
+    const [filteredRows, setFilteredRows] = useState<string[]>([]);
 
+    const location = useLocation();
+    const pathSegments = location.pathname.split('/');
+    const module = pathSegments[pathSegments.length - 1];
+    console.log('requestFormData: ', requestFormData);
+
+    // const module = GetModuleFromURL();
+    // console.log('module:', module);
+    console.log('rows PrevisualizationTab', rows);
+    console.log('TabContent', tabContent);
+    // const module = 'Request'
 
     const tabHeaders: Record<string, string[]> = {
         "Chasises": ["PLACA", "STATUS", "ACCIONES"],
@@ -22,14 +47,31 @@ export const PrevisualizationTab = ({ tabContent, onTabChange }: TabsProps) => {
     useEffect(() => {
         onTabChange(selectedOption);
     }, [selectedOption, onTabChange]);
+    
+    // console.log('rows.rowIndex', rows.rowIndex);
+    console.log('selectedIndex', selectedIndex);
+
+    // Filtra los rows que coincidan con el índice seleccionado (por grupo)
+  useEffect(() => {
+    if (module != "Vehicles" && rows.length) {
+      const newRows = rows.filter((row) => row.rowIndex === selectedTab);
+      setFilteredRows(newRows);
+    }
+  }, [module, rows, selectedTab]); 
+    
+
+    useEffect(()=>{
+        console.log('UseEffect: filteredRows', filteredRows);
+    }, [filteredRows])
 
     return (
         <Tabs
-            className="flex items-center flex-col gap-5"
+            className="flex items-center flex-col"
             selectedIndex={selectedTab}
             onSelect={(index) => {
                 setSelectedTab(index);
                 setSelectedOption(tabContent[index]);
+                setSelectedIndex(index);
             }}
         >
             <TabList className="bg-troquerosOrange p-2 flex w-[70%] rounded-lg gap-2">
@@ -45,7 +87,8 @@ export const PrevisualizationTab = ({ tabContent, onTabChange }: TabsProps) => {
                 ))}
             </TabList>
 
-            {tabContent.map((opt, index) => (
+            {module === 'Vehicles' ? (
+                tabContent.map((opt, index) => (
                 <TabPanel key={index} className="w-[70%]">
                     {tabHeaders[opt] ? (
                         <PrevisualizationTable 
@@ -56,7 +99,22 @@ export const PrevisualizationTab = ({ tabContent, onTabChange }: TabsProps) => {
                         <p className="text-gray-500">No hay datos disponibles para esta categoría.</p>
                     )}
                 </TabPanel>
-            ))}
+            ))
+            ): (
+                <div className="flex flex-col gap-12 w-full items-center">
+                    <AmountTable              
+                        selectedIndex={selectedTab}      
+                        services={services}
+                        filteredServiceData={filteredRows}
+                        setFilteredServiceData = {setFilteredRows}
+                        register ={register}
+                        watch={watch}
+                        setValue = {setValue}
+                        useProvider={useProvider}
+                    />
+
+                </div>
+            )}
         </Tabs>
     );
 };

@@ -21,6 +21,7 @@ onUpdate: (id: number, field: keyof ServiceType, name: string| number, value: st
   onDelete: (id: number) => void;
   setServicesSelect: React.Dispatch<React.SetStateAction<SelectOptionTypes[]>>;
   servicesSelect: SelectOptionTypes[];
+  useProvider?: boolean; 
 }
 
 
@@ -31,7 +32,8 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   onUpdate,
   servicesSelect,
   setServicesSelect,
-  onDelete
+  onDelete,
+  useProvider
 }) => {    
     const [isLoading, setIsLoading] = useState(false);
     useEffect(() => {
@@ -69,9 +71,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
             </div>
 
             <div>
-                <Input
-                    max={5}
-                    min={1}
+                <Input                    
                     type="number"
                     className2={'w-full h-9'}
                     value={quantity}

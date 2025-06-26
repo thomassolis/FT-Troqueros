@@ -40,7 +40,7 @@ export const VehicleParts = () =>{
                 </div>              
             </div>            
 
-            <div className="flex w-full items-center justify-center mb-5">
+            <div className="flex w-full items-center justify-center mb-5">                
                 <FilterSearch vehicleType = {vehicleType}/>
             </div>            
             

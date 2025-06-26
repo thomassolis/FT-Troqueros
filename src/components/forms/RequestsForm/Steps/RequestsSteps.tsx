@@ -15,7 +15,18 @@ import { useContext } from "react";
 import { dynamicRequestsContext } from "../../../../context/Requests/DynamicRequestsOptions";
 import { ServiceType } from "../../../../context/Requests/DynamicRequestsOptions";
 import { SelectionTeamTable } from "../../../ui/Tables/RequestsForm/selectionTeamTable";
-export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue, control}) => {    
+import { AmountTable } from "../../../ui/Tables/AmountTable/AmountTable";
+import { PrevisualizationTab } from "../../../ui/tabs/Tabs";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from 'dayjs';
+import { NeonWarning } from "../../../ui/Warning/NeonWarning";
+import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
+
+export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, useProvider, setUseProvider}) => {    
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
     //     useEffect(() => {
     //     if (providersData && setValue) {    
@@ -59,6 +70,10 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
                         <div className="h-10 flex items-center">
                             <SmallLabel text="Fecha de Salida"/>
                         </div>                    
+
+                        <div className="h-10 flex items-center">
+                            <SmallLabel text="Hora de Salida"/>
+                        </div>         
                         
                     </div>
 
@@ -70,35 +85,97 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
                             control={control}
                             render={({ field }) => (
                                 <Select 
-                                {...field} // <-- Muy importante: conecta onChange, onBlur y value
-                                className="w-full text-black" 
-                                options={customersSelect}
-                                placeholder="Selecciona un cliente..."
-                                value={customersSelect.find(customersSelect => customersSelect.value === field.value)} // Para mostrar el label correcto
-                                onChange={customersSelect => field.onChange(customersSelect?.value)} // Guarda solo el ID, no todo el objeto
+                                    {...field} // <-- Muy importante: conecta onChange, onBlur y value
+                                    className="w-full text-black" 
+                                    options={customersSelect}
+                                    placeholder="Selecciona un cliente..."
+                                    value={customersSelect.find(customersSelect => customersSelect.value === field.value)} // Para mostrar el label correcto
+                                    onChange={customersSelect => field.onChange(customersSelect?.value)} // Guarda solo el ID, no todo el objeto
+                                     // --- Solución ---
+                                    menuPortalTarget={document.body} // Renderiza el menú en el body
+                                    styles={{
+                                        menuPortal: base => ({ ...base, zIndex: 9999 }), // Asegura que esté por encima de todo
+                                    }}
                                 />
                             )}
                             />
 
                         </div>                        
 
-                        <div className="flex items-center gap-3">
-                            <Input 
-                                type="date" 
-                                className2={'py-5'} 
-                                placeholder="Ejm: Jorge Perez"               
-                                {...register('fecha_salida')}  
+                        <div className="flex items-center gap-3 w-full ">
+
+                            <Controller
+                                name="fecha_salida"
+                                control={control}
+                                render={({ field }) => (
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DemoContainer components={["DatePicker"]} sx={{width:'100%'}}>
+                                            <DatePicker
+                                                label="Selecciona una fecha"
+                                                format="DD/MM/YY"
+                                                value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null} // Convierte el string a dayjs
+                                                onChange={(date) => {
+                                                    const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Formatea a DD/MM/YY
+                                                    field.onChange(formattedDate); // Guarda el string (ej: "25/06/24")
+                                                }}
+                                                className="bg-white w-full"
+                                                slotProps={{
+                                                    textField: {
+                                                    error: !!errors.fecha_salida,
+                                                    helperText: errors.fecha_salida?.message,
+                                                    },
+                                                }}
+                                            />
+                                        </DemoContainer>
+                                    </LocalizationProvider>
+                                )}  
                             />
-                        </div>                        
+                        </div> 
+
+                        <div className="flex items-center gap-3 w-full">
+
+                            <Controller
+                            name="hora_salida"
+                            control={control}
+                            render={({ field }) => (
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DemoContainer components={["TimePicker"]} sx={{ width: "100%" }}>
+                                    <TimePicker
+                                    label="Selecciona una hora"
+                                    value={field.value ? dayjs(field.value, "HH:mm") : null} // Convierte el string a dayjs
+                                    onChange={(time) => {
+                                        const formattedTime = dayjs(time).format("HH:mm:ss"); // Formatea a "HH:mm"
+                                        field.onChange(formattedTime); // Guarda el string (ej: "14:30")
+                                    }}
+                                    className="bg-white w-full"
+                                    slotProps={{
+                                        textField: {
+                                        error: !!errors.hora_salida,
+                                        helperText: errors.hora_salida?.message,
+                                        },
+                                    }}
+                                    />
+                                </DemoContainer>
+                                </LocalizationProvider>
+                            )}
+                            />
+                        </div>
+                   
                     </div>
-                </div>            
+
+                    
+                </div>  
+                
+                          
             </div>            
+
+
         </section>       
 
     )
 }
 
-export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue, control}) => {    
+export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, setUseProvider, useProvider}) => {    
     // const [useProvider, setUseProvider] = useState(false);    
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
     useEffect(() => {
@@ -116,22 +193,19 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
     }, []);
     
 
-    const useProvider = useWatch({
-        control,
-        name: 'tipo_entregaProveedor',
-        defaultValue: false
-    });
+    // const useProvider = useWatch({
+    //     control,
+    //     name: 'tipo_entregaProveedor',
+    //     defaultValue: false
+    // });
 
-    useEffect(() => {
-    if (useProvider === false && setValue) {
-        setValue('costos_extras', 0);
-        setValue('id_proveedor', '');
-    }
-    }, [useProvider, setValue]);
+    // useEffect(() => {
+    // if (useProvider === false && setValue) {
+    //     setValue('costos_extras', 0);
+    //     setValue('id_proveedor', '');
+    // }
+    // }, [useProvider, setValue]);
 
-
-
-    console.log('useProvider',useProvider)
     return (
         <section className="w-full">                        
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">
@@ -140,21 +214,15 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
 
             <div className="flex justify-center items-center mt-6">
                     <label className="flex items-center gap-3 w-[70%] cursor-pointer">
-                    <Controller
-                    name="tipo_entregaProveedor"
-                    control={control}
-                    render={({ field }) => (
                         <input
                             type="checkbox"
                             id="providerCheck"
                             className="accent-blue-500"
-                            checked={field.value}
-                            onChange={(e) => {                                
-                                field.onChange(e.target.checked);
+                            // checked={field.value}
+                            onChange={(e) => {
+                                setUseProvider(e.target.checked);
                             }}
                         />
-                    )}
-                    />
 
                     <label className="text-black " htmlFor="providerCheck">
                         Seleccionar si la carga la administrará un proveedor
@@ -168,33 +236,31 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
 
                 {/* Nombre del proveedor */}
                 <div className="flex w-full items-center gap-8">
-                <label className="text-black text-sm mb-1">Nombre del Proveedor:</label>
-                <Controller
-                name="id_proveedor"
-                control={control}
-                render={({ field }) => (
-                    <Select 
-                        {...field}
-                        className="w-[60%] text-black" 
-                        options={providersSelect}
-                        value={providersSelect.find(providersSelect => providersSelect.value === field.value)} // Para mostrar el label correcto
-                        onChange={providersSelect => field.onChange(providersSelect?.value)} // Guarda solo el ID, no todo el objeto
+                    <label className="text-black text-sm mb-1">Nombre del Proveedor:</label>
+                    <Controller
+                    name="id_proveedor"
+                    control={control}
+                    render={({ field }) => (
+                        <Select 
+                            {...field}
+                            className="w-[60%] text-black" 
+                            options={providersSelect}
+                            value={providersSelect.find(providersSelect => providersSelect.value === field.value)} // Para mostrar el label correcto
+                            onChange={providersSelect => field.onChange(providersSelect?.value)} // Guarda solo el ID, no todo el objeto
+                        />
+                    )}
                     />
-                )}
-                />
-                </div>
+                </div>   
 
-                {/* Costo del proveedor */}
                 <div className="flex w-full items-center gap-12">
-                <label className="text-black text-sm mb-1">Costo del proveedor:</label>
-                <Input 
-                    type="number" 
-                    className2="w-[20%] h-8" 
-                    placeholder="Costo $"
-                    min={1}
-                    {...register('costos_extras')}
-                />
-                </div>
+                    <label className="text-black text-sm mb-1">Costo del proveedor:</label>
+                    <Input 
+                        type="number"
+                        className2="w-[20%] h-8"
+                        placeholder="Costo $"
+                        {...register('precio_proveedor')}
+                    />
+                </div>             
 
             </div>
             </div>
@@ -205,12 +271,12 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
     )
 }
 
-export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue}) => {            
+export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue, useProvider}) => {            
     const {serviceTypes, setServiceTypes, rows, setRows} = useContext(dynamicRequestsContext)!;
     const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);//Estados que maneja los datos que tiene el select de servicios
     const [routesInformation, setRoutesInformation] = useState<Record<string, any>>({});
     const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({});    
-
+    console.log('useProvider: ', useProvider)
     console.log('ROWS DESDE TABLA: ', rows);
 
     const newServiceType = () => {
@@ -245,63 +311,63 @@ export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue
 
     const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);
         
-const deleteServiceType = (id: number) => {
-  console.log('Id a eliminar', id);
+    const deleteServiceType = (id: number) => {
+    console.log('Id a eliminar', id);
 
-  // Elimina el bloque visual en serviceTypes
-  console.log('serviceTypes antes de eliminar: ', serviceTypes);
-    setServiceTypes(prev => {
-    const updated = prev.filter(st => {
-      console.log('Comparando: ', st.id, id);
-      return st.id !== id; // Verifica si id es el correcto y está comparando correctamente
+    // Elimina el bloque visual en serviceTypes
+    console.log('serviceTypes antes de eliminar: ', serviceTypes);
+        setServiceTypes(prev => {
+        const updated = prev.filter(st => {
+        console.log('Comparando: ', st.id, id);
+        return st.id !== id; // Verifica si id es el correcto y está comparando correctamente
+        });
+        return updated;
     });
-    return updated;
-  });
-  console.log('serviceTypes después de eliminar: ', serviceTypes);
+    console.log('serviceTypes después de eliminar: ', serviceTypes);
 
-  // Elimina las rutas relacionadas a ese id
-  console.log('RoutesInformation antes de eliminar: ', routesInformation);
-  setRoutesInformation(prev => {
-    const updated = { ...prev };
-    Object.keys(updated).forEach(key => {
-      if (key.startsWith(`${id}-`)) {
-        delete updated[key];
-      }
+    // Elimina las rutas relacionadas a ese id
+    console.log('RoutesInformation antes de eliminar: ', routesInformation);
+    setRoutesInformation(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(key => {
+        if (key.startsWith(`${id}-`)) {
+            delete updated[key];
+        }
+        });
+        return updated;
     });
-    return updated;
-  });
-  console.log('RoutesInformation después de eliminar: ', routesInformation);
+    console.log('RoutesInformation después de eliminar: ', routesInformation);
 
-  // Elimina las rutas relacionadas en routeIDsByRow
-  console.log('routeIDsByRow antes de eliminar: ', routeIDsByRow);
-  setRouteIDsByRow(prev => {
-    const updated = { ...prev };
-    Object.keys(updated).forEach(key => {
-      if (key.startsWith(`${id}-`)) {
-        delete updated[key];
-      }
+    // Elimina las rutas relacionadas en routeIDsByRow
+    console.log('routeIDsByRow antes de eliminar: ', routeIDsByRow);
+    setRouteIDsByRow(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(key => {
+        if (key.startsWith(`${id}-`)) {
+            delete updated[key];
+        }
+        });
+        return updated;
     });
-    return updated;
-  });
-  console.log('routeIDsByRow después de eliminar: ', routeIDsByRow);
+    console.log('routeIDsByRow después de eliminar: ', routeIDsByRow);
 
-  // Elimina las filas en rows con el serviceTypeId correspondiente
-  console.log('rows antes de eliminar: ', rows);
+    // Elimina las filas en rows con el serviceTypeId correspondiente
+    console.log('rows antes de eliminar: ', rows);
 
-  rows.map((row)=>{
-    console.log('row.serviceTypeId', row.serviceTypeId)
-  })  
-  console.log('Id', id);
-    setRows(prev => {
-        console.log('Filtrando rows con id:', id);
+    rows.map((row)=>{
+        console.log('row.serviceTypeId', row.serviceTypeId)
+    })  
+    console.log('Id', id);
+        setRows(prev => {
+            console.log('Filtrando rows con id:', id);
 
-        const filteredRows = prev.filter(row => row.serviceTypeId !== id); // Aquí filtras correctamente
-        console.log('rows después del filtro:', filteredRows);
-        return filteredRows;
-    });
+            const filteredRows = prev.filter(row => row.serviceTypeId !== id); // Aquí filtras correctamente
+            console.log('rows después del filtro:', filteredRows);
+            return filteredRows;
+        });
 
-  console.log('rows después de eliminar: ', rows);
-};
+    console.log('rows después de eliminar: ', rows);
+    };
 
     return (
         <section className="w-full ">                        
@@ -317,6 +383,7 @@ const deleteServiceType = (id: number) => {
 
                 {serviceTypes.map((serviceType) => (
                     <DynamicRequestsType 
+                        useProvider={useProvider}
                         key={serviceType.id}
                         id={serviceType.id}
                         selectedValue={serviceType.selectedValue}
@@ -328,12 +395,16 @@ const deleteServiceType = (id: number) => {
                     />
                 ))}
 
-                <Icon 
-                    icon="gg:add" 
-                    width="24" height="24"  
-                    className="text-gray-500 cursor-pointer hover:text-black"
-                    onClick={newServiceType}
-                />
+                {useProvider ? (
+                    <></>
+                ):(
+                    <Icon 
+                        icon="gg:add" 
+                        width="24" height="24"  
+                        className="text-gray-500 cursor-pointer hover:text-black"
+                        onClick={newServiceType}
+                    />
+                )}
             </div>
 
             {totalRows > 0 && (
@@ -357,14 +428,55 @@ const deleteServiceType = (id: number) => {
     )
 }
 
-export const Step4: React.FC<StepsRequestsProps> = ({control}) => {        
+export const Step4: React.FC<StepsRequestsProps> = ({control, useProvider}) => {   
+   
     return(
         <div className="flex flex-col mt-10 gap-10">
             <h1 className="text-black">Completa el formulario para crear una nueva petición</h1>
             <SelectionTeamTable
                 title = {['Tipo de Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón']}
                 control = {control}
+                useProvider = {useProvider}   
             />
+            {useProvider &&
+                <NeonWarning message={'Se utilizará el equipo del proveedor designado.'}/>
+            }            
+        </div>
+    )
+}
+
+export const Step5: React.FC<StepsRequestsProps> = ({register, watch, setValue, useProvider, requestFormData}) => {
+    const {rows} = useContext(dynamicRequestsContext)!;
+        
+    console.log('Paso 5: requestFormData', requestFormData);
+    const services = rows.map((row, index) => ({
+    serviceType: row.serviceType,
+    rowIndex: index,
+    }));
+
+
+    return (
+        <div className="flex flex-col mt-10 gap-10">
+            <h1 className="text-black">Visualización y modificación de tarifa</h1>
+            <PrevisualizationTab
+                tabContent={services.map(s => s.serviceType)}
+                onTabChange={(selectedOption) => console.log('Opción seleccionada:', selectedOption)}                
+                rows={rows}
+                register={register}
+                watch={watch}
+                setValue = {setValue}
+                useProvider={useProvider}
+                requestFormData = {requestFormData}
+            />
+
+            <hr />
+            <div className="flex justify-center">
+                <InvoiceTable
+                    services={services}
+                    rows = {rows}
+                    requestFormData = {requestFormData}
+                />
+            </div>
         </div>
     )
 }

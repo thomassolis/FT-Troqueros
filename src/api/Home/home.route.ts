@@ -24,16 +24,17 @@ interface UpdateRequestStatusParams {
 //Data que requiere la tabla del home para mostrar los datos
 export const DataForRequestTable = async ({tableSection}: RequestParams): Promise<Record<string, string>[]> => {    
     try {
-        const response = await axios.get<DataResponse>('/home/homeTable', {
+        const response = await axios.get<DataResponse>('/requests/see_requests', {
             params: {
                 tableSection: tableSection
             }});
+            console.log('Response: ', response);
 
         // Acceder correctamente al success
         if (response.data?.status?.success) {
             return response.data.data             
         } else {       
-            toast.error(response.data?.status?.message || "Error desconocido en la respuesta");
+            toast.error(response.data?.status?.message || '');
             return  []             
         }
         

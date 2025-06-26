@@ -1,4 +1,6 @@
 import axios from "../axios.ts";
+import { RequestsFormValues } from "../../components/types/forms/RequestsForm/requestsForm.ts";
+import toast from "react-hot-toast";
 
 interface SelectDataProps {
     type: string,
@@ -46,4 +48,25 @@ export const SelectData = async({type, serviceID}: SelectDataProps) => {
     }
 }
 
+interface CreateNewRequestProps {
+    data: RequestsFormValues;
+}
+export const CreateNewRequest = async({data}:CreateNewRequestProps) => {
+    try{
+        console.log('data',data)
+        const response = await axios.post('requests/add_request', data);
+        console.log('response',response)
+
+        if(response.data.success){
+            toast.success(response.data.message);
+        }else{
+            toast.error(response.data.message);
+        }
+
+        return response.data
+    }catch(error:any){
+        console.error('Error en CreateNewRequest:', error);
+        toast.error(error.response.data.message || 'Error al crear la solicitud');
+    }
+}
 

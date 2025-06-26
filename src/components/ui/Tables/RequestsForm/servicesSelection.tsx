@@ -9,6 +9,8 @@ import { Controller, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { RequestsFormValues } from '../../../types/forms/RequestsForm/requestsForm';
 import { Control } from 'react-hook-form';
 import { Input } from '../../inputs/input';
+import { RouteRow } from '../../../../context/Requests/DynamicRequestsOptions';
+
 interface ServicesSelectionTableProps {
   titles: string[];
   serviceTypes: ServiceType[];
@@ -34,36 +36,48 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   // const [rows, setRows] = useState<any[]>([]);
   const {rows, setRows, routesInformation, setRoutesInformation, routeIDsByRow, setRouteIDsByRow} = useContext(dynamicRequestsContext)!;
+  const [isEntregaVacioSelected, setIsEntregaVacioSelected] = useState(false);
   
+  useEffect(()=>{
+    console.log('serviceTypes: ', serviceTypes);
+  }, [serviceTypes])
 
   // Generamos las filas basadas en todos los serviceTypes
   useEffect(() => {
-    const newRows = serviceTypes.flatMap((st, index) =>
-      Array.from({ length: st.quantity }).map((_, i) => {
-        const rowNumber = i + 1;
-        const groupIndex = index;
-        const composedKey = `${st.id}-${rowNumber}`;
-        const routeID = routeIDsByRow[composedKey];
+let globalRowIndex = 0;
 
-        const extra = routeID ? routesInformation[composedKey] : {
-          lugar_origen: '',
-          lugar_destino: '',
-          tarifa: '',
-          routeID: ''
-        };
+const newRows: RouteRow[] = serviceTypes.flatMap((st, index) =>
+  Array.from({ length: st.quantity }).map((_, i) => {
+    const rowNumber = i + 1;
+    const groupIndex = index;
+    const composedKey = `${st.id}-${rowNumber}`;
+    const routeID = routeIDsByRow[composedKey];
 
-        return {
-          serviceTypeId: st.id,
-          serviceType: st.selectedValue,
-          rowNumber,
-          serviceID: st.serviceID,
-          groupIndex,
-          rowIndex: index * st.quantity + i,
-          id_servicio_datos: routeID ?? '',
-          ...extra
-        };
-      })
-    );
+    const extra = routeID ? routesInformation[composedKey] : {
+      lugar_origen: '',
+      lugar_destino: '',
+      tarifa: '',
+      routeID: '',
+      entrega_vacio: false,
+    };
+
+    const row = {
+      serviceTypeId: st.id,
+      serviceType: st.selectedValue,
+      rowNumber,
+      serviceID: st.serviceID,
+      groupIndex,
+      rowIndex: globalRowIndex,
+      id_servicio_datos: routeID ?? '',
+      ...extra
+    };
+
+    globalRowIndex += 1;
+    return row;
+  })
+);
+
+
 
     setRows(newRows);
   }, [serviceTypes, routesInformation, routeIDsByRow]);
@@ -100,6 +114,7 @@ const getRoutesInformation = async (
     // Si response es un array, toma solo el primero
     const route = Array.isArray(response) ? response[0] : response;
 
+    console.log('Route:', route);
     // Limpia y guarda solo los campos necesarios
     const flatInfo = {
       lugar_origen: route?.lugar_origen ?? '',
@@ -150,15 +165,24 @@ useEffect(() => {
 }, [rows, setValue]);
 
 
+  const handleEntregaVacioChange = (rowIndex: number, value: boolean) => {
+      console.log('handleEntregaVacioChange', rowIndex, value);
+    const updatedRows = [...rows];
+    updatedRows[rowIndex].entrega_vacio = value;
+    setRows(updatedRows); // Actualiza el estado de filas
+  };
   return (
     <table className="w-full border border-gray-300 text-sm text-left text-black">
       <thead className="bg-gray-100">
         <tr>
           {titles.map((title, index) => (
-            <th key={index} className="border border-gray-300 px-4 py-2 font-semibold text-center">
+            <th key={index} className="border border-gray-300 px-4 py-2 font-semibold text-center ">
               {title}
             </th>
           ))}
+          {isEntregaVacioSelected && 
+            <th className="border border-gray-400 px-4 py-2 text-center">Fecha Límite</th>
+          }          
         </tr>
       </thead>
       <tbody>
@@ -167,10 +191,10 @@ useEffect(() => {
 
           return(
           <tr key={`${row.serviceType}-${rowIndex}`}>
-            <td className="border border-gray-400 px-4 py-2">
+            <td className="border border-gray-400 px-4 py-2 text-center">
               {row.serviceType}
             </td>
-            <td className="border border-gray-400 px-4 py-2">
+            <td className="border border-gray-400 px-4 py-2 text-center">
               <Controller
                 name={`${fieldName}.id_servicio_datos`}
                 control={control}
@@ -199,14 +223,14 @@ useEffect(() => {
               />
 
             </td>
-            <td className="border border-gray-400 px-4 py-2">
+            <td className="border border-gray-400 px-4 py-2 text-center">
               {row.lugar_origen}
             </td>
-            <td className="border border-gray-400 px-4 py-2">
+            <td className="border border-gray-400 px-4 py-2 text-center">
               {row.lugar_destino}
             </td>
 
-              <td className="border border-gray-400 px-4 py-2">
+              <td className="border border-gray-400 px-4 py-2 text-center w-[10%]">
                 <Controller
                   name={`${fieldName}.tarifa`}
                   control={control}
@@ -233,7 +257,7 @@ useEffect(() => {
                             }
                           }));
                         }}
-                        className="w-[40%] border border-gray-300 rounded px-2 py-1"
+                        className="w-full border border-gray-300 rounded px-2 py-1"
                       />
                     );
                   }}
@@ -245,16 +269,39 @@ useEffect(() => {
                 <Controller
                   name={`${fieldName}.entrega_vacio`}
                   control={control}
-                  defaultValue={false}
+                  // defaultValue={false}
                   render={({ field }) => (
                     <input
                       type="checkbox"
                       checked={field.value || false}
-                      onChange={(e) => field.onChange(e.target.checked)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setIsEntregaVacioSelected(checked);
+
+                        // 1. Actualiza el campo principal (entrega_vacio)
+                        field.onChange(checked);
+                        // 2. Actualiza el estado local de la fila
+                        handleEntregaVacioChange(rowIndex, checked);
+                      }}
                     />
                   )}
                 />
-              </td>           
+              </td>        
+
+
+              {/* Muestra la columna adicional solo si esta fila tiene entrega_vacio en true */}
+              {row.entrega_vacio && (
+                <td className="border border-gray-400 px-4 py-2 text-center">
+                  {/* Aquí puedes poner el contenido específico para esta fila */}
+                  <Input
+                    type='date'
+                    className2={'w-[90%] py-2 px-4'}
+                    {...register(`${fieldName}.fecha_limite`)}
+                  />
+                </td>
+              )}
+
+
           </tr>
           )
         })}

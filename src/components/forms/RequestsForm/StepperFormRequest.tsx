@@ -6,18 +6,20 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
 
-import { createNewProvider } from "../../../api/Providers/providers.route";
+import { CreateNewRequest } from "../../../api/Requests/requests.route";
 import { getProvidersDataByID } from "../../../api/Providers/providers.route";
 import { updateProvidersInfo } from "../../../api/Providers/providers.route";
 // import { ProvidersFormValues } from "../../types/ProvidersForm/providersForm";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
-import { Step1, Step2, Step3, Step4 } from "./Steps/RequestsSteps";
+import { Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
+
 export const StepperFormRequests = () => {
   const [providersData, setProvidersData] = useState({});
   const {providerID} = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const procedure = GetProcedureFromURL();  
-
+  const [useProvider, setUseProvider] = useState(false);    //Estado que validará si una petición será manejada por un proveedor o no
+  const [requestFormData, setRequestFormData]= useState<RequestsFormValues>({} as RequestsFormValues);
   //Obtendrá los datos por ID
   useEffect(()=>{
 
@@ -54,8 +56,9 @@ export const StepperFormRequests = () => {
   } = useForm<RequestsFormValues>();
 
   useEffect(() => {
-  const subscription = watch((value, { name, type }) => {
+  const subscription = watch((value) => {
      console.log("📋 Formulario actualizado:", value);    
+     setRequestFormData(value);
   });
   return () => subscription.unsubscribe();
 }, [watch]);
@@ -80,13 +83,19 @@ export const StepperFormRequests = () => {
   };
 
 
-  const onSubmit = async (data: any) => {        
-    // setIsLoading(true);
-    // if(procedure === 'create'){      
-    //   const response = await createNewProvider({data});
-    //   if(response.success){
-    //     navigate('/home/Providers');
-    //   }
+  const onSubmit = async (data: any) => {   
+    try{
+      setIsLoading(true);
+
+      if(procedure === 'create'){      
+        const response = await CreateNewRequest({data});
+        if(response.success){
+          navigate('/home');
+        }
+      }
+    }catch(error){
+      console.error('Error en StepperFormRequests', error);
+    }
     // } else if (procedure === 'modify'){        
     //     const response = await updateProvidersInfo({data, providerID});
     //     if(response.success){
@@ -106,19 +115,23 @@ export const StepperFormRequests = () => {
         <div className="w-[85%]">
             {activeStep === 0 && (
                 <Step1              
-                register={register}
-                setValue={setValue}
-                errors={errors}                 
-                control={control}
+                  register={register}
+                  setValue={setValue}
+                  errors={errors}                 
+                  control={control}                  
+                  useProvider={useProvider}
+                  setUseProvider={setUseProvider}
                 />
             )}
 
             {activeStep === 1 && (
                 <Step2
-                    register={register} 
-                    setValue={setValue}
-                    errors={errors}                                      
-                    control={control}                  
+                  register={register} 
+                  setValue={setValue}
+                  errors={errors}                                      
+                  control={control}      
+                  useProvider={useProvider}
+                  setUseProvider={setUseProvider}            
                 />
             )}
 
@@ -127,7 +140,8 @@ export const StepperFormRequests = () => {
                 register={register} 
                 setValue={setValue} 
                 errors={errors}                 
-                control={control}                                 
+                control={control}    
+                useProvider = {useProvider}                             
               />
           )} 
 
@@ -137,7 +151,20 @@ export const StepperFormRequests = () => {
                 register={register} 
                 setValue={setValue} 
                 errors={errors}                 
-                control={control}                                 
+                control={control}    
+                useProvider = {useProvider}                                
+              />
+          )} 
+
+            {activeStep === 4 && (
+              <Step5
+                register={register} 
+                setValue={setValue} 
+                errors={errors}                 
+                control={control}   
+                watch={watch}                    
+                useProvider = {useProvider} 
+                requestFormData={requestFormData}
               />
           )} 
         </div>
@@ -154,7 +181,7 @@ export const StepperFormRequests = () => {
           </div>
 
           <div className="w-[10%] flex">
-            {activeStep < 3 ? (
+            {activeStep < 4 ? (
               <Button
                 onClick={async () => {
                   const isStepValid = await trigger(); // valida los campos actuales

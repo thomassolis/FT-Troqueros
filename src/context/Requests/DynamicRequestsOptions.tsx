@@ -1,4 +1,4 @@
-import React, { createContext, useState, ReactNode } from "react";
+import React, { createContext, useState, ReactNode, useEffect } from "react";
 
 export interface ServiceType {
   id: number;
@@ -11,20 +11,21 @@ interface RouteDetails {
   lugar_origen: string;
   lugar_destino: string;
   tarifa: string | number;
-  routeID: string;
+  routeID: string;  
 }
 export interface RouteRow {
-  serviceTypeId: number;
-  serviceType: string;
-  rowNumber: number;
-  serviceID?: string;
-  groupIndex: number;
-  rowIndex: number;
-  id_servicio_datos: string;
   lugar_origen: string;
   lugar_destino: string;
   tarifa: string | number;
   routeID: string;
+  serviceTypeId: number;
+  serviceType: string;
+  rowNumber: number;
+  serviceID: string | number;
+  groupIndex: number;
+  rowIndex: number;
+  id_servicio_datos: string;
+  entrega_vacio: boolean; // Agregar la propiedad 'entrega_vacio'  
 }
 interface DynamicRequestsContextType {
   serviceTypes: ServiceType[];
@@ -41,11 +42,21 @@ export const dynamicRequestsContext = createContext<DynamicRequestsContextType |
 
 
 export const DynamicRequestsProvider = ({ children }: { children: ReactNode }) => {
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
+  {
+    id: 1,
+    selectedValue: "default",
+    quantity: 0,
+    serviceID: "serv-001" // Opcional
+  },
+  // Más objetos si es necesario
+]);
   const [rows, setRows] = useState<RouteRow[]>([]);
   const [routesInformation, setRoutesInformation] = useState<Record<string, RouteDetails>>({});
   const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({});
-
+  useEffect(()=>{
+    console.log('Rows en el contexto: ', rows);
+  },[rows])
   return (
     <dynamicRequestsContext.Provider value={{ serviceTypes, setServiceTypes, setRows, rows, routesInformation, setRoutesInformation, setRouteIDsByRow, routeIDsByRow }}>
       {children}

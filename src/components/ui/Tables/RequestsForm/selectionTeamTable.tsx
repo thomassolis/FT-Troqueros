@@ -10,10 +10,11 @@ import { Controller, Control } from "react-hook-form";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
 interface SelectionTeamTableProps {
-    title: string[]
-    control: Control<RequestsFormValues>
+    title: string[];
+    control: Control<RequestsFormValues>;
+    useProvider: boolean;
 }
-export const SelectionTeamTable = ({title, control}: SelectionTeamTableProps) => {
+export const SelectionTeamTable = ({title, control,  useProvider}: SelectionTeamTableProps) => {
     const {rows} = useContext(dynamicRequestsContext)!;
     const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
 
@@ -58,15 +59,15 @@ export const SelectionTeamTable = ({title, control}: SelectionTeamTableProps) =>
     }
 
       // Función para manejar el cambio en los Select
-    const handleSelectChange = (rowIndex: number, selectType: string, value: string | null) => {    
-        setSelectedOptions((prev) => ({
-        ...prev,
-        [rowIndex]: {
-            ...prev[rowIndex],
-            [selectType]: value,
-        },
-        }));
-    };
+    // const handleSelectChange = (rowIndex: number, selectType: string, value: string | null) => {    
+    //     setSelectedOptions((prev) => ({
+    //     ...prev,
+    //     [rowIndex]: {
+    //         ...prev[rowIndex],
+    //         [selectType]: value,
+    //     },
+    //     }));
+    // };
 
     return (
             <table className="w-full border border-gray-300 text-sm text-left text-black">
@@ -96,6 +97,7 @@ export const SelectionTeamTable = ({title, control}: SelectionTeamTableProps) =>
               <Select
                 {...field}
                 onMenuOpen={() => getRoutesForSelect('drivers')}
+                isDisabled={useProvider}
                 options={driversData}
                 isLoading={isLoading}                
                 // Se asegura de solo guardar el 'value' del select
@@ -115,6 +117,7 @@ export const SelectionTeamTable = ({title, control}: SelectionTeamTableProps) =>
                 {...field}
                 onMenuOpen={() => getRoutesForSelect('chasis')}
                 options={chasisData}
+                isDisabled={useProvider}
                 isLoading={isLoading}
                 onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}
                 value={chasisData.find((option) => option.value === field.value) || null}
@@ -132,6 +135,7 @@ export const SelectionTeamTable = ({title, control}: SelectionTeamTableProps) =>
                 {...field}
                 onMenuOpen={() => getRoutesForSelect('cabezal')}
                 options={cabezalData}
+                isDisabled={useProvider}
                 isLoading={isLoading}
                 onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}
                 value={cabezalData.find((option) => option.value === field.value) || null}
@@ -150,6 +154,7 @@ export const SelectionTeamTable = ({title, control}: SelectionTeamTableProps) =>
                 onMenuOpen={() => getRoutesForSelect('furgon')}
                 options={furgonData}
                 isLoading={isLoading}
+                isDisabled={useProvider}
                 onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}                
                 value={furgonData.find((option) => option.value === field.value) || null}
               />

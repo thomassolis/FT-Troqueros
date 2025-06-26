@@ -211,7 +211,7 @@ export const Step3: React.FC<StepsDriversProps> = ({register, control, driversDa
                         </div>
                         
                         <div className="flex items-center w-[90%]">
-                            <SmallLabel text="Copia de aviso de operaciones"/>
+                            <SmallLabel text="Copia de paz y salvo"/>
                             <Controller
                                 name="pazSalvo"
                                 control={control}

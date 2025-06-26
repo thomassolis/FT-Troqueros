@@ -38,7 +38,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
                
-    
+    console.log('MODULEE:', module);
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
     
@@ -57,7 +57,8 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     //Cambiar a vehiculos
                     setTableData(response.vehiculos.data || []);             
                     setTotalRecords(response.vehiculos.totalRegistros);
-                    setPageSize(response.vehiculos.limite);                
+                    setPageSize(response.vehiculos.limite);     
+                    console.log('response.vehiculos: ', response)           
                 }else if (module === 'Customers'){                    
                     const response = await GetDataForPrevisualizationTableCustomers({
                         page: currentPage, 
@@ -125,7 +126,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
 
     return (
         <>
-             <div className="flex min-w-full flex-col items-center max-h-[300px] overflow-y-auto">
+             <div className="flex min-w-full flex-col items-center max-h-[300px] overflow-y-auto mt-5">
                 <table className="text-sm text-gray-500 w-full min-w-full">
                     <thead className="text-xs uppercase dark:bg-white w-full sticky top-0 shadow-2xl z-30">
                         <tr className="w-full">
