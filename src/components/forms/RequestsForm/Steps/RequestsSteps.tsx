@@ -10,7 +10,7 @@ import { ServicesSelectionTable } from "../../../ui/Tables/RequestsForm/services
 import { DynamicRequestsType } from "../../../../functions/DynamicSections/Requests/DynamicRequestsType";
 import { SelectOptionTypes } from "../../../types/Select/select";
 import { TransformSelectData } from "../../../../functions/transformSelectData/TransformSelectData";
-import { useWatch } from 'react-hook-form';
+import { RouteRow } from "../../../../context/Requests/DynamicRequestsOptions";
 import { useContext } from "react";
 import { dynamicRequestsContext } from "../../../../context/Requests/DynamicRequestsOptions";
 import { ServiceType } from "../../../../context/Requests/DynamicRequestsOptions";
@@ -26,8 +26,9 @@ import dayjs from 'dayjs';
 import { NeonWarning } from "../../../ui/Warning/NeonWarning";
 import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
 
-export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, useProvider, setUseProvider}) => {    
+export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, useProvider, setUseProvider, rows}) => {    
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
+    console.log('Rows Step1: ', rows);
     //     useEffect(() => {
     //     if (providersData && setValue) {    
     //         if (providersData.nombre) {
@@ -175,8 +176,8 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
     )
 }
 
-export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, setUseProvider, useProvider}) => {    
-    // const [useProvider, setUseProvider] = useState(false);    
+export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, setUseProvider, useProvider, rows}) => {    
+    console.log('Rows Step2: ', rows);
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
     useEffect(() => {
     const getSelectData = async () => {
@@ -216,6 +217,7 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
                     <label className="flex items-center gap-3 w-[70%] cursor-pointer">
                         <input
                             type="checkbox"
+                            {...register("isProviderRequest")}
                             id="providerCheck"
                             className="accent-blue-500"
                             // checked={field.value}
@@ -258,7 +260,8 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
                         type="number"
                         className2="w-[20%] h-8"
                         placeholder="Costo $"
-                        {...register('precio_proveedor')}
+                        {...register('precio_proveedor', {valueAsNumber:true})}
+                        onChange={(e) => setValue('precio_proveedor', parseFloat(e.target.value))}
                     />
                 </div>             
 
@@ -271,22 +274,21 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
     )
 }
 
-export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue, useProvider}) => {            
-    const {serviceTypes, setServiceTypes, rows, setRows} = useContext(dynamicRequestsContext)!;
+export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue, useProvider, rows, setRows, serviceTypes, setServiceTypes}) => {            
+    // const {serviceTypes, setServiceTypes} = useContext(dynamicRequestsContext)!;    
     const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);//Estados que maneja los datos que tiene el select de servicios
     const [routesInformation, setRoutesInformation] = useState<Record<string, any>>({});
-    const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({});    
-    console.log('useProvider: ', useProvider)
+    const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({});        
     console.log('ROWS DESDE TABLA: ', rows);
+
+    useEffect(()=>{
+        console.log('RowsEnTablaUseEffect', rows);
+    },[rows])
 
     const newServiceType = () => {
         const newId = serviceTypes.length > 0 ? Math.max(...serviceTypes.map(st => st.id)) + 1 : 1;
         setServiceTypes(prev => [...prev, { id: newId, selectedValue: '', quantity: 0, serviceID: '' }]);
     }
-
-    useEffect(()=>{
-        console.log('ROWS EN TABLAAA: ', rows);
-    },[rows])
 
         const updateServiceType = (
             id: number,
@@ -301,7 +303,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue
             const updated: Partial<ServiceType> = { [field]: name };
             
             if (field === 'selectedValue') {
-            updated.serviceID = String(value);
+                updated.serviceID = String(value);
             }
 
             return { ...st, ...updated };
@@ -311,63 +313,31 @@ export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue
 
     const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);
         
-    const deleteServiceType = (id: number) => {
-    console.log('Id a eliminar', id);
+const deleteServiceType = (id: number) => {
+    // 1. Eliminar de serviceTypes
+    setServiceTypes(prev => prev.filter(st => st.id !== id));
 
-    // Elimina el bloque visual en serviceTypes
-    console.log('serviceTypes antes de eliminar: ', serviceTypes);
-        setServiceTypes(prev => {
-        const updated = prev.filter(st => {
-        console.log('Comparando: ', st.id, id);
-        return st.id !== id; // Verifica si id es el correcto y está comparando correctamente
-        });
-        return updated;
-    });
-    console.log('serviceTypes después de eliminar: ', serviceTypes);
-
-    // Elimina las rutas relacionadas a ese id
-    console.log('RoutesInformation antes de eliminar: ', routesInformation);
+    // 2. Eliminar de routesInformation (usando el mismo ID)
     setRoutesInformation(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {
-        if (key.startsWith(`${id}-`)) {
-            delete updated[key];
-        }
+            if (key.startsWith(`${id}-`)) delete updated[key];
         });
         return updated;
     });
-    console.log('RoutesInformation después de eliminar: ', routesInformation);
 
-    // Elimina las rutas relacionadas en routeIDsByRow
-    console.log('routeIDsByRow antes de eliminar: ', routeIDsByRow);
+    // 3. Eliminar de routeIDsByRow (usando el mismo ID)
     setRouteIDsByRow(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {
-        if (key.startsWith(`${id}-`)) {
-            delete updated[key];
-        }
+            if (key.startsWith(`${id}-`)) delete updated[key];
         });
         return updated;
     });
-    console.log('routeIDsByRow después de eliminar: ', routeIDsByRow);
 
-    // Elimina las filas en rows con el serviceTypeId correspondiente
-    console.log('rows antes de eliminar: ', rows);
-
-    rows.map((row)=>{
-        console.log('row.serviceTypeId', row.serviceTypeId)
-    })  
-    console.log('Id', id);
-        setRows(prev => {
-            console.log('Filtrando rows con id:', id);
-
-            const filteredRows = prev.filter(row => row.serviceTypeId !== id); // Aquí filtras correctamente
-            console.log('rows después del filtro:', filteredRows);
-            return filteredRows;
-        });
-
-    console.log('rows después de eliminar: ', rows);
-    };
+    // 4. Eliminar de rows
+    setRows(prev => prev.filter(row => row.serviceTypeId !== id));
+};
 
     return (
         <section className="w-full ">                        
@@ -420,7 +390,9 @@ export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue
                         setRoutesInformation = {setRoutesInformation}
                         control={control}
                         register={register}    
-                        setValue={setValue}                    
+                        setValue={setValue}                            
+                        rows = {rows}    
+                        setRows={setRows}         
                     />
                 </div>            
             )}
@@ -428,7 +400,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue
     )
 }
 
-export const Step4: React.FC<StepsRequestsProps> = ({control, useProvider}) => {   
+export const Step4: React.FC<StepsRequestsProps> = ({control, useProvider, rows}) => {   
    
     return(
         <div className="flex flex-col mt-10 gap-10">
@@ -436,7 +408,8 @@ export const Step4: React.FC<StepsRequestsProps> = ({control, useProvider}) => {
             <SelectionTeamTable
                 title = {['Tipo de Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón']}
                 control = {control}
-                useProvider = {useProvider}   
+                useProvider = {useProvider}                   
+                rows={rows}
             />
             {useProvider &&
                 <NeonWarning message={'Se utilizará el equipo del proveedor designado.'}/>
@@ -445,10 +418,8 @@ export const Step4: React.FC<StepsRequestsProps> = ({control, useProvider}) => {
     )
 }
 
-export const Step5: React.FC<StepsRequestsProps> = ({register, watch, setValue, useProvider, requestFormData}) => {
-    const {rows} = useContext(dynamicRequestsContext)!;
+export const Step5: React.FC<StepsRequestsProps> = ({register, watch, setValue, useProvider, requestFormData, errors, rows}) => {    
         
-    console.log('Paso 5: requestFormData', requestFormData);
     const services = rows.map((row, index) => ({
     serviceType: row.serviceType,
     rowIndex: index,
@@ -467,9 +438,10 @@ export const Step5: React.FC<StepsRequestsProps> = ({register, watch, setValue, 
                 setValue = {setValue}
                 useProvider={useProvider}
                 requestFormData = {requestFormData}
+                errors = {errors}
             />
 
-            <hr />
+            <h1 className="text-black">Factura total de servicios</h1>
             <div className="flex justify-center">
                 <InvoiceTable
                     services={services}

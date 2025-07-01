@@ -7,6 +7,7 @@ import {
   UseFormWatch,
   UseFormStateReturn
 } from 'react-hook-form';
+import { RouteRow } from '../../../../context/Requests/DynamicRequestsOptions';
 
 export interface Servicio {
   id_conductor?: string;
@@ -26,12 +27,14 @@ export interface RequestsData {
 export interface RequestsFormValues {
   id_cliente: string;
   tipo_entregaProveedor: boolean;
+  defaultValues:{}
   fecha_salida: string;
   hora_salida: string;
   costos_extras: number;
   id_proveedor: string;
   id_servicio_datos: string;
-  precio_proveedor: string;
+  isProviderRequest: boolean;
+  precio_proveedor: number;
   fecha_limite: string;
   servicios?: Servicio[];
   requestsData?: RequestsData;
@@ -49,6 +52,7 @@ export interface StepsRequests {
   prevStep?: () => void;
   control: Control<RequestsFormValues>;
   formState?: UseFormStateReturn<RequestsFormValues>;
+  rows: RouteRow[];
 }
 
 export interface StepsRequestsProps extends StepsRequests {

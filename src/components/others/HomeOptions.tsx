@@ -2,13 +2,27 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { TableTabs } from "./TableTabs";
 import NotificationsCalendar from "../ui/calendar/calendar";
 import { useNavigate } from "react-router-dom";
+import { FilterSearch } from "../ui/FilterSearch/FilterSearch";
+import { useState } from "react";
+import { Paginacion } from "../ui/paginación/pagination";
 
 interface MyComponentProps {
     sidebarState: boolean;
 }
-
+ 
 export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {        
     const navigate = useNavigate()
+    //ESTADO QUE MANEJARÁ EL VALOR SELECCIONADO DENTRO DEL FILTRADOR DE LA TABLA DE PETICIONES
+    const [selectedOption, setSelectedOption] = useState<{value: string, label: string} | null>({value: 'id', label: 'ID'});    
+
+    //Paginación
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [pageSize, setPageSize] = useState<number>(10)
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const handlePageClick = (selectedPage: number) => {        
+        setCurrentPage(selectedPage);
+    };  
     return(
         <section className="mt-3">
             <div className="flex items-center gap-1 mb-4">
@@ -21,8 +35,14 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                 />
             </div>             
 
-            <div className="w-full flex items-center justify-center">
-                <TableTabs sidebarState={sidebarState}/>                
+            <div className="w-full flex flex-col items-start">
+                <div className="ml-[5%]">
+                    <FilterSearch selectedOption={selectedOption} setSelectedOption={setSelectedOption}/>
+                </div>                
+                <div className="w-full flex justify-center flex-col items-center">
+                    <TableTabs sidebarState={sidebarState} selectedOption={selectedOption} currentPage={currentPage} setCurrentPage={setCurrentPage} setTotalRecords={setTotalRecords} setPageSize={setPageSize}/>                
+                    <Paginacion pageSize= {pageSize} totalRecords={totalRecords} handlePageClick = {handlePageClick}/>            
+                </div>                    
             </div> 
             
             <h1 className={`font-bebas text-black text-2xl mt-16 ${sidebarState ? "ml-12" : 'ml-16'} max-md:ml-9 max-sm:ml-9`}>AGENDA</h1>    

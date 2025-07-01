@@ -1,9 +1,9 @@
 import { useState, useContext } from "react";
 import { Input } from "../../inputs/input";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
+import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from "react-hook-form";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
-import { dynamicRequestsContext } from "../../../../context/Requests/DynamicRequestsOptions";
+import { FieldError } from "react-hook-form";
 
 interface AmountTableProps {
     filteredServiceData: {
@@ -22,7 +22,17 @@ interface AmountTableProps {
     watch: UseFormWatch<RequestsFormValues>;
     setValue: UseFormSetValue<RequestsFormValues>;
     useProvider:boolean
+    errors: FieldErrors<RequestsFormValues>
 }
+
+type NestedFieldErrors = {
+    servicios?: Array<{
+        costos_extras?: {
+            descripcion?: FieldError;
+            precio?: FieldError;
+        };
+    }>;
+};
 
 export const AmountTable = ({
     filteredServiceData,
@@ -31,12 +41,14 @@ export const AmountTable = ({
     register,
     watch,
     setValue,
-    useProvider
+    useProvider,
+    requestFormData,
+    errors
 }: AmountTableProps) => {
-    console.log('filteredServiceData: ', filteredServiceData);
+    console.log('requestFormData AmountTable: ', requestFormData);
     const [addExtraPrice, setAddExtraPrice] = useState(false);
     
-
+    
     // Observamos los valores del formulario
     const descripcion = watch(`servicios.${selectedIndex}.costos_extras.descripcion`);
     const precio = watch(`servicios.${selectedIndex}.costos_extras.precio`);
@@ -104,15 +116,15 @@ export const AmountTable = ({
                                 ? `${row.lugar_origen} - ${row.lugar_destino}`
                                 : row.descripcion || 'Servicio'}                            
                         </td>
-                        <td className="py-2 px-4 text-black border border-gray-400 text-center">
+                        <td className={`py-2 px-4 border border-gray-400 text-center ${useProvider?('text-red-600'):('text-black')}`}>
                             {(!useProvider) ? (
                                 `$${Number(row.tarifa || row.precio || 0).toLocaleString()}`
-                            ):('Costo Proveedor')}                            
+                            ):(`$${requestFormData.precio_proveedor}`)}                            
                         </td>
 
-                        <td className="py-2 px-4 text-black border-r border-gray-400 text-center">
+                        <td className={`py-2 px-4 text-black border-r border-gray-400 text-center ${useProvider?('text-green-600'):('text-black')}`}>
                             {useProvider ? (
-                            'Profit'
+                                `${row.tarifa-requestFormData.precio_proveedor}`
                             ): (
                                 null
                             )}
@@ -160,19 +172,24 @@ export const AmountTable = ({
                     ) : (
                         <tr>
                             <td className="py-2 px-4 text-center border border-gray-400">
-                                <Input 
-                                    type="text" 
-                                    className2={'py-4 w-full'} 
-                                    placeholder="Descripción del trabajo"
-                                    {...register(`servicios.${selectedIndex}.costos_extras.descripcion`)}
-                                />
+                            <Input
+                                type="text"
+                                className2={`py-4 w-full ${errors?.servicios?.[selectedIndex]?.costos_extras?.descripcion ? "border-red-500" : ""}`}
+                                placeholder="Descripción del precio extra"
+                                {...register(`servicios.${selectedIndex}.costos_extras.descripcion`)}
+                            />
+{errors?.servicios?.[selectedIndex]?.costos_extras?.descripcion && (
+    <p className="text-red-500">
+        {(errors.servicios[selectedIndex]?.costos_extras?.descripcion as FieldError).message}
+    </p>
+)}
                             </td>
                             <td className="py-2 px-4 text-center border border-gray-400">
                                 <Input 
                                     type="number"
                                     className2="py-4 w-[40%]"
                                     placeholder="Costo"
-                                    {...register(`servicios.${selectedIndex}.costos_extras.precio`, { valueAsNumber: true })}
+                                    {...register(`servicios.${selectedIndex}.costos_extras.precio`, { valueAsNumber: true, required:true })}
                                 />
                             </td>
                             <td className="py-3 px-4 text-center !border-t border-r-2 border-gray-400 flex justify-center items-center">

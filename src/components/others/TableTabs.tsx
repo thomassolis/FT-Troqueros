@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { DataForRequestTable } from "../../api/Home/home.route";
-import { Table } from "../ui/Tables/table";
+import { RequestsTable } from "../ui/Tables/PrincipalRequestsTable/PrincipalTable";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { Button } from "../ui/buttons/button";
 import { Icon } from "@iconify/react/dist/iconify.js";
-
+import { useContext } from "react";
+import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
 
 interface TableRow {
     ID: string;
@@ -19,36 +20,39 @@ interface TableRow {
 
 interface SidebarProps {
     sidebarState: boolean;
+    selectedOption: null | {
+        value:string;
+        label: string
+    };
+     totalRecords: number;  
+  currentPage: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  setTotalRecords: React.Dispatch<React.SetStateAction<number>>;
+  setPageSize: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const TableTabs = ({ sidebarState }: SidebarProps) => {
+export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage }: SidebarProps) => {
     const [tableData, setTableData] = useState<TableRow[]>([]);
     const [selectedTab, setSelectedTab] = useState<number>(0); 
     const [isLoading, setIsLoading] = useState(false);
+    const {searchValue} = useContext(searchValueContext)!;    
 
     useEffect(() => {
-        RequestDataForHomeTable(0).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
-    }, []);
+        RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
+    }, [selectedTab, selectedOption, searchValue, currentPage]);
 
     const RequestDataForHomeTable = async (index: number): Promise<void> => {
-        const tableSections: string[] = ["incomplete", "pending", "waiting", "InProcess"];
+        const tableSections: string[] = ["En Espera", "En Proceso", "Completado"];
         
         try {
             setIsLoading(true);
-            const response = await DataForRequestTable({ tableSection: tableSections[index] });
-           
-            const formattedData: TableRow[] = response.map((row) => ({
-                ID: row["ID"] || "",
-                Cliente: row["Cliente"] || "",
-                Servicio: row["Servicio"] || "",
-                Conductor: row["Conductor"] || "",
-                Chasis: row["Chasis"] || "",
-                Cabezal: row["Cabezal"] || "",
-                Furgón: row["Furgón"] || "",
-                Status: row["Status"] || "",
-            }));
+            const response = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage });           
     
-            setTableData(formattedData);
+            setTableData(response.data);
+            setTotalRecords(response.totalRegistros); 
+            setPageSize(response.limite);
+            setCurrentPage(response.paginaActual)
+
         } catch (e) {
             console.error("Error en RequestDataForHomeTable", e);
         }finally{
@@ -63,9 +67,7 @@ export const TableTabs = ({ sidebarState }: SidebarProps) => {
                 selectedIndex={selectedTab} 
                 onSelect={(index) => {
                     setSelectedTab(index); 
-                    RequestDataForHomeTable(index).catch((error) =>
-                        console.error("Error en RequestDataForHomeTable: ", error)
-                    );
+                    setCurrentPage(1);
                 }}
                 style={{ width: "100%" }}
             >
@@ -79,9 +81,9 @@ export const TableTabs = ({ sidebarState }: SidebarProps) => {
 
                         {/* Tabs dinámicos */}
                         <div className="flex gap-1">
-                            {["Incompletas", "Pendientes", "En Espera", "En Proceso"].map((opt, index) => (
+                            {["En Espera", "En Proceso", 'Terminadas'].map((opt, index) => (
                                 <Tab key={index}>
-                                    <Button text={opt}isSelected={selectedTab === index} bgColor="bg-[#96B2E4]" hoverBgColor="bg-slate-400"/>
+                                    <Button text={opt} isSelected={selectedTab === index} bgColor="bg-[#96B2E4]" hoverBgColor="bg-slate-400"/>
                                 </Tab>
                             ))}
                         </div>
@@ -89,9 +91,9 @@ export const TableTabs = ({ sidebarState }: SidebarProps) => {
                 </TabList>
 
                 {/* TabPanels dinámicos */}
-                {[0, 1, 2, 3].map((index) => (
+                {[0, 1, 2].map((index) => (
                     <TabPanel key={index}>
-                        <Table tableData={tableData} sidebarState={sidebarState} isLoading={isLoading}/>
+                        <RequestsTable tableData={tableData} sidebarState={sidebarState} isLoading={isLoading} selectedTab = {selectedTab}/>
                     </TabPanel>
                 ))}
             </Tabs>

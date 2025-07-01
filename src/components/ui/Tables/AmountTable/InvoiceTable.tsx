@@ -73,7 +73,7 @@ const calculateTariff = (idx: number): number => {
     return(
         <table className="border border-black w-[70%]">
             <thead className="py-3">
-                <tr className="border-b-2 border-gray-400">
+                <tr className="border-b-2 border-gray-400"> 
                     <th className="text-black py-1 text-center">Descripción</th>
                     <th className="text-black py-1 text-center">Costo</th>
                 </tr>

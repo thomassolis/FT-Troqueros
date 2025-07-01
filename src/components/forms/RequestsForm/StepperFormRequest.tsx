@@ -5,14 +5,19 @@ import { StepperLine } from "../../ui/stepper/StepperLine";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
-
+import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
 import { CreateNewRequest } from "../../../api/Requests/requests.route";
 import { getProvidersDataByID } from "../../../api/Providers/providers.route";
 import { updateProvidersInfo } from "../../../api/Providers/providers.route";
 // import { ProvidersFormValues } from "../../types/ProvidersForm/providersForm";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
 import { Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
-
+export interface ServiceType {
+  id: number;
+  selectedValue: string;
+  quantity: number;
+  serviceID?: string;
+}
 export const StepperFormRequests = () => {
   const [providersData, setProvidersData] = useState({});
   const {providerID} = useParams();
@@ -20,6 +25,26 @@ export const StepperFormRequests = () => {
   const procedure = GetProcedureFromURL();  
   const [useProvider, setUseProvider] = useState(false);    //Estado que validará si una petición será manejada por un proveedor o no
   const [requestFormData, setRequestFormData]= useState<RequestsFormValues>({} as RequestsFormValues);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
+    {
+      id: 1,
+      selectedValue: "",
+      quantity: 0,
+      serviceID: "" // Opcional
+    },
+    // Más objetos si es necesario
+  ]);
+  const [rows, setRows] = useState<RouteRow[]>([]);//Filas que tienen las tablas
+
+  useEffect(()=>{
+    console.log('Row UseEffect: ', rows);
+  },[rows])
+
+    useEffect(()=>{
+    console.log('serviceTypes UseEffect: ', serviceTypes);
+  },[serviceTypes])
+
+
   //Obtendrá los datos por ID
   useEffect(()=>{
 
@@ -44,29 +69,52 @@ export const StepperFormRequests = () => {
 
   const [activeStep, setActiveStep] = useState(0);
 
-  const {
-    register,
+  // 1) Creamos el hook de RHF con defaultValues y shouldUnregister
+  const methods = useForm<RequestsFormValues>({
+    defaultValues: {
+      // **Aquí defines la forma completa**; al menos vacíos si no tienes nada aún
+      fecha_salida: "",
+      hora_salida: "",
+      id_cliente: "",
+      id_proveedor: "",
+      precio_proveedor: 0,
+      isProviderRequest: false, //Variable que controla el checkox (esta variable no se enviará)
+      servicios: [
+        {
+          entrega_vacio: false,
+          fecha_limite: '',
+          id_cabezal: '',
+          id_chasis: '',
+          id_conductor: '',
+          id_furgon: '',
+          id_servicio_datos: '',
+          tarifa: 0,
+        }
+      ]
+    },
+    shouldUnregister: false
+  });
+
+    const {
     handleSubmit,
+    reset,
     trigger,
-    watch,
-    formState: { errors },
     setValue,
-    getValues,    
+    register,
     control,
-  } = useForm<RequestsFormValues>();
+    watch,
+    formState: { errors }
+  } = methods;
 
   useEffect(() => {
-  const subscription = watch((value) => {
-     console.log("📋 Formulario actualizado:", value);    
-     setRequestFormData(value);
-  });
-  return () => subscription.unsubscribe();
-}, [watch]);
+    const subscription = watch((value) => {
+      // console.log("📋 Formulario actualizado:", value);    
+      setRequestFormData(value);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
-
-  const navigate = useNavigate();
-
-  
+  const navigate = useNavigate();  
 
   // Navegar al siguiente paso con validación
   const nextStep = async () => {    
@@ -86,11 +134,22 @@ export const StepperFormRequests = () => {
   const onSubmit = async (data: any) => {   
     try{
       setIsLoading(true);
+      const {isProviderRequest, ...payload} = data; //Data que se va a sacar del formulario
 
-      if(procedure === 'create'){      
-        const response = await CreateNewRequest({data});
-        if(response.success){
-          navigate('/home');
+        //Se limpia la data que llega como undefined o ''
+        // 1) Hacemos stringify con un "replacer" que convierte "" en undefined
+        const json = JSON.stringify(payload, (_key, value) =>
+          value === "" || value === undefined ? undefined : value
+        );
+
+        // 2) Al parsearlo, JSON.parse descarta las claves con value===undefined
+        const cleanData = JSON.parse(json);
+
+      if(procedure === 'create'){
+        const response = await CreateNewRequest({data:cleanData});
+        if(response.success) {
+          setRows([]);
+          navigate('/home');          
         }
       }
     }catch(error){
@@ -121,6 +180,7 @@ export const StepperFormRequests = () => {
                   control={control}                  
                   useProvider={useProvider}
                   setUseProvider={setUseProvider}
+                  rows={rows}
                 />
             )}
 
@@ -131,7 +191,8 @@ export const StepperFormRequests = () => {
                   errors={errors}                                      
                   control={control}      
                   useProvider={useProvider}
-                  setUseProvider={setUseProvider}            
+                  setUseProvider={setUseProvider} 
+                  rows={rows}           
                 />
             )}
 
@@ -141,7 +202,11 @@ export const StepperFormRequests = () => {
                 setValue={setValue} 
                 errors={errors}                 
                 control={control}    
-                useProvider = {useProvider}                             
+                useProvider = {useProvider}      
+                rows={rows}                       
+                setRows={setRows}
+                serviceTypes = {serviceTypes}
+                setServiceTypes = {setServiceTypes}
               />
           )} 
 
@@ -152,7 +217,8 @@ export const StepperFormRequests = () => {
                 setValue={setValue} 
                 errors={errors}                 
                 control={control}    
-                useProvider = {useProvider}                                
+                useProvider = {useProvider}            
+                rows={rows}                                                  
               />
           )} 
 
@@ -165,6 +231,7 @@ export const StepperFormRequests = () => {
                 watch={watch}                    
                 useProvider = {useProvider} 
                 requestFormData={requestFormData}
+                rows={rows}
               />
           )} 
         </div>

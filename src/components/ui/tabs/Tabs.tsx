@@ -5,7 +5,7 @@ import { AmountTable } from "../Tables/AmountTable/AmountTable";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { useLocation } from "react-router-dom";
-
+import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
 interface TabsProps {
     tabContent: string[];
     onTabChange: any; // Prop para enviar la opción al padre
@@ -14,13 +14,13 @@ interface TabsProps {
         serviceType: string;
         rowIndex:number;
     }];
-    rows?: string[];
+    rows: RouteRow[];
     register?: UseFormRegister<RequestsFormValues>;
     watch?: UseFormWatch<RequestsFormValues>;
     setValue?: UseFormSetValue<RequestsFormValues>;
 }
 
-export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, register, watch, setValue, useProvider, requestFormData }: TabsProps) => {
+export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, register, watch, setValue, useProvider, requestFormData, errors }: TabsProps) => {
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<string>(tabContent[0]);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -111,6 +111,8 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
                         watch={watch}
                         setValue = {setValue}
                         useProvider={useProvider}
+                        requestFormData={requestFormData}
+                        errors={errors}
                     />
 
                 </div>

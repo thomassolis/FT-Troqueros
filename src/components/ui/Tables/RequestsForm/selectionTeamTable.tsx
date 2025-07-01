@@ -1,5 +1,3 @@
-import { useContext } from "react"
-import { dynamicRequestsContext } from "../../../../context/Requests/DynamicRequestsOptions"
 import { formattedServiceDescriptions } from "../../../../functions/cleanData/ServiceTypeDescription/ServiceTypeDescriptionData"
 import Select from 'react-select';
 import { SelectData } from "../../../../api/Requests/requests.route";
@@ -8,15 +6,15 @@ import { useState } from "react";
 import { SelectOptionTypes } from "../../../types/Select/select";
 import { Controller, Control } from "react-hook-form";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
+import { RouteRow } from "../../../../context/Requests/DynamicRequestsOptions";
 
 interface SelectionTeamTableProps {
     title: string[];
     control: Control<RequestsFormValues>;
-    useProvider: boolean;
+    useProvider: boolean;    
+    rows: RouteRow[];
 }
-export const SelectionTeamTable = ({title, control,  useProvider}: SelectionTeamTableProps) => {
-    const {rows} = useContext(dynamicRequestsContext)!;
-    const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
+export const SelectionTeamTable = ({title, control,  useProvider, rows}: SelectionTeamTableProps) => {    
 
     ///////
     const [driversData, setDriversData] = useState<SelectOptionTypes[]>([]);

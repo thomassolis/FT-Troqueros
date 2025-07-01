@@ -45,9 +45,9 @@ export const DynamicRequestsProvider = ({ children }: { children: ReactNode }) =
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
   {
     id: 1,
-    selectedValue: "default",
+    selectedValue: "",
     quantity: 0,
-    serviceID: "serv-001" // Opcional
+    serviceID: "" // Opcional
   },
   // Más objetos si es necesario
 ]);

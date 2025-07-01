@@ -22,6 +22,8 @@ interface ServicesSelectionTableProps {
   control: Control<RequestsFormValues>
   register: UseFormRegister<RequestsFormValues>;
   setValue: UseFormSetValue<RequestsFormValues>;
+  setRows: React.Dispatch<React.SetStateAction<RouteRow[]>>;  
+  rows: RouteRow[];
 }
 
 export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({ 
@@ -30,12 +32,14 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   servicesSelect,
   control,
   register,
-  setValue
+  setValue,
+  rows, 
+  setRows
+
 }) => {
   const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  // const [rows, setRows] = useState<any[]>([]);
-  const {rows, setRows, routesInformation, setRoutesInformation, routeIDsByRow, setRouteIDsByRow} = useContext(dynamicRequestsContext)!;
+  const {routesInformation, setRoutesInformation, routeIDsByRow, setRouteIDsByRow} = useContext(dynamicRequestsContext)!;
   const [isEntregaVacioSelected, setIsEntregaVacioSelected] = useState(false);
   
   useEffect(()=>{
@@ -43,47 +47,43 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   }, [serviceTypes])
 
   // Generamos las filas basadas en todos los serviceTypes
-  useEffect(() => {
-let globalRowIndex = 0;
+useEffect(() => {
+let globalRowIndex = 0; // Fuera del flatMap
 
-const newRows: RouteRow[] = serviceTypes.flatMap((st, index) =>
-  Array.from({ length: st.quantity }).map((_, i) => {
-    const rowNumber = i + 1;
-    const groupIndex = index;
-    const composedKey = `${st.id}-${rowNumber}`;
-    const routeID = routeIDsByRow[composedKey];
+const newRows: RouteRow[] = serviceTypes.flatMap((st) => {
+    return Array.from({ length: st.quantity }).map((_, i) => {
+        const rowNumber = i + 1;
+        const composedKey = `${st.id}-${rowNumber}`;
+        const routeID = routeIDsByRow[composedKey] || '';
 
-    const extra = routeID ? routesInformation[composedKey] : {
-      lugar_origen: '',
-      lugar_destino: '',
-      tarifa: '',
-      routeID: '',
-      entrega_vacio: false,
-    };
+        const extra = routesInformation[composedKey] || {
+            lugar_origen: '',
+            lugar_destino: '',
+            tarifa: '',
+            routeID: '',
+            entrega_vacio: false,
+        };
 
-    const row = {
-      serviceTypeId: st.id,
-      serviceType: st.selectedValue,
-      rowNumber,
-      serviceID: st.serviceID,
-      groupIndex,
-      rowIndex: globalRowIndex,
-      id_servicio_datos: routeID ?? '',
-      ...extra
-    };
+        const row = {
+            serviceTypeId: st.id,
+            serviceType: st.selectedValue,
+            rowNumber,
+            serviceID: st.serviceID,
+            rowIndex: globalRowIndex++, // Índice único incremental
+            id_servicio_datos: routeID,
+            ...extra,
+        };
 
-    globalRowIndex += 1;
-    return row;
-  })
-);
-
-
+        return row;
+    });
+});
 
     setRows(newRows);
-  }, [serviceTypes, routesInformation, routeIDsByRow]);
+}, [serviceTypes, routesInformation, routeIDsByRow]);
 
+  console.log('rows recibido en la seleccion de servicio: ', rows);
   useEffect(()=>{
-    console.log('rows: ', rows);
+    console.log('rows en la seleccion de servicio: ', rows);
   }, [rows])
 
 
@@ -165,8 +165,7 @@ useEffect(() => {
 }, [rows, setValue]);
 
 
-  const handleEntregaVacioChange = (rowIndex: number, value: boolean) => {
-      console.log('handleEntregaVacioChange', rowIndex, value);
+  const handleEntregaVacioChange = (rowIndex: number, value: boolean) => {      
     const updatedRows = [...rows];
     updatedRows[rowIndex].entrega_vacio = value;
     setRows(updatedRows); // Actualiza el estado de filas
@@ -198,9 +197,10 @@ useEffect(() => {
               <Controller
                 name={`${fieldName}.id_servicio_datos`}
                 control={control}
+                defaultValue={row.id_servicio_datos}
                 render={({ field }) => (
                 <Select
-                {...field}
+                  {...field}
                   placeholder={'Seleccione una ruta'}
                   options={selectData}
                   value={selectData.find(selectData => selectData.value === field.value)} // Para mostrar el label correcto
