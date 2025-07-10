@@ -7,15 +7,26 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useContext } from "react";
 import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
 
-interface TableRow {
-    ID: string;
-    Cliente: string;
-    Servicio: string;
-    Conductor: string;
-    Chasis: string;
-    Cabezal: string;
-    Furgón: string;
-    Status: string;
+export interface TableRowVariables {
+  cabezal: string;
+  chasis: string;
+  cliente: string;
+  conductor: string;
+  fecha_creacion: string;
+  fecha_finalizacion: string;
+  fecha_salida: string;
+  furgon: string;
+  hora_salida: string;
+  id_peticion: string;
+  monto: number;
+  precio_proveedor: number;
+  profit: number;
+  proveedor: string;
+  services?: TableRowVariables[]; // Optional if nested
+  servicio: string;
+  status: string;
+    customerId: string;  // Add missing property
+  date: string; 
 }
 
 interface SidebarProps {
@@ -31,24 +42,26 @@ interface SidebarProps {
   setPageSize: React.Dispatch<React.SetStateAction<number>>;
 }
 
+
 export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage }: SidebarProps) => {
-    const [tableData, setTableData] = useState<TableRow[]>([]);
+    const [tableData, setTableData] = useState<TableRowVariables[]>([]);
     const [selectedTab, setSelectedTab] = useState<number>(0); 
     const [isLoading, setIsLoading] = useState(false);
-    const {searchValue} = useContext(searchValueContext)!;    
+    const {searchValue} = useContext(searchValueContext)!;   
+    const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});       
 
     useEffect(() => {
         RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
-    }, [selectedTab, selectedOption, searchValue, currentPage]);
+    }, [selectedTab, selectedOption, searchValue, currentPage, selectedStatus]);
 
     const RequestDataForHomeTable = async (index: number): Promise<void> => {
-        const tableSections: string[] = ["En Espera", "En Proceso", "Completado"];
+        const tableSections: string[] = ["En Espera", "En Proceso", "Completado", 'Cancelado'];
         
         try {
             setIsLoading(true);
-            const response = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage });           
-    
-            setTableData(response.data);
+            const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage });           
+            console.log('response.data', response.data)
+            setTableData(response.data as unknown as TableRowVariables[]);
             setTotalRecords(response.totalRegistros); 
             setPageSize(response.limite);
             setCurrentPage(response.paginaActual)
@@ -81,7 +94,7 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
 
                         {/* Tabs dinámicos */}
                         <div className="flex gap-1">
-                            {["En Espera", "En Proceso", 'Terminadas'].map((opt, index) => (
+                            {["En Espera", "En Proceso", 'Completadas', 'Canceladas'].map((opt, index) => (
                                 <Tab key={index}>
                                     <Button text={opt} isSelected={selectedTab === index} bgColor="bg-[#96B2E4]" hoverBgColor="bg-slate-400"/>
                                 </Tab>
@@ -91,9 +104,14 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
                 </TabList>
 
                 {/* TabPanels dinámicos */}
-                {[0, 1, 2].map((index) => (
+                {[0, 1, 2, 3].map((index) => (
                     <TabPanel key={index}>
-                        <RequestsTable tableData={tableData} sidebarState={sidebarState} isLoading={isLoading} selectedTab = {selectedTab}/>
+                        <RequestsTable 
+                            tableData={tableData} 
+                            sidebarState={sidebarState} 
+                            isLoading={isLoading} 
+                            selectedTab = {selectedTab}
+                            />
                     </TabPanel>
                 ))}
             </Tabs>

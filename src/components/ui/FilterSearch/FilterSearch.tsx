@@ -13,7 +13,6 @@ interface SelectOption {
 
 interface FilterSearchProps{
     vehicleType?: string | null | undefined
-
     selectedOption: SelectOption | null;
     setSelectedOption: React.Dispatch<React.SetStateAction<SelectOption | null>>;
 }
@@ -47,7 +46,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption}:Fi
                                                
                         className="text-black max-w-[35%] min-w-[20%]"        
                         value={selectedOption} // Valor controlado por estado
-                        onChange={(optionselected)=>{setSelectedOption(optionselected)}}               
+                        onChange={(optionselected)=>{setSelectedOption(optionselected)}}                                       
                         styles={{
                             control: (base) => ({                                
                             ...base,
@@ -70,9 +69,6 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption}:Fi
                             zIndex: 9999 // Necesario si usas menuPortalTarget
                             })
                         }}
-                        // Añade esto si el menú sigue cortado por contenedores con overflow
-                        menuPortalTarget={document.body}
-                        menuPosition="fixed"
                     />
                 ): (
                     <div className="flex w-[8%] px-12  items-center justify-center py-2 border border-gray-400 bg-white">

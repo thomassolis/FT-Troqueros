@@ -25,14 +25,6 @@ interface AmountTableProps {
     errors: FieldErrors<RequestsFormValues>
 }
 
-type NestedFieldErrors = {
-    servicios?: Array<{
-        costos_extras?: {
-            descripcion?: FieldError;
-            precio?: FieldError;
-        };
-    }>;
-};
 
 export const AmountTable = ({
     filteredServiceData,
@@ -45,8 +37,10 @@ export const AmountTable = ({
     requestFormData,
     errors
 }: AmountTableProps) => {
-    console.log('requestFormData AmountTable: ', requestFormData);
     const [addExtraPrice, setAddExtraPrice] = useState(false);
+
+    console.log('filteredServiceData::',filteredServiceData);    
+    
     
     
     // Observamos los valores del formulario
@@ -93,10 +87,9 @@ export const AmountTable = ({
     }else{
         tableHeaders = ['Rutas', 'Costos', 'Subtotal']
     }
-    
-
+        
     return (
-        <table className="w-[70%] table-auto border border-gray-400 mt-5">
+        <table className="w-[70%] table-auto border border-gray-400 mt-5">            
             <thead className="bg-orange-400">
                 <tr>
                     {tableHeaders.map((title, index) => (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Input } from "../../../ui/inputs/input";
 import { SmallLabel } from "../../../ui/Labels/smallLabel";
 import Select from 'react-select';
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { SelectData } from "../../../../api/Requests/requests.route";
 import { StepsRequestsProps } from "../../../types/forms/RequestsForm/requestsForm";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -10,12 +10,8 @@ import { ServicesSelectionTable } from "../../../ui/Tables/RequestsForm/services
 import { DynamicRequestsType } from "../../../../functions/DynamicSections/Requests/DynamicRequestsType";
 import { SelectOptionTypes } from "../../../types/Select/select";
 import { TransformSelectData } from "../../../../functions/transformSelectData/TransformSelectData";
-import { RouteRow } from "../../../../context/Requests/DynamicRequestsOptions";
-import { useContext } from "react";
-import { dynamicRequestsContext } from "../../../../context/Requests/DynamicRequestsOptions";
 import { ServiceType } from "../../../../context/Requests/DynamicRequestsOptions";
 import { SelectionTeamTable } from "../../../ui/Tables/RequestsForm/selectionTeamTable";
-import { AmountTable } from "../../../ui/Tables/AmountTable/AmountTable";
 import { PrevisualizationTab } from "../../../ui/tabs/Tabs";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -25,22 +21,13 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from 'dayjs';
 import { NeonWarning } from "../../../ui/Warning/NeonWarning";
 import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
+import { useLocation } from "react-router-dom";
+import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, useProvider, setUseProvider, rows}) => {    
+export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider, rows, requestData}) => {    
+    console.log('requestData', requestData);
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
-    console.log('Rows Step1: ', rows);
-    //     useEffect(() => {
-    //     if (providersData && setValue) {    
-    //         if (providersData.nombre) {
-    //             setValue('nombre', providersData.nombre ?? '');
-    //         }
-    //         if (providersData.persona_contacto) {
-    //             setValue('personaContacto', providersData.persona_contacto ?? '');
-    //         }              
-
-    //     }
-    //   }, [providersData, setValue]);
-
+    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
     useEffect(() => {
     const getSelectData = async () => {
         try {
@@ -54,6 +41,16 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
 
     getSelectData();
     }, []);
+
+    useEffect(() => {
+        if (requestData && setValue) {
+          
+                setValue('id_cliente', requestData.id_cliente || '');
+                setValue('fecha_salida', requestData.fecha_salida || '');
+                setValue('hora_salida', requestData.hora_salida || '');
+          
+        }
+    }, [requestData]);
 
 
     return (
@@ -99,7 +96,7 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
                                     }}
                                 />
                             )}
-                            />
+                            />                            
 
                         </div>                        
 
@@ -107,26 +104,28 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
 
                             <Controller
                                 name="fecha_salida"
-                                control={control}
+                                control={control}                                
                                 render={({ field }) => (
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <DemoContainer components={["DatePicker"]} sx={{width:'100%'}}>
                                             <DatePicker
-                                                label="Selecciona una fecha"
-                                                format="DD/MM/YY"
-                                                value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null} // Convierte el string a dayjs
-                                                onChange={(date) => {
-                                                    const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Formatea a DD/MM/YY
-                                                    field.onChange(formattedDate); // Guarda el string (ej: "25/06/24")
-                                                }}
-                                                className="bg-white w-full"
-                                                slotProps={{
-                                                    textField: {
-                                                    error: !!errors.fecha_salida,
-                                                    helperText: errors.fecha_salida?.message,
-                                                    },
-                                                }}
+                                            label="Selecciona una fecha"
+                                            format="DD/MM/YYYY" // Lo que ve el usuario
+                                            value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null} // Interpretas el string del backend
+                                            onChange={(date) => {
+                                                const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Lo que guarda y se envía al backend
+                                                field.onChange(formattedDate);
+                                            }}
+                                            className="bg-white w-full"
+                                            // slotProps={{
+                                            //     textField: {
+                                            //     error: !!errors.fecha_salida,
+                                            //     helperText: errors.fecha_salida?.message,
+                                            //     },
+                                            // }}
                                             />
+
+
                                         </DemoContainer>
                                     </LocalizationProvider>
                                 )}  
@@ -149,12 +148,12 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
                                         field.onChange(formattedTime); // Guarda el string (ej: "14:30")
                                     }}
                                     className="bg-white w-full"
-                                    slotProps={{
-                                        textField: {
-                                        error: !!errors.hora_salida,
-                                        helperText: errors.hora_salida?.message,
-                                        },
-                                    }}
+                                    // slotProps={{
+                                    //     textField: {
+                                    //     error: !!errors.hora_salida,
+                                    //     helperText: errors.hora_salida?.message,
+                                    //     },
+                                    // }}
                                     />
                                 </DemoContainer>
                                 </LocalizationProvider>
@@ -176,36 +175,34 @@ export const Step1: React.FC<StepsRequestsProps> = ({register, errors, setValue,
     )
 }
 
-export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue, control, setUseProvider, useProvider, rows}) => {    
-    console.log('Rows Step2: ', rows);
+export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, rows, requestData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
+    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
     useEffect(() => {
-    const getSelectData = async () => {
-        try {
-        const response = await SelectData({ type: 'providers' });
-        const transformedData = TransformSelectData({type:'providers', data:response})
-        setProvidersSelect(transformedData ?? []);        
-        } catch (error) {
-        console.error('Error en: getSelectData', error);
-        }
-    };
+        const getSelectData = async () => {
+            try {
+            const response = await SelectData({ type: 'providers' });
+            const transformedData = TransformSelectData({type:'providers', data:response})
+            setProvidersSelect(transformedData ?? []);        
+            } catch (error) {
+            console.error('Error en: getSelectData', error);
+            }
+        };
 
-    getSelectData();
+        getSelectData();
     }, []);
     
+    useEffect(() => {
+        if (requestData && setValue) {            
+            setValue('id_proveedor', requestData.proveedor || '');
+            setValue('precio_proveedor', requestData.precio_proveedor || '');
+            if(requestData.id_proveedor){
+                setValue('isProviderRequest', true);                 
+            }                                
+            
+        }
+    }, [requestData, setValue]);
 
-    // const useProvider = useWatch({
-    //     control,
-    //     name: 'tipo_entregaProveedor',
-    //     defaultValue: false
-    // });
-
-    // useEffect(() => {
-    // if (useProvider === false && setValue) {
-    //     setValue('costos_extras', 0);
-    //     setValue('id_proveedor', '');
-    // }
-    // }, [useProvider, setValue]);
 
     return (
         <section className="w-full">                        
@@ -274,46 +271,104 @@ export const Step2: React.FC<StepsRequestsProps> = ({register, errors, setValue,
     )
 }
 
-export const Step3: React.FC<StepsRequestsProps> = ({control, register, setValue, useProvider, rows, setRows, serviceTypes, setServiceTypes}) => {            
-    // const {serviceTypes, setServiceTypes} = useContext(dynamicRequestsContext)!;    
+export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows, serviceTypes, setServiceTypes, isInitialLoad, setIsInitialLoad, isEntregaVacioSelected, setIsEntregaVacioSelected, requestData, requestFormData}) => {                    
     const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);//Estados que maneja los datos que tiene el select de servicios
     const [routesInformation, setRoutesInformation] = useState<Record<string, any>>({});
-    const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({});        
-    console.log('ROWS DESDE TABLA: ', rows);
+    const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({}); 
+    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
 
-    useEffect(()=>{
-        console.log('RowsEnTablaUseEffect', rows);
-    },[rows])
+    const location = useLocation();
+    const isEditMode = location.pathname.includes('edit')    
+    
+    //Función que hace que si requestData viene con valores pase estos datos al serviceTypes para que se forme la tabla
+    useEffect(() => {
+    if (requestData?.servicios?.length) {
+        const grouped: Record<string, { serviceID: string; selectedValue: string; quantity: number }> = {};
+
+        requestData.servicios.forEach((servicio) => {
+        const key = servicio.servicio;
+        if (!grouped[key]) {
+            grouped[key] = {
+            serviceID: String(servicio.id_servicio),
+            selectedValue: servicio.servicio,
+            quantity: 1
+            };
+        } else {
+            grouped[key].quantity += 1;
+        }
+        });
+
+        const transformedServiceTypes = Object.values(grouped).map((entry) => ({
+        id: Date.now() + Math.floor(Math.random() * 10000), // único
+        selectedValue: entry.selectedValue,
+        quantity: entry.quantity,
+        serviceID: entry.serviceID
+        }));
+
+        setServiceTypes(transformedServiceTypes);
+    }
+    }, [requestData]);
+
+    
+    // Coloca el useEffect aquí
+    useEffect(() => {
+        console.log('serviceTypes: ', serviceTypes);
+      // Limpiar datos de rutas cuando serviceTypes cambie
+      const activeIds = new Set(serviceTypes.map(st => st.id));
+      
+      setRoutesInformation(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(key => {
+          const id = parseInt(key.split('-')[0]);
+          if (!activeIds.has(id)) delete updated[key];
+        });
+        return updated;
+      });
+
+      setRouteIDsByRow(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(key => {
+          const id = parseInt(key.split('-')[0]);
+          if (!activeIds.has(id)) delete updated[key];
+        });
+        return updated;
+      });
+    }, [serviceTypes]);
 
     const newServiceType = () => {
-        const newId = serviceTypes.length > 0 ? Math.max(...serviceTypes.map(st => st.id)) + 1 : 1;
-        setServiceTypes(prev => [...prev, { id: newId, selectedValue: '', quantity: 0, serviceID: '' }]);
-    }
+    const newId = Date.now(); // Usar timestamp para mayor unicidad
+    setServiceTypes(prev => [...prev, { 
+        id: newId, 
+        selectedValue: '', 
+        quantity: 0, 
+        serviceID: '' 
+    }]);
+    }    
 
-        const updateServiceType = (
-            id: number,
-            field: keyof ServiceType,
-            name: string| number,
-            value: string | number
-        ) => {
-        setServiceTypes(prev =>
-            prev.map(st => {
-            if (st.id !== id) return st;
+    const updateServiceType = (
+        id: number,
+        field: keyof ServiceType,
+        name: string| number,
+        value: string | number
+    ) => {            
+    setServiceTypes(prev =>
+        prev.map(st => {
+        if (st.id !== id) return st;
 
-            const updated: Partial<ServiceType> = { [field]: name };
-            
-            if (field === 'selectedValue') {
-                updated.serviceID = String(value);
-            }
+        const updated: Partial<ServiceType> = { [field]: name };
+        
+        if (field === 'selectedValue') {
+            updated.serviceID = String(value);
+        }
 
-            return { ...st, ...updated };
-            })
-        );
-        };
+        return { ...st, ...updated };
+        })
+    );
+    };
 
     const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);
         
-const deleteServiceType = (id: number) => {
+    const deleteServiceType = (id: number) => {
     // 1. Eliminar de serviceTypes
     setServiceTypes(prev => prev.filter(st => st.id !== id));
 
@@ -321,7 +376,7 @@ const deleteServiceType = (id: number) => {
     setRoutesInformation(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {
-            if (key.startsWith(`${id}-`)) delete updated[key];
+        if (key.startsWith(`${id}-`)) delete updated[key];
         });
         return updated;
     });
@@ -330,52 +385,55 @@ const deleteServiceType = (id: number) => {
     setRouteIDsByRow(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {
-            if (key.startsWith(`${id}-`)) delete updated[key];
+        if (key.startsWith(`${id}-`)) delete updated[key];
         });
         return updated;
     });
 
     // 4. Eliminar de rows
     setRows(prev => prev.filter(row => row.serviceTypeId !== id));
-};
+    };
 
+    console.log('serviceTypes en dinámico: ',serviceTypes);
     return (
         <section className="w-full ">                        
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">
                 Complete el siguiente formulario para crear una nueva petición
             </h1>
 
-            <div className="flex flex-col items-center justify-center gap-5 w-full">                
-                <div className="grid grid-cols-[0.4fr_0.2fr_0.1fr] mt-6 gap-4 w-[80%] items-center justify-center">                    
-                    <h1 className="text-black">Tipo de Servicio</h1>                                        
-                    <h1 className="text-black">Cantidad</h1>                    
+            {! isEditMode && (
+                <div className="flex flex-col items-center justify-center gap-5 w-full">                
+                    <div className="grid grid-cols-[0.4fr_0.2fr_0.1fr] mt-6 gap-4 w-[80%] items-center justify-center">                    
+                        <h1 className="text-black">Tipo de Servicio</h1>                                        
+                        <h1 className="text-black">Cantidad</h1>                    
+                    </div>
+
+                    {serviceTypes.map((serviceType) => (                    
+                        <DynamicRequestsType 
+                            useProvider={useProvider}
+                            key={serviceType.id}
+                            id={serviceType.id}
+                            selectedValue={serviceType.selectedValue}
+                            quantity={serviceType.quantity}
+                            onUpdate={updateServiceType}
+                            setServicesSelect = {setServicesSelect}
+                            servicesSelect = {servicesSelect}
+                            onDelete={deleteServiceType}                        
+                        />
+                    ))}
+
+                    {useProvider ? (
+                        <></>
+                    ):(
+                        <Icon 
+                            icon="gg:add" 
+                            width="24" height="24"  
+                            className="text-gray-500 cursor-pointer hover:text-black"
+                            onClick={newServiceType}
+                        />
+                    )}
                 </div>
-
-                {serviceTypes.map((serviceType) => (
-                    <DynamicRequestsType 
-                        useProvider={useProvider}
-                        key={serviceType.id}
-                        id={serviceType.id}
-                        selectedValue={serviceType.selectedValue}
-                        quantity={serviceType.quantity}
-                        onUpdate={updateServiceType}
-                        setServicesSelect = {setServicesSelect}
-                        servicesSelect = {servicesSelect}
-                        onDelete={deleteServiceType}
-                    />
-                ))}
-
-                {useProvider ? (
-                    <></>
-                ):(
-                    <Icon 
-                        icon="gg:add" 
-                        width="24" height="24"  
-                        className="text-gray-500 cursor-pointer hover:text-black"
-                        onClick={newServiceType}
-                    />
-                )}
-            </div>
+            )}
 
             {totalRows > 0 && (
                 <div className="flex flex-col">
@@ -392,7 +450,12 @@ const deleteServiceType = (id: number) => {
                         register={register}    
                         setValue={setValue}                            
                         rows = {rows}    
-                        setRows={setRows}         
+                        setRows={setRows} 
+                        isInitialLoad={isInitialLoad}
+                        setIsInitialLoad={setIsInitialLoad}       
+                        requestData={requestData}   
+                        isEditMode = {isEditMode}  
+                        requestFormData={requestFormData}                
                     />
                 </div>            
             )}
@@ -400,16 +463,21 @@ const deleteServiceType = (id: number) => {
     )
 }
 
-export const Step4: React.FC<StepsRequestsProps> = ({control, useProvider, rows}) => {   
-   
+export const Step4: React.FC<StepsRequestsProps> = ({useProvider, rows, requestFormData, setRows, requestData}) => {      
+    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
     return(
         <div className="flex flex-col mt-10 gap-10">
             <h1 className="text-black">Completa el formulario para crear una nueva petición</h1>
             <SelectionTeamTable
                 title = {['Tipo de Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón']}
                 control = {control}
-                useProvider = {useProvider}                   
+                useProvider = {useProvider}
                 rows={rows}
+                requestFormData = {requestFormData}
+                setRows={setRows}
+                requestData = {requestData}
+                setValue= {setValue}
+                register = {register}
             />
             {useProvider &&
                 <NeonWarning message={'Se utilizará el equipo del proveedor designado.'}/>
@@ -418,12 +486,14 @@ export const Step4: React.FC<StepsRequestsProps> = ({control, useProvider, rows}
     )
 }
 
-export const Step5: React.FC<StepsRequestsProps> = ({register, watch, setValue, useProvider, requestFormData, errors, rows}) => {    
-        
+export const Step5: React.FC<StepsRequestsProps> = ({useProvider, requestFormData, rows}) => {    
+    const { control, setValue, register, errors, watch } = useFormContext<RequestsFormValues>();
+
     const services = rows.map((row, index) => ({
-    serviceType: row.serviceType,
-    rowIndex: index,
+        serviceType: row.serviceType,
+        rowIndex: index,
     }));
+    
 
 
     return (

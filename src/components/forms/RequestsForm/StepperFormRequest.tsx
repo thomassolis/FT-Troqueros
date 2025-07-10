@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
@@ -8,10 +8,11 @@ import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
 import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
 import { CreateNewRequest } from "../../../api/Requests/requests.route";
 import { getProvidersDataByID } from "../../../api/Providers/providers.route";
-import { updateProvidersInfo } from "../../../api/Providers/providers.route";
-// import { ProvidersFormValues } from "../../types/ProvidersForm/providersForm";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
 import { Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
+import { GetRequestDataPerID } from "../../../api/Requests/requests.route";
+import { EditRequestData } from "../../../api/Requests/requests.route";
+
 export interface ServiceType {
   id: number;
   selectedValue: string;
@@ -19,12 +20,18 @@ export interface ServiceType {
   serviceID?: string;
 }
 export const StepperFormRequests = () => {
-  const [providersData, setProvidersData] = useState({});
-  const {providerID} = useParams();
+  
+  const [providersData, setProvidersData] = useState({});  
+  const {requestID} = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const procedure = GetProcedureFromURL();  
+
+  const [requestData, setRequestData] = useState();
   const [useProvider, setUseProvider] = useState(false);    //Estado que validará si una petición será manejada por un proveedor o no
   const [requestFormData, setRequestFormData]= useState<RequestsFormValues>({} as RequestsFormValues);
+  //Estado que maneja si una 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
     {
       id: 1,
@@ -35,36 +42,13 @@ export const StepperFormRequests = () => {
     // Más objetos si es necesario
   ]);
   const [rows, setRows] = useState<RouteRow[]>([]);//Filas que tienen las tablas
-
   useEffect(()=>{
-    console.log('Row UseEffect: ', rows);
+    console.log('Como se actualiza Rows: ', rows);
   },[rows])
 
-    useEffect(()=>{
-    console.log('serviceTypes UseEffect: ', serviceTypes);
-  },[serviceTypes])
-
-
-  //Obtendrá los datos por ID
   useEffect(()=>{
-
-    if(providerID){      
-      setIsLoading(true);
-      const FetchCustomerDataByID = async() =>{
-        try{
-          const response = await getProvidersDataByID({providerID});               
-          setProvidersData(response);
-        }catch(error){
-          console.error('Error en StepperFormCustomers', error);
-        } finally{
-          setIsLoading(false);
-        }
-      }
-
-      FetchCustomerDataByID();
-    }
-    
-  }, [providerID])
+    console.log('Como se actualiza RequestData: ', requestData);
+  },[rows])
 
 
   const [activeStep, setActiveStep] = useState(0);
@@ -77,7 +61,7 @@ export const StepperFormRequests = () => {
       hora_salida: "",
       id_cliente: "",
       id_proveedor: "",
-      precio_proveedor: 0,
+      precio_proveedor:undefined,
       isProviderRequest: false, //Variable que controla el checkox (esta variable no se enviará)
       servicios: [
         {
@@ -108,7 +92,7 @@ export const StepperFormRequests = () => {
 
   useEffect(() => {
     const subscription = watch((value) => {
-      // console.log("📋 Formulario actualizado:", value);    
+      console.log("📋 Formulario actualizado:", value);    
       setRequestFormData(value);
     });
     return () => subscription.unsubscribe();
@@ -144,132 +128,131 @@ export const StepperFormRequests = () => {
 
         // 2) Al parsearlo, JSON.parse descarta las claves con value===undefined
         const cleanData = JSON.parse(json);
-
       if(procedure === 'create'){
         const response = await CreateNewRequest({data:cleanData});
-        if(response.success) {
-          setRows([]);
+        if(response.success) {          
+          setRows([]);                    
           navigate('/home');          
         }
+      }else{//Modo editar
+        const response = await EditRequestData({data:cleanData, requestID:requestID, id_pedidoServicio: requestData?.id_pedidoServicio})
+
       }
     }catch(error){
       console.error('Error en StepperFormRequests', error);
-    }
-    // } else if (procedure === 'modify'){        
-    //     const response = await updateProvidersInfo({data, providerID});
-    //     if(response.success){
-    //       navigate('/home/Providers');
-    //     }
-    //   }
-    
-    // setIsLoading(false);            
+    }        
   };
+
+  useEffect(()=>{
+    const GetDataForEditRequest = async() => {
+      try{
+        const response = await GetRequestDataPerID({requestID});  
+        setRequestData(response);
+        console.log('setrequestData: ', response);
+      }catch(error){
+        console.error('Error en GetDataForEditRequest', error);
+      }
+    }
+    GetDataForEditRequest();
+  },[])
 
 
   return (
-    <section className="flex flex-col items-center w-full">
-      <StepperLine step={activeStep} />
+    <section className="flex flex-col items-center w-full">      
       
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center">
-        <div className="w-[85%]">
-            {activeStep === 0 && (
-                <Step1              
-                  register={register}
-                  setValue={setValue}
-                  errors={errors}                 
-                  control={control}                  
-                  useProvider={useProvider}
-                  setUseProvider={setUseProvider}
-                  rows={rows}
-                />
-            )}
+<FormProvider {...methods}>
+  <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center">
+    <StepperLine step={activeStep} />
 
-            {activeStep === 1 && (
-                <Step2
-                  register={register} 
-                  setValue={setValue}
-                  errors={errors}                                      
-                  control={control}      
-                  useProvider={useProvider}
-                  setUseProvider={setUseProvider} 
-                  rows={rows}           
-                />
-            )}
+    <div className="w-[85%]">
+      <div hidden={activeStep !== 0}>
+        <Step1
+          useProvider={useProvider}
+          setUseProvider={setUseProvider}
+          rows={rows}
+          requestData={requestData}
+        />
+      </div>
 
-          {activeStep === 2 && (
-              <Step3
-                register={register} 
-                setValue={setValue} 
-                errors={errors}                 
-                control={control}    
-                useProvider = {useProvider}      
-                rows={rows}                       
-                setRows={setRows}
-                serviceTypes = {serviceTypes}
-                setServiceTypes = {setServiceTypes}
-              />
-          )} 
+      <div hidden={activeStep !== 1}>
+        <Step2
+          useProvider={useProvider}
+          setUseProvider={setUseProvider}
+          rows={rows}
+          requestData={requestData}
+        />
+      </div>
+
+      <div hidden={activeStep !== 2}>
+        <Step3
+          useProvider={useProvider}
+          rows={rows}
+          setRows={setRows}
+          serviceTypes={serviceTypes}
+          setServiceTypes={setServiceTypes}
+          isInitialLoad={isInitialLoad}
+          setIsInitialLoad={setIsInitialLoad}
+          requestData={requestData}
+          requestFormData={requestFormData}
+        />
+      </div>
+
+      <div hidden={activeStep !== 3}>
+        <Step4
+          useProvider={useProvider}
+          requestFormData={requestFormData}
+          rows={rows}
+          setRows={setRows}
+          requestData={requestData}
+        />
+      </div>
+
+      <div hidden={activeStep !== 4}>
+        <Step5
+          useProvider={useProvider}
+          requestFormData={requestFormData}
+          rows={rows}
+          requestData={requestData}
+        />
+      </div>
+    </div>
+
+    <div className="w-[90%] flex items-center justify-between mt-12">
+      <div className="w-[10%] flex">
+        <Button
+          onClick={prevStep}
+          className2="p-2 w-full"
+          bgColor="bg-red-600"
+          text="Atrás"
+          textColor="text-white"
+        />
+      </div>
+
+      <div className="w-[10%] flex">
+        {activeStep < 4 ? (
+          <Button
+            onClick={async () => {
+              const isStepValid = await trigger();
+              if (isStepValid) nextStep();
+            }}
+            className2="p-2 w-full"
+            textColor="text-white"
+            bgColor="bg-[#1B5316]"
+            text="Siguiente"
+          />
+        ) : (
+          <Button
+            type="submit"
+            className2="bg-green-600 p-2 w-full"
+            text="Enviar"
+          />
+        )}
+      </div>
+    </div>
+  </form>
+</FormProvider>
 
 
-          {activeStep === 3 && (
-              <Step4
-                register={register} 
-                setValue={setValue} 
-                errors={errors}                 
-                control={control}    
-                useProvider = {useProvider}            
-                rows={rows}                                                  
-              />
-          )} 
-
-            {activeStep === 4 && (
-              <Step5
-                register={register} 
-                setValue={setValue} 
-                errors={errors}                 
-                control={control}   
-                watch={watch}                    
-                useProvider = {useProvider} 
-                requestFormData={requestFormData}
-                rows={rows}
-              />
-          )} 
-        </div>
-        
-        <div className="w-[90%] flex items-center justify-between mt-12">
-          <div className="w-[10%] flex">
-            <Button                 
-              onClick={prevStep} 
-              className2="p-2 w-full"
-              bgColor="bg-red-600"
-              text="Atrás"
-              textColor="text-white"
-            />
-          </div>
-
-          <div className="w-[10%] flex">
-            {activeStep < 4 ? (
-              <Button
-                onClick={async () => {
-                  const isStepValid = await trigger(); // valida los campos actuales
-                  if (isStepValid) nextStep();
-                }}
-                className2="p-2 w-full"
-                textColor="text-white"
-                bgColor="bg-[#1B5316]"
-                text="Siguiente"
-              />
-            ) : (
-              <Button
-                type="submit"
-                className2="bg-green-600 p-2 w-full"
-                text="Enviar"
-              />
-            )}
-          </div>
-        </div>
-      
-      </form>
     </section>
   );
 };

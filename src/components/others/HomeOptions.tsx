@@ -40,7 +40,31 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                     <FilterSearch selectedOption={selectedOption} setSelectedOption={setSelectedOption}/>
                 </div>                
                 <div className="w-full flex justify-center flex-col items-center">
-                    <TableTabs sidebarState={sidebarState} selectedOption={selectedOption} currentPage={currentPage} setCurrentPage={setCurrentPage} setTotalRecords={setTotalRecords} setPageSize={setPageSize}/>                
+                    <TableTabs 
+                        sidebarState={sidebarState} 
+                        selectedOption={selectedOption} 
+                        currentPage={currentPage} 
+                        setCurrentPage={setCurrentPage} 
+                        setTotalRecords={setTotalRecords} 
+                        totalRecords={totalRecords}
+                        setPageSize={setPageSize}
+                    />                
+                    <div className="flex gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-green-300 rounded-sm border border-gray-400">
+
+                            </div>
+                            <p className="text-black">Proveedor</p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-blue-200 rounded-sm border border-gray-400">
+
+                            </div>
+                            <p className="text-black">Varios Servicios</p>
+                        </div>
+
+                    </div>
                     <Paginacion pageSize= {pageSize} totalRecords={totalRecords} handlePageClick = {handlePageClick}/>            
                 </div>                    
             </div> 

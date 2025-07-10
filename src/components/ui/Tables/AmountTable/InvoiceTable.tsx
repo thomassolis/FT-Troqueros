@@ -19,9 +19,8 @@ interface Servicio {
 }
 
 export const InvoiceTable = ({services, rows, requestFormData}:InvoiceTableProps) => {
-    console.log('InvoiceTable rows: ', rows);
-    console.log('InvoiceTable services: ', services);
-    console.log('InvoiceTable requestFormData: ', requestFormData);
+
+    console.log('requestFormData: ', requestFormData);
 
     const calculateTotalInvoice = () => {
     // Suma de tarifas (segura)

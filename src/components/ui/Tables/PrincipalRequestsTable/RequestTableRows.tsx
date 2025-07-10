@@ -1,13 +1,21 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Select from 'react-select';
+import { useState } from 'react';
+import { UpdateRequestStatus } from '../../../../api/Home/home.route';
+import { useNavigate } from 'react-router-dom';
+import { DoubleConfirmationAlert } from '../../Alerts/DoubleConfirmation/doubleConfirmation';
+import { title } from 'process';
+import { text } from 'stream/consumers';
+
 // Estilos comunes para las celdas
 const tableCellStyles = {
   width: '13.5%', // Divide el 100% entre 8 columnas (ajusta según necesidades)
@@ -26,8 +34,20 @@ function createData(
   conductor: string,
   chasis: string,
   cabezal: string,
-  furgon:string,  
-  id_proveedor:string,
+  furgon: string,  
+  id_proveedor: string,
+  status: string,
+  services: {  // Change from tuple to regular array of objects
+    conductor: string,
+    id_peticion: string,
+    cliente: string,
+    servicio: string,
+    cabezal: string,
+    chasis: string,
+    furgon: string,
+    customerId: string,
+    date: string
+  }[]  // Note the [] instead of []
 ) {
   return {
     id,
@@ -38,41 +58,86 @@ function createData(
     cabezal,
     furgon,
     id_proveedor,
-    history: [
-      {
-        date: '2020-01-05',
-        customerId: '11091700',
-        amount: 3,
-      },
-      {
-        date: '2020-01-02',
-        customerId: 'Anonymous',
-        amount: 1,
-      },
-    ],
+    status,
+    services,
   };
 }
+
+
 interface RequestTableRowsProps {
   row: ReturnType<typeof createData>;
   selectedTab: number; // Añade esta prop
 }
+
+
 function RequestTableRows({ row, selectedTab }: RequestTableRowsProps) {
-  const [open, setOpen] = React.useState(false);
-  console.log('selectedTabselectedTab', selectedTab);
+  const [open, setOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});      
+  const navigate = useNavigate();
+  console.log(row);
+  //Función que mapea el status recibido para que vaya acorde con el label, value del select
+  useEffect(() => {
+    if (row.status) {
+      const statusMap: Record<string, {value: string, label: string}> = {
+        'En espera': { value: 'en espera', label: 'En Espera' },
+        'En proceso': { value: 'en proceso', label: 'En Proceso' },
+        'Completado': { value: 'Completado', label: 'Completada' },
+      };
+      setSelectedStatus(statusMap[row.status] || null);
+    }
+  }, [row.status]);
+
+  //Función para cambiar el status de una petición
+  const changeRequestStatus = async ({ optionselected, id }: { optionselected: { value: string, label: string }, id: string }) => {
+    try {
+      await UpdateRequestStatus({ status: optionselected.value, id: id });
+    } catch (error) {
+      console.error('changeRequestStatus: ', error);
+    }
+  };
+
+  //Cambio de color en las opciones del select
+const getStatusTextColor = (statusValue:string) => {
+  switch (statusValue) {
+    case 'en espera':
+      return '#ffc109'; // Amarillo (texto)
+    case 'en proceso':
+      return '#0d6efd'; // Azul (texto)
+    case 'Completado':
+      return '#198754'; // Verde (texto)
+    default:
+      return '#6c757d'; // Gris por defecto
+  }
+};
+
+  const disableRequest = (requestID:string) => {
+    console.log('requestID: ',requestID);
+    DoubleConfirmationAlert({
+      title:'¿Estás seguro que deseas deshabilitar esta petición?',
+      text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',
+      id: requestID,
+      type: 'deleteRequest'
+    });
+  }
+
+
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className={`${row.id_proveedor ? 'bg-blue-200' : ''}`}>
-        <TableCell sx={{ ...tableCellStyles, width: '2%', maxWidth: '2%' }}>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <Icon icon="fe:arrow-up" width="24" height="24" /> : <Icon icon="fe:arrow-down" width="24" height="24" />}
-          </IconButton>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className={` ${(!row.id_proveedor && row.services.length === 0) ? 'hover:bg-gray-300 cursor-pointer' : ''} ? 'hover:bg-gray-200':''} ${row.id_proveedor ? 'bg-green-300 hover:bg-green-400 cursor-pointer' : ''}  ${row.services.length>0? 'bg-blue-200 hover:bg-blue-300 cursor-pointer': ''}`} onClick={()=>navigate(`/home/Request/edit/${row.id}`)}>
+        <TableCell sx={{ ...tableCellStyles, width: '2%', maxWidth: '2%' }} onClick={(e) => e.stopPropagation()}>
+          {Array.isArray(row.services) && row.services.length > 0 ? (                        
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <Icon icon="fe:arrow-up" width="24" height="24" /> : <Icon icon="fe:arrow-down" width="24" height="24" />}            
+            </IconButton>
+          ) : null}
+
         </TableCell>
         <TableCell align="center" sx={{...tableCellStyles, width: '8%', maxWidth: '8%'}}> 
-          <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.id ? '' : 'text-red-500'}>{row.id}</p>
+          <p style={{ margin: 0, wordBreak: 'break-word' }} className={`font-bold ${row.id ? '' : 'text-red-500'}`}>{row.id}</p>
         </TableCell>
         <TableCell align="center" sx={tableCellStyles}> 
           <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.nombreCliente ? '' : 'text-red-500'}>{row.nombreCliente}</p>
@@ -92,26 +157,64 @@ function RequestTableRows({ row, selectedTab }: RequestTableRowsProps) {
         <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
           <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.furgon ? '' : 'text-red-500'}>{row.furgon || 'No asignado'}</p>
         </TableCell>
-        <TableCell align="center" sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>          
-          <Select 
+        <TableCell align="center" sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }} onClick={(e) => e.stopPropagation()}>          
+        <Select
             options={[
-              {value: 'id', label: 'En Espera'}, 
-              {value: 'nameService', label: 'En Proceso'}, 
-              {value: 'nameDriver', label: 'Terminadas'},               
-            ]}  
-          />
+              { value: 'en espera', label: 'En Espera' },
+              { value: 'en proceso', label: 'En Proceso' },
+              { value: 'Completado', label: 'Completada' },
+            ]}
+            value={selectedStatus}
+            onChange={(optionselected) => {
+              setSelectedStatus(optionselected);
+              if (optionselected) {  // Only proceed if optionselected exists
+                changeRequestStatus({
+                  optionselected: optionselected, 
+                  id: row.id
+                });
+              }
+            }}
+          styles={{
+            option: (provided, state) => ({
+              ...provided,
+              color: getStatusTextColor(state.data.value),
+              backgroundColor: state.isSelected 
+                ? "rgba(13, 110, 253, 0.5)" // Fondo azul muy claro al seleccionar
+                : provided.backgroundColor,
+              "&:hover": {
+                backgroundColor: "rgba(13, 110, 253, 0.2)", // Fondo al pasar el mouse
+              },
+            }),
+            singleValue: (provided, state) => ({
+              ...provided,
+              color: getStatusTextColor(state.data.value),
+            }),
+          }}
+        />
         </TableCell>
+
+          {row.status === 'En espera' && (
+            <TableCell onClick={(e) => e.stopPropagation()} sx={{...tableCellStyles, width: '2%', maxWidth: '2%'}}>
+              <Icon
+                icon="line-md:trash"
+                width="25"
+                height="25"
+                className="text-red-600 cursor-pointer hover:text-red-400"            
+                onClick={()=>disableRequest({requestID:row.id})}
+              />
+            </TableCell>
+          )}
       </TableRow>      
 
 
 
 
-      {/* SUBTABLAA */}
-      <TableRow>
+      {/* __________________________________________________________ SUBTABLAA __________________________________________________________*/}
+      <TableRow >
         <TableCell
           style={{ padding: 0}}
           padding="none"
-          colSpan={9}          
+          colSpan={10}          
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ 
@@ -128,35 +231,50 @@ function RequestTableRows({ row, selectedTab }: RequestTableRowsProps) {
                   tableLayout: 'fixed',
                 }}
               >
-                <TableHead>
-                  <TableRow>
-                    {/* Columna vacía para alinear con el botón expandir */}
-                    <TableCell sx={{ ...tableCellStyles, width: '5%', maxWidth: '5%'}}></TableCell>
-                    <TableCell sx={{ ...tableCellStyles}} align="center">id</TableCell>
-                    <TableCell sx={{ ...tableCellStyles}} align="center">Cliente</TableCell>
-                    <TableCell sx={{ ...tableCellStyles}} align="center">Amount</TableCell>
-                    <TableCell sx={{ ...tableCellStyles}} align="center">Total price ($)</TableCell>
-                    <TableCell sx={{ ...tableCellStyles}} align="center">Amount</TableCell>
-                    <TableCell sx={{ ...tableCellStyles}} align="center">Amount</TableCell>
-                    <TableCell sx={{ ...tableCellStyles}} align="center">Amount</TableCell>
-                    <TableCell sx={{ ...tableCellStyles, width: '10%', maxWidth: '10%' }} align="center">Amount</TableCell>
-                  </TableRow>
-                </TableHead>
 
-                          {/* <TableBody>
-                            {row.history.map((historyRow) => (
-                              <TableRow key={historyRow.date}>
-                                <TableCell component="th" scope="row">
-                                  {historyRow.date}
-                                </TableCell>
-                                <TableCell>{historyRow.customerId}</TableCell>
-                                <TableCell align="right">{historyRow.amount}</TableCell>
-                                <TableCell align="right">
-                                  {Math.round(historyRow.amount * row.price * 100) / 100}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody> */}
+        <TableBody>
+          {row.services?.map((historyRow) => (
+            <TableRow key={`${historyRow.date}-${historyRow.customerId}`} className='bg-blue-200'> {/* Key más único */}
+              <TableCell align='center' sx={{...tableCellStyles, width: '4.2%', maxWidth: '4.2%'}} ></TableCell>
+              <TableCell align='center' sx={{...tableCellStyles, width: '8%', maxWidth: '8%'}}><p className='font-bold py-1'>{historyRow.id_peticion}</p></TableCell>
+              <TableCell align='center' sx={tableCellStyles}>{historyRow.cliente}</TableCell>
+              <TableCell align='center' sx={tableCellStyles}>{historyRow.servicio}</TableCell>
+              <TableCell align='center' sx={tableCellStyles}>
+                <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.conductor ? '' : 'text-red-500'}>
+                  {historyRow.conductor || 'No asignado'}
+                </p>
+              </TableCell>
+
+              <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.chasis ? '' : 'text-red-500'}>
+                  {historyRow.chasis || 'No asignado'}
+                </p>
+              </TableCell>
+
+              <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.cabezal ? '' : 'text-red-500'}>
+                  {historyRow.cabezal || 'No asignado'}
+                </p>
+              </TableCell>
+
+              <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.furgon ? '' : 'text-red-500'}>
+                  {row.furgon || 'No asignado'}
+                </p>
+              </TableCell>
+
+
+              <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}></TableCell>
+              <TableCell sx={{...tableCellStyles, width: '2%', maxWidth: '2%', marginLeft:'10px'}}></TableCell>
+            </TableRow>
+          )) ?? (
+            <TableRow>
+              <TableCell colSpan={10} align="center">
+                No hay datos de historial
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
                         </Table>                      
             </Box>
           </Collapse>

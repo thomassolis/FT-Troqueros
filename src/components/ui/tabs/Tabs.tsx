@@ -29,13 +29,6 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
-    console.log('requestFormData: ', requestFormData);
-
-    // const module = GetModuleFromURL();
-    // console.log('module:', module);
-    console.log('rows PrevisualizationTab', rows);
-    console.log('TabContent', tabContent);
-    // const module = 'Request'
 
     const tabHeaders: Record<string, string[]> = {
         "Chasises": ["PLACA", "STATUS", "ACCIONES"],
@@ -47,22 +40,17 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
     useEffect(() => {
         onTabChange(selectedOption);
     }, [selectedOption, onTabChange]);
-    
-    // console.log('rows.rowIndex', rows.rowIndex);
-    console.log('selectedIndex', selectedIndex);
-
+        
     // Filtra los rows que coincidan con el índice seleccionado (por grupo)
   useEffect(() => {
     if (module != "Vehicles" && rows.length) {
+        console.log('row antes de filtrar: ', rows);
       const newRows = rows.filter((row) => row.rowIndex === selectedTab);
-      setFilteredRows(newRows);
+      console.log('Rows después de filtrar: ', newRows);
+      setFilteredRows(newRows);      
     }
   }, [module, rows, selectedTab]); 
     
-
-    useEffect(()=>{
-        console.log('UseEffect: filteredRows', filteredRows);
-    }, [filteredRows])
 
     return (
         <Tabs

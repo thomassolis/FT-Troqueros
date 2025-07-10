@@ -21,7 +21,9 @@ interface RequestParams {
     currentPage:number
 }
 interface UpdateRequestStatusParams {
-    selectedOptions: {[key: number]: string}
+    // selectedOptions: {[key: number]: string}
+    status:string,
+    id: string
 }
 
 //---------------------------------------------------------TABLA----------------------------------------------
@@ -35,19 +37,15 @@ const optionToApiParam = {
 type ApiParam = keyof typeof optionToApiParam;
 
 //Data que requiere la tabla del home para mostrar los datos
-export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage}: RequestParams): Promise<Record<string, string>[]> => {    
-    console.log('CurrentPage', currentPage);
-    const page = Number(currentPage)
-    console.log('tableSection: ', tableSection);
-    console.log('selectedOption: ', selectedOption);
-    console.log('searchValue: ', searchValue);
+export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage}: RequestParams): Promise<Record<string, string>[]> => {        
+    console.log('tableSection:',tableSection);
+    const page = Number(currentPage)    
     try {
 
                 // Crear objeto de parámetros dinámicamente
-        const params: Record<number, string> = {
-            // tableSection: tableSection,
-            page: page, // Ajusta según necesites
-            status: tableSection // Ajusta según necesites
+        const params: Record<string, string | number> = { 
+            page: page, 
+            status: tableSection 
         };
 
         // Si hay una opción seleccionada, agregar el parámetro correspondiente
@@ -75,14 +73,26 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
 };
 
 //Envío de id de petición y el status cada vez que se cambia en la interfaz para que se actualize en la bd
-export const UpdateRequestStatus = async({selectedOptions}:UpdateRequestStatusParams): Promise<void> =>{
-    
+export const UpdateRequestStatus = async({status, id}:UpdateRequestStatusParams): Promise<void> =>{
+    console.log('UpdateRequestStatus',status, id);
     try{
-        const response = await axios.post('/home/updateRequest', selectedOptions);
-    }catch(e){
+        const response = await axios.patch('/requests/update_status_request', {
+            id_peticion: id,
+            status: status
+        });
+        console.log('response: ',response)
+        if(response.data.success){
+            toast.success(response.data.message)
+        }else{
+            toast.error(response.data.message)
+        }        
+    }catch(e:any){
+        toast.error(e.response.data.message)
         console.error('Error en: UpdateRequestStatus', e)
     }
 }
+
+//Cambio en el status de las peticiones
 
 
 

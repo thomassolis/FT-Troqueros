@@ -5,10 +5,13 @@ import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo"
 import { StepperFormProviders } from "../../forms/ProvidersForm/StepperFormProviders"
 import { ServicesForm } from "../../forms/Services/servicesForm"
 import { StepperFormRequests } from "../../forms/RequestsForm/StepperFormRequest"
+import { useLocation } from "react-router-dom"
 
 export const DriversCreation = () =>{
     const module = GetModuleFromURL();
     const procedure = GetProcedureFromURL();
+    const location = useLocation();
+    const isEditMode = location.pathname.includes('edit') 
     return(
         <section>
             {module === 'Drivers' ? (
@@ -39,7 +42,7 @@ export const DriversCreation = () =>{
             ): module === 'Request' ? (
                 <>
                     <Back
-                        text={`CREACIÓN DE PETICIÓN`}
+                        text={isEditMode ? `EDICIÓN DE PETICIÓN ${procedure}` : `CREACIÓN DE PETICIÓN`}
                         redirectTo="/home"
                     />
                     <StepperFormRequests/>
