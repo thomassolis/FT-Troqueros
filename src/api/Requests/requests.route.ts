@@ -19,13 +19,14 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida}: Se
     try{
         let response;
         if(type==='services'){
-            response = await axios.get(`requests/get_request_services`)
+            response = await axios.get(`requests/get_request_services`)            
             return response?.data.data;
         }else if(type === 'routes'){
-            response = await axios.get(`requests/get_request_ruta_services/${serviceID}`)
+            response = await axios.get(`requests/get_request_ruta_services/${serviceID}`)            
             return response?.data.data;
         }else if(type==='routesInfo'){
             response = await axios.get(`requests/get_request_data_services_id/${serviceID}`)
+            console.log('Info de rutas', response);
             return response?.data.data;
         }else if(type==='customers'){
             response = await axios.get(`requests/get_request_clients`)
@@ -39,6 +40,7 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida}: Se
             return response?.data.data;
         } else if (type === 'chasis'){
             response = await axios.get(`requests/get_request_vehicles`, {params})
+            console.log('chasisresponse',response)
             return response?.data.data.chassis;
         } else if (type === 'cabezal'){
             response = await axios.get(`requests/get_request_vehicles`, {params})
@@ -123,10 +125,21 @@ export const EditRequestData = async ({data, requestID, id_pedidoServicio}: Crea
         }else{
             toast.error(response.data.message);
         }
-        console.log(response);
+        return response.data;
     }catch(error:any){
         console.error('Error en EditRequestData ', error);
         toast.error(error.response.data.message);
     }
 }   
 
+
+//RUTA PARA ELIMINAR LOS COSTOS EXTRAS DE LA PETICIÓN
+
+export const DeleteExtraprice = async(id:number) => {
+    try{
+        const response = await axios.delete(`requests/delete_extra_costs_request/${id}`);                
+        return response.data;
+    }catch(error){
+        console.error('Error en DeleteExtraprice: ', error);
+    }
+}

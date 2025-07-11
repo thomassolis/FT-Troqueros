@@ -25,7 +25,7 @@ onUpdate: (id: number, field: keyof ServiceType, name: string| number, value: st
 }
 
 
-export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
+export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({    
   id,
   selectedValue,
   quantity,
@@ -33,9 +33,13 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   servicesSelect,
   setServicesSelect,
   onDelete,
-  useProvider
+  useProvider,
+  requestFormData,
+  isEditMode
 }) => {    
     const [isLoading, setIsLoading] = useState(false);
+    console.log('RequestFormDataDynamic: ', requestFormData);
+    
     useEffect(() => {
         const getSelectData = async () => {
             try {
@@ -50,9 +54,9 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
             }
         };
         getSelectData();
-    }, []);
+    }, [requestFormData]);
 
-    return (
+    return !isEditMode ? (
         <div className="grid grid-cols-[0.4fr_0.2fr_0.1fr] gap-4 w-[80%] items-center justify-center">
             <div className="flex flex-col">
                 <Select
@@ -89,5 +93,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
                 />  
             </div>
         </div>
-    )
+
+    ):null
+    
 }

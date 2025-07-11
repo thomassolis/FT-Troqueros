@@ -24,7 +24,7 @@ import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
 import { useLocation } from "react-router-dom";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider, rows, requestData}) => {    
+export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider, rows, requestData, requestFormData}) => {    
     console.log('requestData', requestData);
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
     const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
@@ -42,15 +42,15 @@ export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider
     getSelectData();
     }, []);
 
-    useEffect(() => {
-        if (requestData && setValue) {
+    // useEffect(() => {
+    //     if (requestFormData && setValue) {
           
-                setValue('id_cliente', requestData.id_cliente || '');
-                setValue('fecha_salida', requestData.fecha_salida || '');
-                setValue('hora_salida', requestData.hora_salida || '');
+    //             setValue('id_cliente', requestFormData.id_cliente || '');
+    //             setValue('fecha_salida', requestFormData.fecha_salida || '');
+    //             setValue('hora_salida', requestFormData.hora_salida || '');
           
-        }
-    }, [requestData]);
+    //     }
+    // }, [requestFormData]);
 
 
     return (
@@ -175,7 +175,7 @@ export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider
     )
 }
 
-export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, rows, requestData}) => {        
+export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, rows, requestData, requestFormData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
     const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
     useEffect(() => {
@@ -190,18 +190,7 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
         };
 
         getSelectData();
-    }, []);
-    
-    useEffect(() => {
-        if (requestData && setValue) {            
-            setValue('id_proveedor', requestData.proveedor || '');
-            setValue('precio_proveedor', requestData.precio_proveedor || '');
-            if(requestData.id_proveedor){
-                setValue('isProviderRequest', true);                 
-            }                                
-            
-        }
-    }, [requestData, setValue]);
+    }, []);    
 
 
     return (
@@ -256,7 +245,7 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                     <Input 
                         type="number"
                         className2="w-[20%] h-8"
-                        placeholder="Costo $"
+                        placeholder="Costo $"                        
                         {...register('precio_proveedor', {valueAsNumber:true})}
                         onChange={(e) => setValue('precio_proveedor', parseFloat(e.target.value))}
                     />
@@ -282,10 +271,10 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     
     //Función que hace que si requestData viene con valores pase estos datos al serviceTypes para que se forme la tabla
     useEffect(() => {
-    if (requestData?.servicios?.length) {
+    if (requestFormData?.servicios?.length) {
         const grouped: Record<string, { serviceID: string; selectedValue: string; quantity: number }> = {};
 
-        requestData.servicios.forEach((servicio) => {
+        requestFormData.servicios.forEach((servicio) => {
         const key = servicio.servicio;
         if (!grouped[key]) {
             grouped[key] = {
@@ -307,7 +296,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
 
         setServiceTypes(transformedServiceTypes);
     }
-    }, [requestData]);
+    }, []);
 
     
     // Coloca el useEffect aquí
@@ -365,8 +354,9 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
         })
     );
     };
-
+    console.log('serviceTypes: ',serviceTypes)
     const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);
+    console.log('rowsTotal', totalRows);
         
     const deleteServiceType = (id: number) => {
     // 1. Eliminar de serviceTypes
@@ -401,12 +391,14 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                 Complete el siguiente formulario para crear una nueva petición
             </h1>
 
-            {! isEditMode && (
-                <div className="flex flex-col items-center justify-center gap-5 w-full">                
-                    <div className="grid grid-cols-[0.4fr_0.2fr_0.1fr] mt-6 gap-4 w-[80%] items-center justify-center">                    
-                        <h1 className="text-black">Tipo de Servicio</h1>                                        
-                        <h1 className="text-black">Cantidad</h1>                    
-                    </div>
+            
+                <div className="flex flex-col items-center justify-center gap-5 w-full">    
+                    {!isEditMode && (
+                        <div className="grid grid-cols-[0.4fr_0.2fr_0.1fr] mt-6 gap-4 w-[80%] items-center justify-center">                    
+                            <h1 className="text-black">Tipo de Servicio</h1>                                        
+                            <h1 className="text-black">Cantidad</h1>                    
+                        </div>
+                    )}            
 
                     {serviceTypes.map((serviceType) => (                    
                         <DynamicRequestsType 
@@ -418,13 +410,15 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                             onUpdate={updateServiceType}
                             setServicesSelect = {setServicesSelect}
                             servicesSelect = {servicesSelect}
-                            onDelete={deleteServiceType}                        
+                            onDelete={deleteServiceType}     
+                            requestFormData={requestFormData}
+                            isEditMode={isEditMode}
                         />
                     ))}
 
                     {useProvider ? (
                         <></>
-                    ):(
+                    ): !isEditMode && (
                         <Icon 
                             icon="gg:add" 
                             width="24" height="24"  
@@ -432,12 +426,14 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                             onClick={newServiceType}
                         />
                     )}
-                </div>
-            )}
+                </div>            
 
             {totalRows > 0 && (
-                <div className="flex flex-col">
-                    <h1 className="text-black mt-10">Favor seleccione las rutas que le desea asignar a cada servicio</h1>
+                <div className={`flex flex-col ${isEditMode ? 'mt-20':''}`}>
+                    {!isEditMode && 
+                        <h1 className="text-black mt-10">Favor seleccione las rutas que le desea asignar a cada servicio</h1>
+                    }                
+                    <h1 className="text-black">TEST</h1>                        
                     <ServicesSelectionTable                    
                         titles={['Tipo de Servicio', 'Rutas', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Vacío']}                    
                         serviceTypes={serviceTypes}

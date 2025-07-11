@@ -1,13 +1,9 @@
-import { table } from "console"
-
-
 interface InvoiceTableProps {
-    services?:[{
-        serviceType: string;
-        rowIndex:number;
-    }];
-
+  requestFormData: {
+    servicios: Servicio[];
+  };
 }
+
 interface Extra {
   descripcion: string;
   precio: number;
@@ -15,85 +11,80 @@ interface Extra {
 
 interface Servicio {
   tarifa: number | string;
-  costos_extras?: any;        // viene de requestFormData, puede ser Array o un objeto
+  costos_extras?: Extra[] | Record<string, any>;
+  nuevos_costos_extras?: Extra[];
+  servicio?: string;
 }
 
-export const InvoiceTable = ({services, rows, requestFormData}:InvoiceTableProps) => {
+export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {
+  const servicios = requestFormData?.servicios || [];
 
-    console.log('requestFormData: ', requestFormData);
+  const normalizeExtras = (extras: any): Extra[] => {
+    if (!extras) return [];
+    if (Array.isArray(extras)) return extras;
+    return Object.keys(extras)
+      .filter((key) => key !== "length")
+      .map((key) => extras[key]);
+  };
 
-    const calculateTotalInvoice = () => {
-    // Suma de tarifas (segura)
-    const totalTarifas = requestFormData?.servicios?.reduce((sum, servicio) => {
-        return sum + (servicio.tarifa || 0);
-    }, 0) || 0;
+  const calculateTariff = (idx: number): number => {
+    const servicio = servicios[idx];
 
-    // Suma de costos extras (segura)
-    const totalCostosExtras = requestFormData?.servicios?.reduce((sum, servicio) => {
-        if (!Array.isArray(servicio.costos_extras)) return sum;
-        return sum + servicio.costos_extras.reduce((subSum, extra) => {
-        return subSum + (extra.precio || 0);
-        }, 0);
-    }, 0) || 0;
+    const tarifa =
+      typeof servicio.tarifa === "string"
+        ? Number(servicio.tarifa)
+        : servicio.tarifa || 0;
 
-    return totalTarifas + totalCostosExtras;
-    };
+    const extras = normalizeExtras(servicio.costos_extras);
+    const nuevosExtras = normalizeExtras(servicio.nuevos_costos_extras);
 
-const calculateTariff = (idx: number): number => {
-  const servicio: Servicio = requestFormData.servicios[idx];
+    const totalExtras = [...extras, ...nuevosExtras].reduce(
+      (sum, e) => sum + Number(e.precio || 0),
+      0
+    );
 
-  // 1) Normaliza tarifa a número
-  const tarifaNum =
-    typeof servicio.tarifa === 'string'
-      ? Number(servicio.tarifa)
-      : servicio.tarifa;
+    return tarifa + totalExtras;
+  };
 
-  // 2) Normaliza costos_extras a un array de Extras
-  let extrasArr: Extra[] = [];
-  if (servicio.costos_extras) {
-    if (Array.isArray(servicio.costos_extras)) {
-      extrasArr = servicio.costos_extras;
-    } else {
-      // si viene como {0: {...}, 1: {...}, length: N}, convertimos:
-      extrasArr = Object
-        .keys(servicio.costos_extras)
-        .filter(key => key !== 'length')
-        .map(key => servicio.costos_extras[key]);
-    }
-  }
+  const calculateTotalInvoice = (): number => {
+    return servicios.reduce((sum, _, index) => {
+      return sum + calculateTariff(index);
+    }, 0);
+  };
 
-  // 3) Suma los precios de extras
-  const sumaExtras = extrasArr.reduce((acc, e) => acc + (e.precio || 0), 0);
+  return (
+    <table className="border border-black w-[70%]">
+      <thead className="py-3">
+        <tr className="border-b-2 border-gray-400">
+          <th className="text-black py-1 text-center">Descripción</th>
+          <th className="text-black py-1 text-center">Costo</th>
+        </tr>
+      </thead>
 
-  return tarifaNum + sumaExtras;
+      <tbody className="text-gray-700 font-mono">
+        {servicios.map((servicio, index) => (
+          <tr
+            key={index}
+            className="hover:bg-gray-50 cursor-pointer"
+          >
+            <td className="py-1 text-center">
+              {servicio.servicio || `Servicio ${index + 1}`}
+            </td>
+            <td className="py-1 text-center">
+              ${calculateTariff(index).toLocaleString()}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+
+      <tfoot className="text-black">
+        <tr className="w-[90%] border-t-2 border-gray-400 font-bold">
+          <td className="text-center">TOTAL</td>
+          <td className="text-center">
+            ${calculateTotalInvoice().toLocaleString()}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  );
 };
-
-
-    return(
-        <table className="border border-black w-[70%]">
-            <thead className="py-3">
-                <tr className="border-b-2 border-gray-400"> 
-                    <th className="text-black py-1 text-center">Descripción</th>
-                    <th className="text-black py-1 text-center">Costo</th>
-                </tr>
-            </thead>
-            
-
-            <tbody className="text-gray-700 font-mono">
-                {rows.map((row, index) => (
-                <tr key={row.id_servicio_datos} className="hover:bg-gray-50 cursor-pointer">
-                    <td className="py-1 text-center">{row.serviceType}</td>
-                    <td className="py-1 text-center">${calculateTariff(index).toLocaleString()}</td>
-                </tr>
-                ))}
-            </tbody>
-
-            <tfoot className="text-black">
-                <tr className="w-[90%] border-t-2 border-gray-400 font-bold">
-                    <td className="text-center" onClick={calculateTariff}>Total</td>
-                    <td className="text-center">${calculateTotalInvoice().toLocaleString()}</td>
-                </tr>
-            </tfoot>
-        </table>
-    )
-}

@@ -49,12 +49,14 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   isEditMode,
   requestFormData
 }) => {
+  console.log('SERVICETYPES: ',serviceTypes)
+  console.log('renderizando ServicesSelectionTable')
   // const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;  
   const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
   const [selectDataMap, setSelectDataMap] = useState<Record<string, SelectOptionTypes[]>>({});
-
+  console.log('requestFormData en selectionTable', requestFormData);
   const deleteService = async({serviceID}:string) => {
     console.log('service',serviceID)
     console.log('deleteService: ', serviceID, rows);
@@ -77,12 +79,12 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   // Estado para controlar si es la primera carga
     let globalRowIndex = 0;
     useEffect(() => {
-
+      console.log('ejecución:')
       //Al momento de editar la petición, esta función es la que se encarga de llenar los datos de la petición
-      if (requestData?.servicios?.length) {
+      if (isEditMode && requestFormData?.servicios?.length) {
 
         console.log('Entré al primer IF')
-        const newRows: RouteRow[] = requestData.servicios.map((servicio, index) => {
+        const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => {
           const composedKey = `${servicio.id_pedidoServicio}-${index + 1}`; 
           return {
             serviceTypeId: servicio.id_pedidoServicio, // o puedes usar Date.now() si prefieres
@@ -93,7 +95,7 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
             id_servicio_datos: String(servicio.id_servicio_datos),
             lugar_origen: servicio.lugar_origen || '',
             lugar_destino: servicio.lugar_destino || '',
-            tarifa: servicio.tarifa || '',
+            tarifa: servicio.tarifa || 0,
             entrega_vacio: servicio.entrega_vacio || false, // si viene de backend, pon el valor real
             fecha_limite: servicio.fecha_limite || '',     // si viene, inclúyelo aquí también
           };
@@ -130,22 +132,21 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
         });
         setRows(newRows);
       }
-    }, [routeIDsByRow, serviceTypes, requestData]);
-
+    }, [routeIDsByRow, serviceTypes, requestFormData]);
+console.log('Como queda Rows: ', rows)
     useEffect(()=>{
       console.log('rows al llegar: ', rows);
-    },[rows])    
-    console.log('requestData al llegar', requestData)
+    },[rows])        
 
-useEffect(() => {
-  const uniqueServiceIDs = Array.from(
-    new Set(rows.map(row => row.serviceID).filter(id => id !== undefined && id !== null))
-  );
+// useEffect(() => {
+//   const uniqueServiceIDs = Array.from(
+//     new Set(rows.map(row => row.serviceID).filter(id => id !== undefined && id !== null))
+//   );
 
-  uniqueServiceIDs.forEach(serviceID => {
-    getRoutesForSelect(serviceID);
-  });
-}, []);
+//   uniqueServiceIDs.forEach(serviceID => {
+//     getRoutesForSelect(serviceID);
+//   });
+// }, []);
 
 const getRoutesForSelect = async (serviceID?: number | string) => {
   if (!serviceID) return;
@@ -177,6 +178,7 @@ const getRoutesInformation = async (
 
   try {
     const response = await SelectData({ type: 'routesInfo', serviceID: serviceID });
+    console.log('responseresponse',response);
     // Si response es un array, toma solo el primero
     const route = Array.isArray(response) ? response[0] : response;    
     // Limpia y guarda solo los campos necesarios
@@ -199,20 +201,13 @@ const getRoutesInformation = async (
         ...prev,
         [composedKey]: route.id_servicio_datos
       }));
+
+      setValue(`servicios.${rowNumber - 1}.tarifa`, Number(flatInfo.tarifa));
     }
   } catch (error) {
     console.error('Error en getRoutesInformation', error);
   }
 };
-
-useEffect(() => {
-   rows.forEach((row, index) => {
-    setValue(`servicios.${index}.id_servicio_datos`, row.id_servicio_datos);
-    setValue(`servicios.${index}.tarifa`, row.tarifa);
-    setValue(`servicios.${index}.entrega_vacio`, row.entrega_vacio);
-    setValue(`servicios.${index}.fecha_limite`, row.fecha_limite);
-  });
-}, [rows, setValue]);
 
   const handleEntregaVacioChange = (rowIndex: number, value: boolean) => {      
     const updatedRows = [...rows];
@@ -280,6 +275,7 @@ useEffect(() => {
                           id_servicio_datos: selectedOption?.value || '',
                           selectedOption,
                         };
+                        console.log('updatedRows: ',updatedRows)
                         setRows(updatedRows);
 
                         if (selectedOption?.value) {
@@ -307,13 +303,13 @@ useEffect(() => {
                 <Controller
                   name={`${fieldName}.tarifa`}
                   control={control}
-                  defaultValue={row.tarifa || ''} // 👈 importante para render inicial
+                  defaultValue={row.tarifa || 0} // 👈 importante para render inicial
                   render={({ field }) => (
                     <input
                       type="number"
                       value={field.value} // usa field.value (no row.tarifa)
                       onChange={(e) => {
-                        const value = e.target.value;
+                        const value = Number(e.target.value);
                         field.onChange(value);
 
                         const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;

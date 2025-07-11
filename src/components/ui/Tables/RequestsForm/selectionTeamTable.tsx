@@ -12,7 +12,7 @@ interface SelectionTeamTableProps {
     title: string[];
     control: Control<RequestsFormValues>;
     useProvider: boolean;    
-    rows: RouteRow[];
+    rows: RouteRow[];    
 }
 export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setRows, requestData, setValue, register}: SelectionTeamTableProps) => {    
   console.log('requestDataaa: ', requestData)
@@ -45,6 +45,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
 
     //Esto se activará al entrar al componente para cargar los datos del select, ya que normalmente se cargan al presionar el select
   useEffect(() => {
+    console.log('repitiendo');
     const loadAllOptions = async () => {
       await Promise.all([
         getRoutesForSelect('drivers'),
@@ -53,20 +54,16 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
         getRoutesForSelect('furgon'),
       ]);
 
-    if (!requestData?.servicios?.length) return;
+    if (!requestFormData?.servicios?.length) return;
 
-    requestData.servicios.forEach((servicio, index) => {
+    requestFormData.servicios.forEach((servicio, index) => {
       const basePath = `servicios.${index}`;
-      setValue(`${basePath}.id_conductor`, servicio.id_conductor || '');
-      setValue(`${basePath}.id_chasis`, servicio.id_chasis || '');
-      setValue(`${basePath}.id_cabezal`, servicio.id_cabezal || '');
-      setValue(`${basePath}.id_furgon`, servicio.id_furgon || '');
       setValue(`${basePath}.id_pedidoServicio`, servicio.id_pedidoServicio || '');
     });
     };
 
     loadAllOptions();
-  }, [requestData, setValue]);
+  }, [setValue]);
 
 
     const getRoutesForSelect = async(type:"service" | "routes" | "customers" | "providers" | "drivers" | "chasis" | 'cabezal' | 'furgon') => {
@@ -125,19 +122,22 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                     render={({ field }) => (
                       <Select
                         {...field}
+                        isClearable
                         onMenuOpen={() => getRoutesForSelect('drivers')}
                         isDisabled={useProvider}
                         options={driversData}
                         isLoading={isLoading}
                         placeholder={'Select...'}
                         onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}                        
-                        value={driversData.find(o => o.value === field.value) || null}
+                        // value={driversData.find(o => o.value === field.value) || null}
+                        value={driversData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
 
 
                         styles={{
                           singleValue: (provided, state) => {
                             const data = state.data as any;
-                            const color = data?.success === 1 ? 'red' : 'black'; // Cambia los colores según tu necesidad
+                            const color = data?.success === 1 ? 'red' : 'green'; // Cambia los colores según tu necesidad
+                            console.log('data.success:',data.success)
                             return {
                               ...provided,
                               color: color,
@@ -170,6 +170,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                       <Select
                         {...field}
                         onMenuOpen={() => getRoutesForSelect('chasis')}
+                        isClearable
                         options={chasisData}
                         isDisabled={useProvider || rowDisabledFields.chasisDisabled}
                         isLoading={isLoading}
@@ -219,6 +220,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                     render={({ field }) => (
                       <Select
                         {...field}
+                         isClearable
                         onMenuOpen={() => getRoutesForSelect('cabezal')}
                         options={cabezalData}
                         isDisabled={useProvider}
@@ -261,6 +263,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                       <Select
                         {...field}
                         onMenuOpen={() => getRoutesForSelect('furgon')}
+                         isClearable
                         options={furgonData}
                         isLoading={isLoading}
                         isDisabled={useProvider || rowDisabledFields.furgonDisabled}

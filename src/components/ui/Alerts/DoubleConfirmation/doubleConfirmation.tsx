@@ -1,6 +1,7 @@
 import Swal from "sweetalert2";
 import { DeleteServiceFromRequest } from "../../../../api/Requests/requests.route";
 import { UpdateRequestStatus } from "../../../../api/Home/home.route";
+import { DeleteExtraprice } from "../../../../api/Requests/requests.route";
 
 interface DoubleConfirmationAlertProps {
     title:string;
@@ -28,6 +29,8 @@ export const DoubleConfirmationAlert = async ({ title, text, id, type }: DoubleC
     response = await DeleteServiceFromRequest(id);
   } else if (type === 'deleteRequest') {
     response = await UpdateRequestStatus({ status: 'Cancelado', id: id.requestID });
+  } else if (type === 'deleteExtraPrice'){
+    response = await DeleteExtraprice(id);
   }
 
   console.log('response: ', response);
@@ -35,7 +38,7 @@ export const DoubleConfirmationAlert = async ({ title, text, id, type }: DoubleC
   if (response?.success) {
     await Swal.fire({
       title: "¡Eliminado!",
-      text: "El servicio ha sido eliminado correctamente.",
+      text: response.message,
       icon: "success",
     });
     return response; // ✅ Esto se devuelve correctamente

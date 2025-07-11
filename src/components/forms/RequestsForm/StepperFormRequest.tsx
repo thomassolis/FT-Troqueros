@@ -12,6 +12,7 @@ import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm"
 import { Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
 import { GetRequestDataPerID } from "../../../api/Requests/requests.route";
 import { EditRequestData } from "../../../api/Requests/requests.route";
+import { CleanRequestDataBeforeSend } from "../../../functions/cleanData/CleanRequestDataBeforeSendToApi/cleanRequestData";
 
 export interface ServiceType {
   id: number;
@@ -21,12 +22,9 @@ export interface ServiceType {
 }
 export const StepperFormRequests = () => {
   
-  const [providersData, setProvidersData] = useState({});  
   const {requestID} = useParams();
   const [isLoading, setIsLoading] = useState(false);
-  const procedure = GetProcedureFromURL();  
-
-  const [requestData, setRequestData] = useState();
+  const procedure = GetProcedureFromURL();    
   const [useProvider, setUseProvider] = useState(false);    //Estado que validará si una petición será manejada por un proveedor o no
   const [requestFormData, setRequestFormData]= useState<RequestsFormValues>({} as RequestsFormValues);
   //Estado que maneja si una 
@@ -42,17 +40,8 @@ export const StepperFormRequests = () => {
     // Más objetos si es necesario
   ]);
   const [rows, setRows] = useState<RouteRow[]>([]);//Filas que tienen las tablas
-  useEffect(()=>{
-    console.log('Como se actualiza Rows: ', rows);
-  },[rows])
-
-  useEffect(()=>{
-    console.log('Como se actualiza RequestData: ', requestData);
-  },[rows])
-
-
   const [activeStep, setActiveStep] = useState(0);
-
+  const [requestData, setRequestData] = useState();
   // 1) Creamos el hook de RHF con defaultValues y shouldUnregister
   const methods = useForm<RequestsFormValues>({
     defaultValues: {
@@ -115,45 +104,49 @@ export const StepperFormRequests = () => {
   };
 
 
-  const onSubmit = async (data: any) => {   
-    try{
-      setIsLoading(true);
-      const {isProviderRequest, ...payload} = data; //Data que se va a sacar del formulario
+const onSubmit = async (data: any) => {   
+  try {
+    setIsLoading(true);
+    const {isProviderRequest, ...payload} = data; // Elimina el campo isProviderRequest
 
-        //Se limpia la data que llega como undefined o ''
-        // 1) Hacemos stringify con un "replacer" que convierte "" en undefined
-        const json = JSON.stringify(payload, (_key, value) =>
-          value === "" || value === undefined ? undefined : value
-        );
-
-        // 2) Al parsearlo, JSON.parse descarta las claves con value===undefined
-        const cleanData = JSON.parse(json);
-      if(procedure === 'create'){
-        const response = await CreateNewRequest({data:cleanData});
-        if(response.success) {          
-          setRows([]);                    
-          navigate('/home');          
-        }
-      }else{//Modo editar
-        const response = await EditRequestData({data:cleanData, requestID:requestID, id_pedidoServicio: requestData?.id_pedidoServicio})
-
+    // Función mejorada de limpieza
+    const cleanData = CleanRequestDataBeforeSend(payload, isProviderRequest);
+    
+    if (procedure === 'create') {
+      const response = await CreateNewRequest({ data: cleanData });
+      if (response.success) {          
+        setRows([]);                    
+        navigate('/home');          
       }
-    }catch(error){
-      console.error('Error en StepperFormRequests', error);
-    }        
-  };
+    } else { // Modo editar
+      const response = await EditRequestData({
+        data: cleanData,
+        requestID: requestID,
+        id_pedidoServicio: requestFormData?.id_pedidoServicio
+      });
+
+      if(response.success){
+        navigate('/home');
+      }
+    }
+  } catch(error) {
+    console.error('Error en StepperFormRequests', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   useEffect(()=>{
     const GetDataForEditRequest = async() => {
       try{
         const response = await GetRequestDataPerID({requestID});  
-        setRequestData(response);
+        reset(response); 
         console.log('setrequestData: ', response);
       }catch(error){
         console.error('Error en GetDataForEditRequest', error);
       }
     }
-    GetDataForEditRequest();
+    if (procedure != 'create') GetDataForEditRequest();    
   },[])
 
 
@@ -171,6 +164,7 @@ export const StepperFormRequests = () => {
           setUseProvider={setUseProvider}
           rows={rows}
           requestData={requestData}
+          requestFormData = {requestFormData}
         />
       </div>
 
@@ -180,6 +174,7 @@ export const StepperFormRequests = () => {
           setUseProvider={setUseProvider}
           rows={rows}
           requestData={requestData}
+          requestFormData = {requestFormData}
         />
       </div>
 
