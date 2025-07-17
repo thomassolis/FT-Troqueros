@@ -41,36 +41,16 @@ export const AmountTable = ({
 }: AmountTableProps) => {
     const [addExtraPrice, setAddExtraPrice] = useState(false);
     const location = useLocation();
-    const isEditMode = location.pathname.includes('edit')    
-
-    console.log('filteredServiceData::',filteredServiceData);    
-    
-    console.log('requestFormData en amount',requestFormData);
-    
+    const isEditMode = location.pathname.includes('edit')             
+    console.log('requestFormData en Amount', requestFormData);
     // Observamos los valores del formulario
     const descripcion = watch(`servicios.${selectedIndex}.costos_extras.descripcion`);
     const precio = watch(`servicios.${selectedIndex}.costos_extras.precio`);
     const costosExtras = watch(`servicios.${selectedIndex}.costos_extras`) || [];
     const nuevos_costos_extras = watch(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];
 
-    console.log('nuevos_costos_extras', nuevos_costos_extras);
-    console.log('costosExtras', costosExtras);
-    // En el componente padre, al cargar los datos:
-    useEffect(() => {
-    if (isEditMode && requestFormData?.servicios) {
-        requestFormData.servicios.forEach((servicio, index) => {
-        // Convertir costos_extras a array si es necesario
-        if (servicio.costos_extras && !Array.isArray(servicio.costos_extras)) {
-            setValue(`servicios.${index}.costos_extras`, []);
-        }
-        });
-    }
-    }, [isEditMode, requestFormData]);
-
-
-    const handleSaveExtra = () => {
-    if (!descripcion || precio == null) return;
-
+    const handleSaveExtra = () => {  
+    if (!descripcion || precio == null) return;    
     const nuevoCostoExtra = {
         descripcion,
         precio: Number(precio)
@@ -85,13 +65,8 @@ export const AmountTable = ({
 
     setValue(path, [...safeExtras, nuevoCostoExtra]);
 
-    setAddExtraPrice(false);
+    setAddExtraPrice(false);    
     };
-
-
-    useEffect(()=>{
-        console.log('costosExtrascostosExtras', costosExtras);
-    },[costosExtras])
 
 
     // Función para calcular el total
@@ -106,10 +81,12 @@ export const AmountTable = ({
         : 0;
 
     // Nuevos costos extras (solo en edición)
-    const nuevosExtras = isEditMode 
-        ? (watch(`servicios.${selectedIndex}.nuevos_costos_extras`) || [])
-            .reduce((sum, r) => sum + Number(r.precio || 0), 0)
-        : 0;
+    const nuevosExtras = isEditMode
+    ? Array.isArray(watch(`servicios.${selectedIndex}.nuevos_costos_extras`))
+        ? watch(`servicios.${selectedIndex}.nuevos_costos_extras`).reduce((sum, r) => sum + Number(r.precio || 0), 0)
+        : 0
+    : 0;
+
 
     return serviciosBase + extrasExistentes + nuevosExtras;
     };
@@ -123,10 +100,10 @@ export const AmountTable = ({
         tableHeaders = ['', 'Ruta / Costos Extra', 'Costos', 'SubTotal']
     }
 
-    const deletePrice = (id:string) => {
-        console.log('costosExtras: ',id);
-    }
-        
+        const pathBase = requestFormData?.servicios?.[selectedIndex]?.costos_extras
+  ? `servicios.${selectedIndex}.costos_extras`
+  : `servicios.${selectedIndex}.nuevos_costos_extras`;
+
     return (
         <table className="w-[70%] table-auto border border-gray-400 mt-5">            
             <thead className="bg-orange-400">
@@ -177,8 +154,8 @@ export const AmountTable = ({
                 ))}
 
                 {/* Filas de costos extras */}
-                {!isEditMode ? (
-                                    Array.isArray(costosExtras) && costosExtras.map((costo, index) => (
+                
+                {Array.isArray(costosExtras) && costosExtras.map((costo, index) => (
                     <tr key={`extra-${index}`}>                        
                         <td align="center" className="">
                             <Icon
@@ -221,9 +198,9 @@ export const AmountTable = ({
                         </>                        
                         }  
                     </tr>
-                ))
-                ):(
-                    Array.isArray(nuevos_costos_extras) && nuevos_costos_extras.map((costo, index)=>(
+                ))}
+                
+                    {Array.isArray(nuevos_costos_extras) && nuevos_costos_extras.map((costo, index)=>(
                         <tr key={`extra-${index}`}>
                             <td align="center" className="">
                                 <Icon
@@ -231,12 +208,9 @@ export const AmountTable = ({
                                     width="25"
                                     height="25"
                                     className="text-red-600 cursor-pointer hover:text-red-400"            
-                                    onClick={()=>{
-                                        console.log('index', index);
-
+                                    onClick={()=>{                                        
                                         // nuevos_costos_extras.filter((costo)=>costo)
-                                        const nuevosCostos = nuevos_costos_extras.filter((_, i) => i !== index);
-                                        console.log('nuevosCostos: ',nuevosCostos)
+                                        const nuevosCostos = nuevos_costos_extras.filter((_, i) => i !== index);                                        
                                         setValue(`servicios.${selectedIndex}.nuevos_costos_extras`, nuevosCostos);
 
                                     }}
@@ -255,8 +229,8 @@ export const AmountTable = ({
                             </>                        
                             }  
                         </tr>
-                    ))                
-                )}    
+                    ))  }              
+           
 
                 {/* Formulario para añadir nuevos costos extras */}
 

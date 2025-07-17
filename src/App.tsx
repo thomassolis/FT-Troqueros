@@ -26,7 +26,14 @@ function App() {
               <Routes>          
                 <Route path="/" element={<Login />}/>                
                 <Route path="/home" element={<Layout/>}>           
-                  <Route index element={<Home />}/>                
+                  <Route index element={<Home />}/>              
+
+                  <Route path="completeRequestHistory" >
+                    <Route index element={<Home />}/>
+                    {/* <Route path="create" element={<ChasisCreation />} /> 
+                    <Route path=":clienteID/see" element={<SeeChasis />} /> 
+                    <Route path=":clienteID/modify" element={<ChasisCreation />} />  */}
+                  </Route>  
 
                   <Route path="Customers" >
                     <Route index element={<CurrentCustomers />}/>

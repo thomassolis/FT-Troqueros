@@ -26,7 +26,6 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida}: Se
             return response?.data.data;
         }else if(type==='routesInfo'){
             response = await axios.get(`requests/get_request_data_services_id/${serviceID}`)
-            console.log('Info de rutas', response);
             return response?.data.data;
         }else if(type==='customers'){
             response = await axios.get(`requests/get_request_clients`)
@@ -36,24 +35,17 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida}: Se
             return response?.data.data;
         } else if (type === 'drivers'){
             response = await axios.get(`requests/get_request_drivers`, {params});
-               console.log('driversresponse',response)
             return response?.data.data;
         } else if (type === 'chasis'){
             response = await axios.get(`requests/get_request_vehicles`, {params})
-            console.log('chasisresponse',response)
             return response?.data.data.chassis;
         } else if (type === 'cabezal'){
             response = await axios.get(`requests/get_request_vehicles`, {params})
             return response?.data.data.truckhead;
         } else if (type === 'furgon'){
             response = await axios.get(`requests/get_request_vehicles`, {params})
-                    console.log('response',response)
             return response?.data.data.truckvan;
         }
-
-        
-        console.log('response',response)
-        // return response?.data.data;
 
     }catch(error){
         console.error('Error en SelectData: ', error);
@@ -68,10 +60,8 @@ interface CreateNewRequestProps {
 
 //Crea una nueva petición
 export const CreateNewRequest = async({data}:CreateNewRequestProps) => {
-    try{
-        console.log('data que se envía para nueva petición',data)
-        const response = await axios.post('requests/add_request', data);
-        console.log('response',response)
+    try{        
+        const response = await axios.post('requests/add_request', data);        
 
         if(response.data.success){
             toast.success(response.data.message);
@@ -89,8 +79,7 @@ export const CreateNewRequest = async({data}:CreateNewRequestProps) => {
 //Obtiene los datos de 1 petición
 export const GetRequestDataPerID = async ({requestID}:string) => {    
     try{
-        const response = await axios.get(`requests/see_request_id/${requestID}`);
-        console.log('dwdw', response);
+        const response = await axios.get(`requests/see_request_id/${requestID}`);        
         return response.data.data.data
     }catch(error){
         console.error('Error en GetRequestDataPerID ', error);
@@ -114,9 +103,7 @@ export const EditRequestData = async ({data, requestID, id_pedidoServicio}: Crea
     const totalData = {
         ...data,
         id_peticion:requestID
-    }
-
-    console.log('Data a enviar: ', totalData);
+    }    
 
     try{
         const response = await axios.put('requests/update_request',totalData);

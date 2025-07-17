@@ -49,41 +49,41 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   isEditMode,
   requestFormData
 }) => {
-  console.log('SERVICETYPES: ',serviceTypes)
-  console.log('renderizando ServicesSelectionTable')
+  
+  
   // const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;  
   const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
   const [selectDataMap, setSelectDataMap] = useState<Record<string, SelectOptionTypes[]>>({});
-  console.log('requestFormData en selectionTable', requestFormData);
+  
   const deleteService = async({serviceID}:string) => {
-    console.log('service',serviceID)
-    console.log('deleteService: ', serviceID, rows);
+    
+    
     const response = await DoubleConfirmationAlert({
       title: '¿Seguro deseas eliminar este servicio?',
       text: 'Se eliminaran todos los datos guardados incluyendo rutas, tarifas, etc',
       id: serviceID,
       type: 'deleteService'      
     });
-    console.log(response);
+    
     if(response.success){
-      console.log('entré')
+      
       setRows(prev => prev.filter(row => row.serviceTypeId !== serviceID));
     }
   }
 
-  console.log('serviceTypes que llega: ', serviceTypes);
+  
 
   // Generamos las filas basadas en todos los serviceTypes  
   // Estado para controlar si es la primera carga
     let globalRowIndex = 0;
     useEffect(() => {
-      console.log('ejecución:')
+      
       //Al momento de editar la petición, esta función es la que se encarga de llenar los datos de la petición
       if (isEditMode && requestFormData?.servicios?.length) {
 
-        console.log('Entré al primer IF')
+        
         const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => {
           const composedKey = `${servicio.id_pedidoServicio}-${index + 1}`; 
           return {
@@ -103,17 +103,17 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
 
         setRows(newRows);
       }else{        
-        console.log('Entré al segundo IF')
+        
         // Función que se encarga de de convertir serviceTypes en el formato que le conviene a la tabla, es decir dividir el quantity con el tipo de servicio y generar una fila por cada una
         const newRows: RouteRow[] = serviceTypes.flatMap((st) => {
-          console.log('Entré en NewRow: ');
+          
           return Array.from({ length: st.quantity }).map((_, i) => {
             const rowNumber = i + 1;
             const composedKey = `${st.id}-${rowNumber}`;
             
             // Solo usar datos previos si el serviceType es el mismo (no recién creado)
             const prevRow = rows.find(r => r.serviceTypeId === st.id && r.rowNumber === rowNumber);
-            console.log('PrevRows', prevRow);
+            
             
             return {
               serviceTypeId: st.id,
@@ -133,20 +133,7 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
         setRows(newRows);
       }
     }, [routeIDsByRow, serviceTypes, requestFormData]);
-console.log('Como queda Rows: ', rows)
-    useEffect(()=>{
-      console.log('rows al llegar: ', rows);
-    },[rows])        
 
-// useEffect(() => {
-//   const uniqueServiceIDs = Array.from(
-//     new Set(rows.map(row => row.serviceID).filter(id => id !== undefined && id !== null))
-//   );
-
-//   uniqueServiceIDs.forEach(serviceID => {
-//     getRoutesForSelect(serviceID);
-//   });
-// }, []);
 
 const getRoutesForSelect = async (serviceID?: number | string) => {
   if (!serviceID) return;
@@ -177,8 +164,7 @@ const getRoutesInformation = async (
 
 
   try {
-    const response = await SelectData({ type: 'routesInfo', serviceID: serviceID });
-    console.log('responseresponse',response);
+    const response = await SelectData({ type: 'routesInfo', serviceID: serviceID });    
     // Si response es un array, toma solo el primero
     const route = Array.isArray(response) ? response[0] : response;    
     // Limpia y guarda solo los campos necesarios
@@ -274,8 +260,7 @@ const getRoutesInformation = async (
                           ...updatedRows[rowIndex],
                           id_servicio_datos: selectedOption?.value || '',
                           selectedOption,
-                        };
-                        console.log('updatedRows: ',updatedRows)
+                        };                        
                         setRows(updatedRows);
 
                         if (selectedOption?.value) {
@@ -307,7 +292,7 @@ const getRoutesInformation = async (
                   render={({ field }) => (
                     <input
                       type="number"
-                      value={field.value} // usa field.value (no row.tarifa)
+                      value={row.tarifa} // usa field.value (no row.tarifa)
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         field.onChange(value);

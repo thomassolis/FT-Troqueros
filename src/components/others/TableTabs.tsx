@@ -6,6 +6,7 @@ import { Button } from "../ui/buttons/button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useContext } from "react";
 import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
+import { useNavigate } from "react-router-dom";
 
 export interface TableRowVariables {
   cabezal: string;
@@ -27,10 +28,12 @@ export interface TableRowVariables {
   status: string;
     customerId: string;  // Add missing property
   date: string; 
+
 }
 
 interface SidebarProps {
     sidebarState: boolean;
+      procedure:string
     selectedOption: null | {
         value:string;
         label: string
@@ -43,24 +46,28 @@ interface SidebarProps {
 }
 
 
-export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage }: SidebarProps) => {
-    const [tableData, setTableData] = useState<TableRowVariables[]>([]);
-    const [selectedTab, setSelectedTab] = useState<number>(0); 
+export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates, setFormattedDates }: SidebarProps) => {
+    const [tableData, setTableData] = useState<TableRowVariables[]>([]);    
     const [isLoading, setIsLoading] = useState(false);
     const {searchValue} = useContext(searchValueContext)!;   
+    // const [selectedTab, setSelectedTab] = useState<number>(0); 
     const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});       
+    const navigate = useNavigate();
+
+    useEffect(()=>{
+        console.log('formattedDates: ', formattedDates);
+    },[formattedDates]) 
 
     useEffect(() => {
         RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
-    }, [selectedTab, selectedOption, searchValue, currentPage, selectedStatus]);
+    }, [selectedTab, selectedOption, searchValue, currentPage, selectedStatus, formattedDates]);
 
     const RequestDataForHomeTable = async (index: number): Promise<void> => {
         const tableSections: string[] = ["En Espera", "En Proceso", "Completado", 'Cancelado'];
         
         try {
             setIsLoading(true);
-            const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage });           
-            console.log('response.data', response.data)
+            const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                       
             setTableData(response.data as unknown as TableRowVariables[]);
             setTotalRecords(response.totalRegistros); 
             setPageSize(response.limite);
@@ -87,13 +94,15 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
                 <TabList className="flex justify-end w-full">
                     <div className="flex justify-between w-full items-end">
                         {/* Botón de expansión */}
-                        <div className="rounded-t-lg text-black flex w-[23%] justify-between items-center pr-2 pl-2 bg-slate-100 shadow-2xl">
-                            <p className="text-red-600 font-semibold">Ver tabla completa</p>
-                            <Icon icon="lucide:expand" width="15" height="15" className="cursor-pointer" />
-                        </div>
+                        {procedure === 'home' && (
+                            <div className="rounded-t-lg text-black flex w-[23%] justify-between items-center pr-2 pl-2 bg-slate-100 shadow-2xl cursor-pointer" onClick={()=>{navigate('/home/completeRequestHistory')}}>
+                                <p className="text-red-600 font-semibold">Ver tabla completa</p>
+                                <Icon icon="lucide:expand" width="15" height="15"  />
+                            </div>
+                        )}
 
                         {/* Tabs dinámicos */}
-                        <div className="flex gap-1">
+                        <div className={`flex gap-1 ${procedure === 'completeRequestHistory' ? 'w-full justify-end':''}`}>
                             {["En Espera", "En Proceso", 'Completadas', 'Canceladas'].map((opt, index) => (
                                 <Tab key={index}>
                                     <Button text={opt} isSelected={selectedTab === index} bgColor="bg-[#96B2E4]" hoverBgColor="bg-slate-400"/>
@@ -111,7 +120,8 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
                             sidebarState={sidebarState} 
                             isLoading={isLoading} 
                             selectedTab = {selectedTab}
-                            />
+                            procedure = {procedure}
+                        />
                     </TabPanel>
                 ))}
             </Tabs>

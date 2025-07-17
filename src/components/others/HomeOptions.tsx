@@ -5,13 +5,23 @@ import { useNavigate } from "react-router-dom";
 import { FilterSearch } from "../ui/FilterSearch/FilterSearch";
 import { useState } from "react";
 import { Paginacion } from "../ui/paginación/pagination";
+import { Back } from "../ui/Back/Back";
+import { GetProcedureFromURL } from "../../functions/GetURL/GetURLInfo";
+import { FaFileExcel } from 'react-icons/fa';
+import { DownloadRequestExcel } from "../../api/Home/home.route";
+import { useEffect, useContext } from "react";
+import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
+import { format } from "date-fns";
 
 interface MyComponentProps {
     sidebarState: boolean;
 }
  
 export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {        
-    const navigate = useNavigate()
+    const navigate = useNavigate()    
+    const procedure = GetProcedureFromURL()   
+    const {searchValue, setSearchValue} = useContext(searchValueContext)!;     
+    const [selectedTab, setSelectedTab] = useState<number>(0); 
     //ESTADO QUE MANEJARÁ EL VALOR SELECCIONADO DENTRO DEL FILTRADOR DE LA TABLA DE PETICIONES
     const [selectedOption, setSelectedOption] = useState<{value: string, label: string} | null>({value: 'id', label: 'ID'});    
 
@@ -19,14 +29,37 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
     const [totalRecords, setTotalRecords] = useState(0);
     const [pageSize, setPageSize] = useState<number>(10)
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const tableSections: string[] = ["En Espera", "En Proceso", "Completado", 'Cancelado'];
+    // Estado para almacenar las fechas formateadas
+    const [formattedDates, setFormattedDates] = useState({
+        start: format(new Date(), 'yyyy-MM-dd'),
+        end: format(new Date(), 'yyyy-MM-dd')
+    });
 
     const handlePageClick = (selectedPage: number) => {        
         setCurrentPage(selectedPage);
     };  
+
+    const downloadExcel = async() => {
+        try{
+            const response = DownloadRequestExcel({selectedOption:selectedOption, searchValue:searchValue, selectedTab:selectedTab, tableSections:tableSections});
+        }catch(error){
+            console.log('Error en downloadExcel: ', error);
+        }
+
+    }
+
+    // useEffect(() => {
+    //     downloadExcel();
+    // }, [selectedOption, searchValue, selectedTab]);
+
     return(
         <section className="mt-3">
             <div className="flex items-center gap-1 mb-4">
-                <h1 className={`font-bebas text-black text-2xl  ${sidebarState ? "ml-12" : "ml-16"} max-md:ml-9 max-sm:ml-9`}>PETICIONES</h1>
+                {procedure === 'completeRequestHistory'?(<Back text={'Historial de Peticiones'}/>) : (
+                    <h1 className={`font-bebas text-black text-2xl  ${sidebarState ? "ml-12" : "ml-16"} max-md:ml-9 max-sm:ml-9`}>PETICIONES</h1>
+                )}
+                {/* <h1 className={`font-bebas text-black text-2xl  ${sidebarState ? "ml-12" : "ml-16"} max-md:ml-9 max-sm:ml-9`}>PETICIONES</h1> */}
                 <Icon 
                     icon="icon-park-outline:add" 
                     className="text-black hover:text-gray-500 cursor-pointer" 
@@ -36,10 +69,33 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
             </div>             
 
             <div className="w-full flex flex-col items-start">
-                <div className="ml-[5%]">
-                    <FilterSearch selectedOption={selectedOption} setSelectedOption={setSelectedOption}/>
+                <div className="pl-[5%] flex justify-between w-[95%]">
+                    <FilterSearch 
+                        selectedOption={selectedOption} 
+                        setSelectedOption={setSelectedOption} 
+                        setFormattedDates = {setFormattedDates}
+                        formattedDates = {formattedDates}
+                    />                    
+                    <button
+                        onClick={downloadExcel}
+                        className="
+                        bg-gradient-to-r from-green-500 to-green-600
+                        hover:from-green-600 hover:to-green-700
+                        text-white font-medium py-2 px-4 rounded-lg
+                        shadow-md hover:shadow-lg
+                        transition-all duration-300 ease-in-out
+                        transform hover:-translate-y-0.5
+                        flex items-center justify-center
+                        space-x-2
+                        border border-green-700
+                        min-w-[180px]
+                        "
+                    >
+                        <FaFileExcel className="text-xl" />
+                        <span>Descargar Excel</span>
+                    </button>
                 </div>                
-                <div className="w-full flex justify-center flex-col items-center">
+                <div className="w-full flex justify-center flex-col items-center pt-8">
                     <TableTabs 
                         sidebarState={sidebarState} 
                         selectedOption={selectedOption} 
@@ -48,6 +104,12 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                         setTotalRecords={setTotalRecords} 
                         totalRecords={totalRecords}
                         setPageSize={setPageSize}
+                        procedure = {procedure}
+                        tableSections = {tableSections}
+                        selectedTab = {selectedTab}
+                        setSelectedTab = {setSelectedTab} 
+                        setFormattedDates = {setFormattedDates}
+                        formattedDates = {formattedDates}
                     />                
                     <div className="flex gap-4">
                         <div className="flex items-center gap-2">

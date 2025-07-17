@@ -43,10 +43,8 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
         
     // Filtra los rows que coincidan con el índice seleccionado (por grupo)
   useEffect(() => {
-    if (module != "Vehicles" && rows.length) {
-        console.log('row antes de filtrar: ', rows);
-      const newRows = rows.filter((row) => row.rowIndex === selectedTab);
-      console.log('Rows después de filtrar: ', newRows);
+    if (module != "Vehicles" && rows.length) {        
+      const newRows = rows.filter((row) => row.rowIndex === selectedTab);      
       setFilteredRows(newRows);      
     }
   }, [module, rows, selectedTab]); 

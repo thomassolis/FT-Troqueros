@@ -1,3 +1,4 @@
+import { request } from 'http';
 import axios from '../axios.ts'
 import toast from 'react-hot-toast';
 
@@ -37,12 +38,10 @@ const optionToApiParam = {
 type ApiParam = keyof typeof optionToApiParam;
 
 //Data que requiere la tabla del home para mostrar los datos
-export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage}: RequestParams): Promise<Record<string, string>[]> => {        
-    console.log('tableSection:',tableSection);
+export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage, formattedDates}: RequestParams): Promise<Record<string, string>[]> => {        
     const page = Number(currentPage)    
     try {
-
-                // Crear objeto de parámetros dinámicamente
+        // Crear objeto de parámetros dinámicamente
         const params: Record<string, string | number> = { 
             page: page, 
             status: tableSection 
@@ -53,10 +52,15 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
             const apiParam = optionToApiParam[selectedOption.value as ApiParam];
             params[apiParam] = searchValue || ''; // Usar searchValue como valor
         }
-
-        const response = await axios.get('/requests/see_requests', { params });
-        console.log('Response22: ', response);
-
+        
+        // Agregar parámetros de fecha si están disponibles
+        if (formattedDates) {
+            params.startDate = formattedDates.start; // "2025-07-08"
+            params.endDate = formattedDates.end;     // "2025-07-19"
+        }
+        
+        console.log('Parámetros que se envían: ', params);
+        const response = await axios.get('/requests/see_requests', { params });        
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data   
@@ -68,19 +72,16 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
     } catch (e) {
         console.error('Error en DataForRequestTable:', e);
         return [] 
-        
     }
 };
 
 //Envío de id de petición y el status cada vez que se cambia en la interfaz para que se actualize en la bd
 export const UpdateRequestStatus = async({status, id}:UpdateRequestStatusParams): Promise<void> =>{
-    console.log('UpdateRequestStatus',status, id);
     try{
         const response = await axios.patch('/requests/update_status_request', {
             id_peticion: id,
             status: status
         });
-        console.log('response: ',response)
         if(response.data.success){
             toast.success(response.data.message)
         }else{
@@ -92,8 +93,39 @@ export const UpdateRequestStatus = async({status, id}:UpdateRequestStatusParams)
     }
 }
 
-//Cambio en el status de las peticiones
+//Download Excel
+interface DownloadRequestExcelProps {
+    selectedOption?: string
+    searchValue?:string
+}
+export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections}: DownloadRequestExcelProps) => {
+    console.log('SelectedOption', selectedOption);
+    console.log('searchValue', searchValue);
+    console.log('selectedTab', selectedTab);
+    console.log('tableSections', tableSections);
 
+    const params: Record<string, any> = {
+      [selectedOption.value]: searchValue, // Mapeo dinámico del campo seleccionado
+      status: tableSections[selectedTab]
+    };
+         
+    try{
+        const response = await axios.get('/download/download_request', {params, responseType: 'blob'})
+
+        // Crear el archivo descargable
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'reporte.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+    return response;
+    }catch(error){
+        console.error('Error en DownloadRequestExcel', error);
+    }
+}
 
 
 

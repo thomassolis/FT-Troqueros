@@ -18,7 +18,8 @@ export const Back = ({ text, className2, redirectTo }: BackProps) => {
     };
 
     return (
-        <div className={`w-[30%] flex gap-3 items-center ${className2}`}>
+        //w-[30%]
+        <div className={`flex gap-3 items-center ${className2}`}>
             <Icon icon="tabler:arrow-back-up-double" className="text-white bg-black rounded-md cursor-pointer" width="24" height="24" onClick={handleBack}/>
             <p className="text-black font-bebas text-xl">{text}</p>
         </div>

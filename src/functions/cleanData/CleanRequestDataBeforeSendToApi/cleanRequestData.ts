@@ -1,4 +1,4 @@
-export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean): any => {
+export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean): any => {  
   if (obj === null || obj === undefined) {
     return undefined;
   }
@@ -25,12 +25,27 @@ export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean)
         'lugar_destino',
         'profit',
         'monto',
-        'cliente'
+        'cliente',
+        'proveedor'
       ];
 
       // Condición especial: eliminar precio_proveedor si NO es solicitud de proveedor
       if ((!isProviderRequest && key === 'precio_proveedor') || FIELDS_TO_REMOVE.includes(key)) {
         return acc; // no incluir esta propiedad
+      }
+
+      // 🚫 Remover servicios.costos_extras si isProviderRequest es true
+      if (
+        isProviderRequest &&
+        key === 'costos_extras' &&
+        Array.isArray(obj['nuevos_costos_extras']) // esto indica que estamos dentro de un servicio
+      ) {
+        return acc;
+      }
+
+      // No enviar costos_extras si el array está vacío
+      if (key === 'costos_extras' && Array.isArray(obj[key]) && obj[key].length === 0) {
+        return acc;
       }
 
       const cleanedValue = CleanRequestDataBeforeSend(obj[key], isProviderRequest);

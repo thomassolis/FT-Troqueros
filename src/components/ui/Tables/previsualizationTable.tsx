@@ -36,9 +36,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const {searchValue, setSearchValue} = useContext(searchValueContext)!;
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
-    const module = pathSegments[pathSegments.length - 1];
-               
-    console.log('MODULEE:', module);
+    const module = pathSegments[pathSegments.length - 1];                
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
     
@@ -57,8 +55,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     //Cambiar a vehiculos
                     setTableData(response.vehiculos.data || []);             
                     setTotalRecords(response.vehiculos.totalRegistros);
-                    setPageSize(response.vehiculos.limite);     
-                    console.log('response.vehiculos: ', response)           
+                    setPageSize(response.vehiculos.limite);                                   
                 }else if (module === 'Customers'){                    
                     const response = await GetDataForPrevisualizationTableCustomers({
                         page: currentPage, 

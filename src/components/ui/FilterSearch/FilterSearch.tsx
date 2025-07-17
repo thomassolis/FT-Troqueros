@@ -5,125 +5,228 @@ import { useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { searchValueContext } from "../../../context/searchValueForFilter/searchValue";
 import Select from 'react-select';
+import React, { useState, useRef, useEffect } from "react";
+import { format } from "date-fns";
+import { DateRangePicker } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import { DownloadRequestExcel } from "../../../api/Home/home.route";
 
 interface SelectOption {
   value: string;
   label: string;
 }
 
-interface FilterSearchProps{
-    vehicleType?: string | null | undefined
-    selectedOption: SelectOption | null;
-    setSelectedOption: React.Dispatch<React.SetStateAction<SelectOption | null>>;
+interface FilterSearchProps {
+  vehicleType?: string | null | undefined
+  selectedOption: SelectOption | null;
+  setSelectedOption: React.Dispatch<React.SetStateAction<SelectOption | null>>;
 }
+
 interface submitData {
-    id_chasis: string    
+  id_chasis: string    
 }
 
-export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption}:FilterSearchProps) =>{
-        const { handleSubmit, formState: { errors } } = useForm<submitData>();
-        const location = useLocation();
-        const pathSegments = location.pathname.split('/').filter(Boolean); 
-        const lastSegment = pathSegments[pathSegments.length - 1];    
-        const {searchValue, setSearchValue} = useContext(searchValueContext)!;
+export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, formattedDates, setFormattedDates}: FilterSearchProps) => {
+  const { handleSubmit, formState: { errors } } = useForm<submitData>();
+  const location = useLocation();
+  const pathSegments = location.pathname.split('/').filter(Boolean); 
+  const lastSegment = pathSegments[pathSegments.length - 1];    
+  const {searchValue, setSearchValue} = useContext(searchValueContext)!;
 
-        const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {                        
-                setSearchValue(event.target.value);                         
-        };   
-        const onSubmit: SubmitHandler<submitData> = (data) => {            
-        };        
-    return(
-        <div className="flex">
+  // Filtro de fecha
+  const [showPicker, setShowPicker] = useState(false);
+  const [state, setState] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection"
+    }
+  ]);
+  const pickerRef = useRef(null);
 
-                {lastSegment === 'home' ? (
-                    <Select
-                        options={[
-                            {value: 'id', label: 'ID'}, 
-                            {value: 'nameService', label: 'Servicio'}, 
-                            {value: 'nameDriver', label: 'Conductor'}, 
-                            {value: 'nameCustomer', label: 'Cliente'}
-                        ]}  
-                                               
-                        className="text-black max-w-[35%] min-w-[20%]"        
-                        value={selectedOption} // Valor controlado por estado
-                        onChange={(optionselected)=>{setSelectedOption(optionselected)}}                                       
-                        styles={{
-                            control: (base) => ({                                
-                            ...base,
-                            borderRadius: 0,
-                            borderColor: 'gray',
-                            padding: '2px',
-                            color: 'black'
-                            }),
-                            singleValue: (base) => ({
-                            ...base,
-                            color: 'black'
-                            }),
-                            menu: (base) => ({
-                            ...base,
-                            zIndex: 9999, // Valor alto para asegurar que esté por encima
-                            marginTop: '2px' // Espacio entre el control y el menú
-                            }),
-                            menuPortal: (base) => ({
-                            ...base,
-                            zIndex: 9999 // Necesario si usas menuPortalTarget
-                            })
-                        }}
-                    />
-                ): (
-                    <div className="flex w-[8%] px-12  items-center justify-center py-2 border border-gray-400 bg-white">
-                        <h1 className="text-black">
-                            {lastSegment === 'Customers'||lastSegment==='Drivers'||lastSegment==='Services'||lastSegment==='Providers' ? (
-                                'Nombre'
-                                ):lastSegment === 'Vehicles' ? (
-                                    'Placa'
-                                ):''
+  const handleSelect = (ranges) => {
+    const { startDate, endDate } = ranges.selection;
+    setState([ranges.selection]);
+    
+    // Formatear las fechas a YYYY-MM-DD
+    const formattedStart = format(startDate, 'yyyy-MM-dd');
+    const formattedEnd = format(endDate, 'yyyy-MM-dd');
+    
+    setFormattedDates({
+      start: formattedStart,
+      end: formattedEnd
+    });
 
-                            }                        
-                        </h1>
-                    </div>
-                )
+    console.log('Fechas formateadas:', {
+      start: formattedStart,
+      end: formattedEnd
+    });
+  };
 
-                }
+  const togglePicker = () => {
+    setShowPicker(!showPicker);
+  };
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex">
-                <div className="">                   
-                        <Input 
-                            type="text" 
-                            placeholder=
-                                {lastSegment === 'Customers' ? (
-                                    `Buscar cliente por nombre`
-                                ): lastSegment === 'Vehicles' ? (
-                                    `Buscar ${vehicleType} por número de placa`
-                                ): lastSegment === 'Drivers' ? (
-                                    `Buscar Conductor por Nombre`
-                                ):lastSegment === 'home' ? (
-                                    `Buscar Petición por ${selectedOption?.label}`
-                                ):''
-                            }                                
-                            
-                            className2={"py-5 rounded-none border border-gray-400"}
-                            onChange={handleInputChange}                                
-                        />
-                    
-                </div>                
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {                        
+    setSearchValue(event.target.value);                         
+  };   
 
-                <div className="">
+  const onSubmit: SubmitHandler<submitData> = (data) => {            
+    // Aquí puedes usar formattedDates.start y formattedDates.end
+    // para enviar las fechas en formato YYYY-MM-DD
+  };        
 
-                {lastSegment != 'home' ? (
-                    <Button 
-                        type="submit" 
-                        text="Buscar" 
-                        bgColor="bg-gray-200" 
-                        className2={"py-2 rounded-none border border-gray-400"}                         
-                    />
-                ): null
-                }                            
+  // Cierra el picker al hacer clic fuera
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+        setShowPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
+  // Función para descargar Excel con las fechas formateadas
+  const downloadExcel = async() => {
+    try {
+      const response = await DownloadRequestExcel({
+        selectedOption: selectedOption, 
+        searchValue: searchValue,
+        startDate: formattedDates.start, // Fecha en YYYY-MM-DD
+        endDate: formattedDates.end     // Fecha en YYYY-MM-DD
+      });
+      console.log(response);
+    } catch(error) {
+      console.log('Error en downloadExcel: ', error);
+    }
+  }
 
+  return(
+    <div className="flex">
+      {lastSegment === 'home' ? (
+        <Select
+          options={[
+            {value: 'id', label: 'ID'}, 
+            {value: 'nameService', label: 'Servicio'}, 
+            {value: 'nameDriver', label: 'Conductor'}, 
+            {value: 'nameCustomer', label: 'Cliente'}
+          ]}  
+          className="text-black max-w-[35%] min-w-[20%]"        
+          value={selectedOption}
+          onChange={(optionselected) => {setSelectedOption(optionselected)}}                                                            
+        />
+      ) : lastSegment === 'completeRequestHistory' ? (
+        <div className="w-full flex">                        
+          <div className="relative" ref={pickerRef}>
+            <input
+              type="text"
+              className="w-full p-2 border rounded cursor-pointer text-black"
+              value={`${format(state[0].startDate, "dd/MM/yyyy")} - ${format(
+                state[0].endDate,
+                "dd/MM/yyyy"
+              )}`}
+              readOnly
+              onClick={togglePicker}
+              placeholder="Selecciona un rango de fechas"
+            />
 
-                </div>
-            </form>
-        </div>                        
-    )
+            {showPicker && (
+              <div className="absolute z-50 mt-1 shadow-lg max-w-[90vw] overflow-x-auto">
+                <DateRangePicker                            
+                  onChange={handleSelect}
+                  moveRangeOnFirstSelection={false}
+                  months={2}
+                  ranges={state}
+                  direction="horizontal"
+                  editableDateInputs={true}
+                  rangeColors={["#3b82f6"]}
+                />
+              </div>
+            )}
+          </div>                    
+          <Select
+            options={[
+              {value: 'id', label: 'ID'}, 
+              {value: 'nameService', label: 'Servicio'}, 
+              {value: 'nameDriver', label: 'Conductor'}, 
+              {value: 'nameCustomer', label: 'Cliente'}
+            ]}  
+            className="text-black max-w-[35%] min-w-[20%]"        
+            value={selectedOption}
+            onChange={(optionselected) => {setSelectedOption(optionselected)}}                                       
+            styles={{
+              control: (base) => ({                                
+                ...base,
+                borderRadius: 0,
+                borderColor: 'gray',
+                padding: '2px',
+                color: 'black'
+              }),
+              singleValue: (base) => ({
+                ...base,
+                color: 'black'
+              }),
+              menu: (base) => ({
+                ...base,
+                zIndex: 9999,
+                marginTop: '2px'
+              }),
+              menuPortal: (base) => ({
+                ...base,
+                zIndex: 9999
+              })
+            }}
+          />                        
+        </div>
+      ) : (
+        <div className="flex w-[8%] px-12 items-center justify-center py-2 border border-gray-400 bg-white">
+          <h1 className="text-black">
+            {lastSegment === 'Customers'||lastSegment==='Drivers'||lastSegment==='Services'||lastSegment==='Providers' ? (
+              'Nombre'
+            ) : lastSegment === 'Vehicles' ? (
+              'Placa'
+            ) : ''}
+          </h1>
+        </div>
+      )}
+
+      <div></div>
+      
+      <form onSubmit={handleSubmit(onSubmit)} className="flex bg-blue">                                 
+        <Input 
+          type="text" 
+          placeholder={
+            lastSegment === 'Customers' ? (
+              `Buscar cliente por nombre`
+            ) : lastSegment === 'Vehicles' ? (
+              `Buscar ${vehicleType} por número de placa`
+            ) : lastSegment === 'Drivers' ? (
+              `Buscar Conductor por Nombre`
+            ) : lastSegment === 'home' ? (
+              `Buscar Petición por ${selectedOption?.label}`
+            ) : lastSegment === 'completeRequestHistory' ? (
+              `Buscar Petición por ${selectedOption?.label}`
+            ) : null
+          }                                
+          className2={"py-5 rounded-none border border-gray-400"}
+          onChange={handleInputChange}                                
+        />
+              
+        <div></div>    
+
+        <div>
+          {(lastSegment !== 'home' && lastSegment !== 'completeRequestHistory') ? (
+            <Button 
+              type="submit" 
+              text="Buscar" 
+              bgColor="bg-gray-200" 
+              className2={"py-2 rounded-none border border-gray-400"}                         
+            />
+          ) : null}
+        </div>
+      </form>
+    </div>                          
+  )
 }

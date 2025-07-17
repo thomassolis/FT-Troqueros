@@ -13,12 +13,14 @@ interface TransformSelectDataProps {
             id_chasis:string
             id_furgon:string
             id_cabezal:string
+            success:boolean
         }
     ]
 }
 
 //Cambia los datos recibidos por value/label que son requeridos para el Select
 export const TransformSelectData = ({type, data}:TransformSelectDataProps) => {
+
     let transformedData
     if (type === 'service'){
         transformedData = data.map(item => ({
@@ -43,22 +45,26 @@ export const TransformSelectData = ({type, data}:TransformSelectDataProps) => {
     }else if (type === 'drivers'){
         transformedData = data.map(item => ({
             value: item.id_conductor.toString(),
-            label: item.nombre
+            label: item.nombre,
+            success: item.success
         }));
     }else if (type === 'chasis'){
         transformedData = data.map(item => ({
             value: item.id_chasis.toString(),
-            label: item.placa
+            label: item.placa,
+            success: item.success
         }));
     } else if (type === 'furgon'){
         transformedData = data.map(item => ({
             value: item.id_furgon.toString(),
-            label: item.placa
+            label: item.placa,
+            success: item.success
         }));
     } else if (type === 'cabezal'){
         transformedData = data.map(item => ({
             value: item.id_cabezal.toString(),
-            label: item.placa
+            label: item.placa,
+            success: item.success
         }));
     }
 

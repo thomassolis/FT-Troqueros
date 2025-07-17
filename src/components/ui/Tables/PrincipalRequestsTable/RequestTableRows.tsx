@@ -73,8 +73,7 @@ interface RequestTableRowsProps {
 function RequestTableRows({ row, selectedTab }: RequestTableRowsProps) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});      
-  const navigate = useNavigate();
-  console.log(row);
+  const navigate = useNavigate();  
   //Función que mapea el status recibido para que vaya acorde con el label, value del select
   useEffect(() => {
     if (row.status) {
@@ -110,8 +109,7 @@ const getStatusTextColor = (statusValue:string) => {
   }
 };
 
-  const disableRequest = (requestID:string) => {
-    console.log('requestID: ',requestID);
+  const disableRequest = (requestID:string) => {  
     DoubleConfirmationAlert({
       title:'¿Estás seguro que deseas deshabilitar esta petición?',
       text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',

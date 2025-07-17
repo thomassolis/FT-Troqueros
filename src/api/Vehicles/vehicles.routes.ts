@@ -53,8 +53,7 @@ interface sendDataForCreationProps{
     data:FormValues,
     vehicleType: string | undefined
 }
-export const sendDataForCreation = async({data, vehicleType}:sendDataForCreationProps) =>{   
-    console.log('vehicleType', vehicleType)
+export const sendDataForCreation = async({data, vehicleType}:sendDataForCreationProps) =>{       
     let action = ''
     if(vehicleType==='Chasises'){
         action = 'add_chassis'

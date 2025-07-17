@@ -13,6 +13,7 @@ import { Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
 import { GetRequestDataPerID } from "../../../api/Requests/requests.route";
 import { EditRequestData } from "../../../api/Requests/requests.route";
 import { CleanRequestDataBeforeSend } from "../../../functions/cleanData/CleanRequestDataBeforeSendToApi/cleanRequestData";
+import { ServicesActions } from "../../../api/Services/services.route";
 
 export interface ServiceType {
   id: number;
@@ -29,7 +30,6 @@ export const StepperFormRequests = () => {
   const [requestFormData, setRequestFormData]= useState<RequestsFormValues>({} as RequestsFormValues);
   //Estado que maneja si una 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
     {
       id: 1,
@@ -78,6 +78,40 @@ export const StepperFormRequests = () => {
     watch,
     formState: { errors }
   } = methods;
+
+  useEffect(()=>{
+    console.log('ServiceTypes: ', serviceTypes)
+  },[serviceTypes])
+
+  useEffect(()=>{
+    console.log('Rows: ',rows)    
+  },[rows])
+
+
+  //UseEffect para Test
+// useEffect(() => {
+//   const activeServiceIDs = rows.map(r => String(r.id_servicio_datos));
+//   const serviciosActuales = requestFormData.servicios || [];
+
+//   const serviciosFiltrados = serviciosActuales
+//     .filter(s => activeServiceIDs.includes(String(s.id_servicio_datos)))
+//     .map(s => {
+//       const rowMatch = rows.find(r => String(r.id_servicio_datos) === String(s.id_servicio_datos));
+//       return {
+//         ...s,
+//         servicio: rowMatch?.serviceType || "", // ← nuevo campo agregado
+//       };
+//     });
+
+//   const esDiferente = JSON.stringify(serviciosActuales) !== JSON.stringify(serviciosFiltrados);
+
+//   if (esDiferente) {
+//     setValue('servicios', serviciosFiltrados);
+//   }
+// }, [rows, requestFormData.servicios, setValue]);
+
+
+
 
   useEffect(() => {
     const subscription = watch((value) => {
@@ -140,8 +174,7 @@ const onSubmit = async (data: any) => {
     const GetDataForEditRequest = async() => {
       try{
         const response = await GetRequestDataPerID({requestID});  
-        reset(response); 
-        console.log('setrequestData: ', response);
+        reset(response);         
       }catch(error){
         console.error('Error en GetDataForEditRequest', error);
       }
@@ -171,7 +204,7 @@ const onSubmit = async (data: any) => {
       <div hidden={activeStep !== 1}>
         <Step2
           useProvider={useProvider}
-          setUseProvider={setUseProvider}
+          setUseProvider={setUseProvider}          
           rows={rows}
           requestData={requestData}
           requestFormData = {requestFormData}

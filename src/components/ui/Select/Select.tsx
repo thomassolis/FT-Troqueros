@@ -27,8 +27,6 @@ export const Select = ({ statusOptions, apiRequest, id, defaultValue, tableData,
     const { vehicleType } = useContext(vehicleTypeContext)!;
     const [selectedOption, setSelectedOption] = useState<string>(defaultValue || statusOptions[0]);
     const initialRender = useRef(true);
-    console.log('module en select: ', module);
-    console.log('id en select: ', id);
 
     useEffect(() => {
         setSelectedOption(defaultValue);

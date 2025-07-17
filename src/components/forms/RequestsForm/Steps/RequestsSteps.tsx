@@ -24,10 +24,11 @@ import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
 import { useLocation } from "react-router-dom";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider, rows, requestData, requestFormData}) => {    
-    console.log('requestData', requestData);
+export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider, rows, requestData, requestFormData}) => {        
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
-    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
+    // const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
+    const { control, formState: { errors } } = useFormContext<RequestsFormValues>();
+
     useEffect(() => {
     const getSelectData = async () => {
         try {
@@ -42,16 +43,6 @@ export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider
     getSelectData();
     }, []);
 
-    // useEffect(() => {
-    //     if (requestFormData && setValue) {
-          
-    //             setValue('id_cliente', requestFormData.id_cliente || '');
-    //             setValue('fecha_salida', requestFormData.fecha_salida || '');
-    //             setValue('hora_salida', requestFormData.hora_salida || '');
-          
-    //     }
-    // }, [requestFormData]);
-
 
     return (
         <section className="w-full ">                        
@@ -61,16 +52,16 @@ export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider
                 <div className="flex w-[70%]">
                     <div className="flex flex-col gap-12 items-start w-full  mt-12 ">
 
-                        <div className="h-10 flex items-center">
-                            <SmallLabel text="Nombre del Cliente"/>
+                        <div className="flex items-center mb-1">
+                        <SmallLabel text="Nombre del Cliente" /><span className="text-red-500 ml-1">*</span>
                         </div>
                         
-                        <div className="h-10 flex items-center">
-                            <SmallLabel text="Fecha de Salida"/>
+                        <div className="h-10 flex items-center mb-1">
+                            <SmallLabel text="Fecha de Salida"/> <span className="text-red-500 ml-1">*</span>
                         </div>                    
 
-                        <div className="h-10 flex items-center">
-                            <SmallLabel text="Hora de Salida"/>
+                        <div className="h-10 flex items-center mb-1">
+                            <SmallLabel text="Hora de Salida"/> <span className="text-red-500 ml-1">*</span>
                         </div>         
                         
                     </div>
@@ -81,48 +72,62 @@ export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider
                             <Controller
                             name="id_cliente"
                             control={control}
+                            rules={{ required: "El cliente es obligatorio" }} // ✅ aquí validas
                             render={({ field }) => (
-                                <Select 
-                                    {...field} // <-- Muy importante: conecta onChange, onBlur y value
-                                    className="w-full text-black" 
-                                    options={customersSelect}
-                                    placeholder="Selecciona un cliente..."
-                                    value={customersSelect.find(customersSelect => customersSelect.value === field.value)} // Para mostrar el label correcto
-                                    onChange={customersSelect => field.onChange(customersSelect?.value)} // Guarda solo el ID, no todo el objeto
-                                     // --- Solución ---
-                                    menuPortalTarget={document.body} // Renderiza el menú en el body
-                                    styles={{
-                                        menuPortal: base => ({ ...base, zIndex: 9999 }), // Asegura que esté por encima de todo
-                                    }}
+                                <Select
+                                {...field}
+                                isClearable                                
+                                className="w-full"
+                                options={customersSelect}
+                                placeholder="Selecciona un cliente..."
+                                value={customersSelect.find(opt => opt.value === field.value)}
+                                onChange={option => field.onChange(option?.value)}
+                                menuPortalTarget={document.body}
+                                styles={{
+                                    control: (base, state) => ({
+                                    ...base,
+                                    borderColor: errors?.id_cliente ? '#d32f2f' : base.borderColor,
+                                    '&:hover': {
+                                        borderColor: errors?.id_cliente ? '#d32f2f' : base.borderColor,
+                                    },
+                                    boxShadow: state.isFocused ? `0 0 0 1px ${errors?.id_cliente ? '#d32f2f' : '#2684FF'}` : 'none',
+                                    }),
+                                    placeholder: (base) => ({
+                                    ...base,
+                                    color: errors?.id_cliente ? '#d32f2f' : '#6b7280',
+                                    }),
+                                }}
                                 />
                             )}
-                            />                            
-
+                            />                           
                         </div>                        
 
                         <div className="flex items-center gap-3 w-full ">
 
                             <Controller
                                 name="fecha_salida"
-                                control={control}                                
+                                control={control}           
+                                rules={{required:'Campo Requerido'}}                     
                                 render={({ field }) => (
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <DemoContainer components={["DatePicker"]} sx={{width:'100%'}}>
                                             <DatePicker
-                                            label="Selecciona una fecha"
-                                            format="DD/MM/YYYY" // Lo que ve el usuario
-                                            value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null} // Interpretas el string del backend
-                                            onChange={(date) => {
-                                                const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Lo que guarda y se envía al backend
-                                                field.onChange(formattedDate);
-                                            }}
-                                            className="bg-white w-full"
-                                            // slotProps={{
-                                            //     textField: {
-                                            //     error: !!errors.fecha_salida,
-                                            //     helperText: errors.fecha_salida?.message,
-                                            //     },
-                                            // }}
+                                                label="Selecciona una fecha"
+                                                format="DD/MM/YYYY"
+                                                value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
+                                                onChange={(date) => {
+                                                    const formattedDate = dayjs(date).format('YYYY-MM-DD');
+                                                    field.onChange(formattedDate);
+                                                }}
+                                                slotProps={{
+                                                    textField: {
+                                                    error: !!errors.fecha_salida,
+                                                        sx: {
+                                                        backgroundColor: 'white', // ✅ mantiene fondo blanco incluso con error
+                                                    },
+                                                    fullWidth: true
+                                                    }
+                                                }}
                                             />
 
 
@@ -177,7 +182,21 @@ export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider
 
 export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, rows, requestData, requestFormData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
-    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
+    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();    
+    useEffect(() => {        
+    if (requestFormData.proveedor) {        
+        setValue('isProviderRequest', true);
+        setUseProvider(true);
+    }
+    }, [requestFormData.proveedor, setValue]);
+
+    useEffect(()=>{
+        if(useProvider===false){
+            setValue('id_proveedor', null);
+            setValue('precio_proveedor', null);
+        }
+    },[useProvider])
+
     useEffect(() => {
         const getSelectData = async () => {
             try {
@@ -192,6 +211,35 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
         getSelectData();
     }, []);    
 
+    //Constantes para calcular cuando el checkbox de proveedores está activado o no
+    const multipleServicios = requestFormData.servicios?.length > 1;
+    const hasConductorData = requestFormData.servicios?.some(s => !!s.id_conductor);
+    const hasCabezalData = requestFormData.servicios?.some(s => !!s.id_cabezal);
+    const hasChasisData = requestFormData.servicios?.some(s => !!s.id_chasis);
+    const hasFurgonData = requestFormData.servicios?.some(s => !!s.id_furgon);
+    const hasExtras = requestFormData.servicios?.some(
+    s => (Array.isArray(s.costos_extras) && s.costos_extras.length > 0) ||
+        (Array.isArray(s.nuevos_costos_extras) && s.nuevos_costos_extras.length > 0)
+    );
+
+    const isDisabled =
+    multipleServicios ||
+    hasConductorData ||
+    hasCabezalData ||
+    hasChasisData ||
+    hasFurgonData ||
+    hasExtras;
+
+    const getDisableReason = () => {
+        if (multipleServicios) return "Solo se permite un servicio para activar esta opción.";
+        if (hasConductorData) return "Elimina el conductor asignado.";
+        if (hasCabezalData) return "Elimina el cabezal asignado.";
+        if (hasChasisData) return "Elimina el chasis asignado.";
+        if (hasFurgonData) return "Elimina el furgón asignado.";
+        if (hasExtras) return "Elimina los costos extras del servicio.";
+    return null;
+    };
+
 
     return (
         <section className="w-full">                        
@@ -200,60 +248,98 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
             </h1>
 
             <div className="flex justify-center items-center mt-6">
-                    <label className="flex items-center gap-3 w-[70%] cursor-pointer">
-                        <input
-                            type="checkbox"
-                            {...register("isProviderRequest")}
-                            id="providerCheck"
-                            className="accent-blue-500"
-                            // checked={field.value}
-                            onChange={(e) => {
-                                setUseProvider(e.target.checked);
-                            }}
-                        />
+            <label className="flex items-center gap-3 w-[70%] relative cursor-pointer">
+                <input
+                    type="checkbox"
+                    {...register("isProviderRequest")}
+                    id="providerCheck"
+                    className="accent-blue-500"
+                    disabled={isDisabled}
+                    onChange={(e) => {
+                        setUseProvider(e.target.checked);
+                    }}
+                />
 
-                    <label className="text-black " htmlFor="providerCheck">
-                        Seleccionar si la carga la administrará un proveedor
-                    </label>
+                {/* Solo intercepta clics cuando está deshabilitado */}
+                {isDisabled && (
+                <div
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[18px] h-[18px] cursor-not-allowed z-10"
+                    onClick={(e) => {
+                    e.preventDefault(); // evita cambio de estado
+                    const reason = getDisableReason();
+                    if (reason) alert(reason);
+                    }}
+                />
+                )}
+
+                <label className="text-black" htmlFor="providerCheck">
+                    Seleccionar si la carga la administrará un proveedor
                 </label>
+            </label>
             </div>
 
-        {useProvider ? (
-            <div className="flex flex-col items-center mt-6">
-            <div className="flex flex-col gap-6 w-[70%]">
 
-                {/* Nombre del proveedor */}
-                <div className="flex w-full items-center gap-8">
-                    <label className="text-black text-sm mb-1">Nombre del Proveedor:</label>
-                    <Controller
-                    name="id_proveedor"
-                    control={control}
-                    render={({ field }) => (
-                        <Select 
-                            {...field}
-                            className="w-[60%] text-black" 
-                            options={providersSelect}
-                            value={providersSelect.find(providersSelect => providersSelect.value === field.value)} // Para mostrar el label correcto
-                            onChange={providersSelect => field.onChange(providersSelect?.value)} // Guarda solo el ID, no todo el objeto
+            {useProvider ? (
+                <div className="flex flex-col items-center mt-6">
+                <div className="flex flex-col gap-6 w-[70%]">
+
+                    {/* Nombre del proveedor */}
+                    <div className="flex w-full items-center gap-8">
+                        <label className="text-black text-sm mb-1">Nombre del Proveedor:</label>
+                        <Controller
+                        name="id_proveedor"
+                        control={control}
+                        rules={{ required: "Campo obligatorio" }}
+                        render={({ field }) => (
+                            <>
+                            <Select 
+                                {...field}
+                                isClearable
+                                className="w-[60%] text-black" 
+                                options={providersSelect}
+                                value={providersSelect.find(opt => opt.value === field.value)} // Para mostrar el label correcto
+                                onChange={opt => field.onChange(opt?.value)} // Guarda solo el ID
+                                styles={{
+                                control: (base, state) => ({
+                                    ...base,
+                                    borderColor: errors?.id_proveedor ? '#d32f2f' : base.borderColor,
+                                    '&:hover': {
+                                    borderColor: errors?.id_proveedor ? '#d32f2f' : base.borderColor,
+                                    },
+                                    boxShadow: state.isFocused
+                                    ? `0 0 0 1px ${errors?.id_proveedor ? '#d32f2f' : '#2684FF'}`
+                                    : 'none',
+                                }),
+                                placeholder: base => ({
+                                    ...base,
+                                    color: errors?.id_proveedor ? '#d32f2f' : '#6b7280',
+                                }),
+                                }}
+                            />
+                            {errors?.id_proveedor?.message && (
+                                <p className="text-red-500 text-sm mt-1">{errors.id_proveedor.message}</p>
+                            )}
+                            </>
+                        )}
                         />
-                    )}
-                    />
-                </div>   
 
-                <div className="flex w-full items-center gap-12">
-                    <label className="text-black text-sm mb-1">Costo del proveedor:</label>
-                    <Input 
-                        type="number"
-                        className2="w-[20%] h-8"
-                        placeholder="Costo $"                        
-                        {...register('precio_proveedor', {valueAsNumber:true})}
-                        onChange={(e) => setValue('precio_proveedor', parseFloat(e.target.value))}
-                    />
-                </div>             
+                    </div>   
 
-            </div>
-            </div>
-        ):(<></>)}
+                    <div className="flex w-full items-center gap-12">
+                        <label className="text-black text-sm mb-1">Costo del proveedor:</label>
+                        <Input 
+                            type="number"
+                            className2="w-[20%] h-8"
+                            placeholder="Costo $"                        
+                            {...register('precio_proveedor', {valueAsNumber:true, required:'Campo requerido'})}
+                            onChange={(e) => setValue('precio_proveedor', parseFloat(e.target.value))}
+                        />
+                    </div>             
+
+                </div>
+                </div>
+            ):(<></>)}
+
         </section>
       
 
@@ -300,8 +386,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
 
     
     // Coloca el useEffect aquí
-    useEffect(() => {
-        console.log('serviceTypes: ', serviceTypes);
+    useEffect(() => {        
       // Limpiar datos de rutas cuando serviceTypes cambie
       const activeIds = new Set(serviceTypes.map(st => st.id));
       
@@ -353,11 +438,17 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
         return { ...st, ...updated };
         })
     );
-    };
-    console.log('serviceTypes: ',serviceTypes)
-    const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);
-    console.log('rowsTotal', totalRows);
-        
+    };    
+
+    let totalRows;
+    if (isEditMode){
+        //Al momento de editar totalRows dependerá de requestFormData
+        totalRows = Array.isArray(requestFormData.servicios) ? requestFormData.servicios.length : 0;        
+    }else{
+        //Al momento de crear la petición totalRows debe depender de serviceTypes
+        totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);
+    }
+    // const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);            
     const deleteServiceType = (id: number) => {
     // 1. Eliminar de serviceTypes
     setServiceTypes(prev => prev.filter(st => st.id !== id));
@@ -382,9 +473,9 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
 
     // 4. Eliminar de rows
     setRows(prev => prev.filter(row => row.serviceTypeId !== id));
-    };
+    };    
 
-    console.log('serviceTypes en dinámico: ',serviceTypes);
+    console.log('totall', totalRows);
     return (
         <section className="w-full ">                        
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">
@@ -413,6 +504,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                             onDelete={deleteServiceType}     
                             requestFormData={requestFormData}
                             isEditMode={isEditMode}
+                            serviceTypes={serviceTypes}
                         />
                     ))}
 
@@ -432,8 +524,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                 <div className={`flex flex-col ${isEditMode ? 'mt-20':''}`}>
                     {!isEditMode && 
                         <h1 className="text-black mt-10">Favor seleccione las rutas que le desea asignar a cada servicio</h1>
-                    }                
-                    <h1 className="text-black">TEST</h1>                        
+                    }                                                         
                     <ServicesSelectionTable                    
                         titles={['Tipo de Servicio', 'Rutas', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Vacío']}                    
                         serviceTypes={serviceTypes}
@@ -460,7 +551,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
 }
 
 export const Step4: React.FC<StepsRequestsProps> = ({useProvider, rows, requestFormData, setRows, requestData}) => {      
-    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
+    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();    
     return(
         <div className="flex flex-col mt-10 gap-10">
             <h1 className="text-black">Completa el formulario para crear una nueva petición</h1>

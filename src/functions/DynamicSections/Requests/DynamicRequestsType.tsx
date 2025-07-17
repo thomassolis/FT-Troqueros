@@ -35,11 +35,10 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   onDelete,
   useProvider,
   requestFormData,
-  isEditMode
+  isEditMode,
+  serviceTypes
 }) => {    
     const [isLoading, setIsLoading] = useState(false);
-    console.log('RequestFormDataDynamic: ', requestFormData);
-    
     useEffect(() => {
         const getSelectData = async () => {
             try {
@@ -83,15 +82,15 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
                 />
             </div>
 
-            <div className="flex justify-center items-center">
-                <Icon 
-                    icon="material-symbols:delete" 
-                    width="24" 
-                    height="24" 
-                    className="cursor-pointer text-red-700 hover:text-red-500"                         
-                    onClick={() => onDelete(id)}
-                />  
-            </div>
+            <button
+            type="button"
+            onClick={() => onDelete(id)}
+            disabled={serviceTypes.length === 1}
+            className={`text-red-700 hover:text-red-500 disabled:text-gray-400 disabled:cursor-not-allowed`}
+            >
+            <Icon icon="material-symbols:delete" width="24" height="24" />
+            </button>
+
         </div>
 
     ):null

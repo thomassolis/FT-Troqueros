@@ -31,9 +31,7 @@ export const DoubleConfirmationAlert = async ({ title, text, id, type }: DoubleC
     response = await UpdateRequestStatus({ status: 'Cancelado', id: id.requestID });
   } else if (type === 'deleteExtraPrice'){
     response = await DeleteExtraprice(id);
-  }
-
-  console.log('response: ', response);
+  }  
 
   if (response?.success) {
     await Swal.fire({
