@@ -32,7 +32,7 @@ export const DoubleConfirmationAlert = async ({ title, text, id, type }: DoubleC
   } else if (type === 'deleteExtraPrice'){
     response = await DeleteExtraprice(id);
   }  
-
+  console.log('RESPONSE. ', response);
   if (response?.success) {
     await Swal.fire({
       title: "¡Eliminado!",

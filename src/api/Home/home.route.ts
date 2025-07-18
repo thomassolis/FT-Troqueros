@@ -38,7 +38,7 @@ const optionToApiParam = {
 type ApiParam = keyof typeof optionToApiParam;
 
 //Data que requiere la tabla del home para mostrar los datos
-export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage, formattedDates}: RequestParams): Promise<Record<string, string>[]> => {        
+export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage, formattedDates}: RequestParams): Promise<Record<string, string>[]> => {            
     const page = Number(currentPage)    
     try {
         // Crear objeto de parámetros dinámicamente
@@ -60,7 +60,8 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
         }
         
         console.log('Parámetros que se envían: ', params);
-        const response = await axios.get('/requests/see_requests', { params });        
+        const response = await axios.get('/requests/see_requests', { params });  
+        console.log('DataForRequestTable: ',response);      
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data   
@@ -87,6 +88,7 @@ export const UpdateRequestStatus = async({status, id}:UpdateRequestStatusParams)
         }else{
             toast.error(response.data.message)
         }        
+        return response.data;
     }catch(e:any){
         toast.error(e.response.data.message)
         console.error('Error en: UpdateRequestStatus', e)
@@ -98,19 +100,36 @@ interface DownloadRequestExcelProps {
     selectedOption?: string
     searchValue?:string
 }
-export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections}: DownloadRequestExcelProps) => {
+export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections, formattedDates}: DownloadRequestExcelProps) => {
     console.log('SelectedOption', selectedOption);
     console.log('searchValue', searchValue);
     console.log('selectedTab', selectedTab);
     console.log('tableSections', tableSections);
 
-    const params: Record<string, any> = {
-      [selectedOption.value]: searchValue, // Mapeo dinámico del campo seleccionado
-      status: tableSections[selectedTab]
+    // Mapeo específico según tus requerimientos
+    const getApiParam = (value: string) => {
+        return value === 'id' ? 'idPeticion' : value;
     };
+
+    const params: Record<string, any> = {
+        status: tableSections[selectedTab]
+    };
+
+    // Solo agregar el parámetro de búsqueda si hay un valor seleccionado y un valor de búsqueda
+    if (selectedOption && searchValue) {
+        const apiParam = getApiParam(selectedOption.value);
+        params[apiParam] = searchValue;
+    }
+
+    // Agregar parámetros de fecha si están disponibles
+    if (formattedDates) {
+        params.startDate = formattedDates.start;
+        params.endDate = formattedDates.end;
+    }
          
-    try{
-        const response = await axios.get('/download/download_request', {params, responseType: 'blob'})
+    try {
+        console.log('Parámetros enviados a la API:', params);
+        const response = await axios.get('/download/download_request', {params, responseType: 'blob'});
 
         // Crear el archivo descargable
         const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -121,9 +140,10 @@ export const DownloadRequestExcel = async({selectedOption, searchValue, selected
         link.click();
         link.remove();
 
-    return response;
-    }catch(error){
+        return response;
+    } catch(error) {
         console.error('Error en DownloadRequestExcel', error);
+        throw error;
     }
 }
 
@@ -131,3 +151,12 @@ export const DownloadRequestExcel = async({selectedOption, searchValue, selected
 
 
 //---------------------------------------------------------AGENDA----------------------------------------------
+
+export const getDataForCalendar = async () => {
+    try{
+        const response = await axios.get('/agenda/get_agenda')        
+        return response.data.data;
+    }catch(error){
+        console.error('Error en getDataForCalendar', error);
+    }
+}

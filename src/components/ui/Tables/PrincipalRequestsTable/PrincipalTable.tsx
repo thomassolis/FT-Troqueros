@@ -26,12 +26,18 @@ const rows = (tableData || []).map(item => ({
   nombreCliente: item?.cliente,  
   servicio: item?.servicio,     
   conductor: item?.conductor,    
-  chasis: item?.chasis,          
+  chasis: item?.chasis,            
   cabezal: item?.cabezal,        
   furgon: item?.furgon,          
   id_proveedor: item?.proveedor, 
+  monto: item?.monto, 
+  precio_proveedor: item?.precio_proveedor, 
+  profit: item?.profit, 
+  fecha_creacion: item?.fecha_creacion,
+  fecha_salida: item?.fecha_salida,
+  hora_salida: item?.fecha_salida,
   status: item?.status || 'Sin Status',
-  services: item?.services || [] 
+  services: item?.services || [],   
 }));
 
   return (
@@ -41,7 +47,7 @@ const rows = (tableData || []).map(item => ({
             <TableHead>
               <TableRow >
                 <TableCell />
-                <TableCell align="center">ID</TableCell>
+                <TableCell align="center" sx={{paddingX:'25px'}}>ID</TableCell>
                 <TableCell align="center">Cliente</TableCell>
                 <TableCell align="center">Servicio</TableCell>
                 <TableCell align="center">Conductor</TableCell>
@@ -55,11 +61,14 @@ const rows = (tableData || []).map(item => ({
                   </>
                 ):(
                   <>
-                    <TableCell align="center">Monto</TableCell>    
-                    <TableCell align="center">Fecha de Creación</TableCell>    
-                    <TableCell align="center">Salida de Petición</TableCell>    
-                    <TableCell align="center">Status</TableCell>    
-                    <TableCell align="center">Acciones</TableCell>    
+                    <TableCell align="center">Monto Total</TableCell>    
+                    <TableCell align="center">Precio Proveedor</TableCell> 
+                    <TableCell align="center">Profit</TableCell> 
+                    <TableCell align="center">Creación De Petición</TableCell> 
+                    <TableCell align="center">Comienzo De Petición</TableCell> 
+                    <TableCell align="center">Hora De Comienzo De Petición</TableCell> 
+                    <TableCell align="center" sx={{paddingX:'60px'}} >Status</TableCell> 
+                    <TableCell align="center"></TableCell> 
                   </>
                 )
 
@@ -81,6 +90,7 @@ const rows = (tableData || []).map(item => ({
                       key={row.id || index} 
                       row={row} 
                       selectedTab={selectedTab} 
+                      procedure={procedure}
                     />
                   ))
                 ) : (

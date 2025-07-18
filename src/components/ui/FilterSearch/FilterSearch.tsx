@@ -38,8 +38,8 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
   const [showPicker, setShowPicker] = useState(false);
   const [state, setState] = useState([
     {
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: null,
+      endDate: null,
       key: "selection"
     }
   ]);
@@ -88,72 +88,70 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Función para descargar Excel con las fechas formateadas
-  const downloadExcel = async() => {
-    try {
-      const response = await DownloadRequestExcel({
-        selectedOption: selectedOption, 
-        searchValue: searchValue,
-        startDate: formattedDates.start, // Fecha en YYYY-MM-DD
-        endDate: formattedDates.end     // Fecha en YYYY-MM-DD
-      });
-      console.log(response);
-    } catch(error) {
-      console.log('Error en downloadExcel: ', error);
-    }
-  }
-
   return(
-    <div className="flex">
+    <div className="flex bg-red-">
       {lastSegment === 'home' ? (
         <Select
-          options={[
-            {value: 'id', label: 'ID'}, 
-            {value: 'nameService', label: 'Servicio'}, 
-            {value: 'nameDriver', label: 'Conductor'}, 
-            {value: 'nameCustomer', label: 'Cliente'}
-          ]}  
-          className="text-black max-w-[35%] min-w-[20%]"        
-          value={selectedOption}
-          onChange={(optionselected) => {setSelectedOption(optionselected)}}                                                            
+            options={[
+                {value: 'id', label: 'ID'}, 
+                {value: 'nameService', label: 'Servicio'}, 
+                {value: 'nameDriver', label: 'Conductor'}, 
+                {value: 'nameCustomer', label: 'Cliente'}
+            ]}  
+            className="text-black max-w-[35%] min-w-[20%]"        
+            value={selectedOption}
+            onChange={(optionselected) => {setSelectedOption(optionselected)}}                                                            
+            menuPortalTarget={document.body} // Esto renderiza el menú en el body
+            styles={{
+                menuPortal: base => ({ ...base, zIndex: 9999 }),
+                menu: provided => ({ ...provided, zIndex: 9999 })
+            }}
+            isClearable
         />
       ) : lastSegment === 'completeRequestHistory' ? (
-        <div className="w-full flex">                        
-          <div className="relative" ref={pickerRef}>
-            <input
-              type="text"
-              className="w-full p-2 border rounded cursor-pointer text-black"
-              value={`${format(state[0].startDate, "dd/MM/yyyy")} - ${format(
-                state[0].endDate,
-                "dd/MM/yyyy"
-              )}`}
-              readOnly
-              onClick={togglePicker}
-              placeholder="Selecciona un rango de fechas"
-            />
+        <div className="w-full flex bg-red-200">                        
+            <div className="w-full" ref={pickerRef}>
+                <input
+                    type="text"
+                    className="w-full p-2 border rounded cursor-pointer text-black"
+                    value={
+                    state[0].startDate && state[0].endDate
+                        ? `${format(state[0].startDate, "dd/MM/yyyy")} - ${format(
+                            state[0].endDate,
+                            "dd/MM/yyyy"
+                        )}`
+                        : ""
+                    }
 
-            {showPicker && (
-              <div className="absolute z-50 mt-1 shadow-lg max-w-[90vw] overflow-x-auto">
-                <DateRangePicker                            
-                  onChange={handleSelect}
-                  moveRangeOnFirstSelection={false}
-                  months={2}
-                  ranges={state}
-                  direction="horizontal"
-                  editableDateInputs={true}
-                  rangeColors={["#3b82f6"]}
+                readOnly
+                onClick={togglePicker}
+                placeholder="Selecciona un rango de fechas"
                 />
-              </div>
-            )}
-          </div>                    
-          <Select
+
+                {showPicker && (
+                <div className="absolute z-50 mt-1 shadow-lg max-w-[90vw] overflow-x-auto">
+                    <DateRangePicker                            
+                    onChange={handleSelect}
+                    moveRangeOnFirstSelection={false}
+                    months={2}
+                    ranges={state}
+                    direction="horizontal"
+                    editableDateInputs={true}
+                    rangeColors={["#3b82f6"]}
+                    />
+                </div>
+                )}
+            </div>   
+
+            <div className="w-full ">
+                          <Select
             options={[
               {value: 'id', label: 'ID'}, 
               {value: 'nameService', label: 'Servicio'}, 
               {value: 'nameDriver', label: 'Conductor'}, 
               {value: 'nameCustomer', label: 'Cliente'}
             ]}  
-            className="text-black max-w-[35%] min-w-[20%]"        
+            className="text-black w-full min-w-[20%]"        
             value={selectedOption}
             onChange={(optionselected) => {setSelectedOption(optionselected)}}                                       
             styles={{
@@ -179,6 +177,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
               })
             }}
           />                        
+            </div>                 
         </div>
       ) : (
         <div className="flex w-[8%] px-12 items-center justify-center py-2 border border-gray-400 bg-white">
@@ -199,7 +198,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
           type="text" 
           placeholder={
             lastSegment === 'Customers' ? (
-              `Buscar cliente por nombre`
+              `Buscar Cliente por nombre`
             ) : lastSegment === 'Vehicles' ? (
               `Buscar ${vehicleType} por número de placa`
             ) : lastSegment === 'Drivers' ? (
@@ -208,7 +207,11 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
               `Buscar Petición por ${selectedOption?.label}`
             ) : lastSegment === 'completeRequestHistory' ? (
               `Buscar Petición por ${selectedOption?.label}`
-            ) : null
+            ) : lastSegment === 'Services' ? (
+                `Buscar Servicio por Nombre`
+            ): lastSegment === 'Providers' ? (
+                `Buscar Proveedor por Nombre`
+            ): null
           }                                
           className2={"py-5 rounded-none border border-gray-400"}
           onChange={handleInputChange}                                

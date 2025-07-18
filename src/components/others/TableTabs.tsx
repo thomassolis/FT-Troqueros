@@ -49,14 +49,9 @@ interface SidebarProps {
 export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates, setFormattedDates }: SidebarProps) => {
     const [tableData, setTableData] = useState<TableRowVariables[]>([]);    
     const [isLoading, setIsLoading] = useState(false);
-    const {searchValue} = useContext(searchValueContext)!;   
-    // const [selectedTab, setSelectedTab] = useState<number>(0); 
+    const {searchValue} = useContext(searchValueContext)!;       
     const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});       
     const navigate = useNavigate();
-
-    useEffect(()=>{
-        console.log('formattedDates: ', formattedDates);
-    },[formattedDates]) 
 
     useEffect(() => {
         RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
@@ -71,7 +66,7 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
             setTableData(response.data as unknown as TableRowVariables[]);
             setTotalRecords(response.totalRegistros); 
             setPageSize(response.limite);
-            setCurrentPage(response.paginaActual)
+            setCurrentPage(Number(response.paginaActual) || 1);
 
         } catch (e) {
             console.error("Error en RequestDataForHomeTable", e);
@@ -103,7 +98,7 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
 
                         {/* Tabs dinámicos */}
                         <div className={`flex gap-1 ${procedure === 'completeRequestHistory' ? 'w-full justify-end':''}`}>
-                            {["En Espera", "En Proceso", 'Completadas', 'Canceladas'].map((opt, index) => (
+                            {['Todos',"En Espera", "En Proceso", 'Completadas', 'Canceladas'].map((opt, index) => (
                                 <Tab key={index}>
                                     <Button text={opt} isSelected={selectedTab === index} bgColor="bg-[#96B2E4]" hoverBgColor="bg-slate-400"/>
                                 </Tab>

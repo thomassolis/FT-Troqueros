@@ -67,10 +67,11 @@ function createData(
 interface RequestTableRowsProps {
   row: ReturnType<typeof createData>;
   selectedTab: number; // Añade esta prop
+  procedure: string;
 }
 
 
-function RequestTableRows({ row, selectedTab }: RequestTableRowsProps) {
+function RequestTableRows({ row, selectedTab, procedure }: RequestTableRowsProps) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});      
   const navigate = useNavigate();  
@@ -110,6 +111,7 @@ const getStatusTextColor = (statusValue:string) => {
 };
 
   const disableRequest = (requestID:string) => {  
+    console.log('Row al eliminar: ', row);
     DoubleConfirmationAlert({
       title:'¿Estás seguro que deseas deshabilitar esta petición?',
       text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',
@@ -155,6 +157,8 @@ const getStatusTextColor = (statusValue:string) => {
         <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
           <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.furgon ? '' : 'text-red-500'}>{row.furgon || 'No asignado'}</p>
         </TableCell>
+        {procedure==='home'&&(
+          <>
         <TableCell align="center" sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }} onClick={(e) => e.stopPropagation()}>          
         <Select
             options={[
@@ -202,6 +206,85 @@ const getStatusTextColor = (statusValue:string) => {
               />
             </TableCell>
           )}
+          </>
+        )}
+
+        {procedure === 'completeRequestHistory' && (
+          <>
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.monto ? '' : 'text-red-500'}>{row.monto || 'No asignado'}</p>
+            </TableCell>
+
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.precio_proveedor ? '' : 'text-red-500'}>{row.precio_proveedor || '-'}</p>
+            </TableCell>
+
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.profit ? '' : ''}>{row.profit || '-'}</p>
+            </TableCell>
+
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.fecha_creacion ? '' : ''}>{row.fecha_creacion || '-'}</p>
+            </TableCell>
+
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.fecha_salida ? '' : ''}>{row.fecha_salida || '-'}</p>
+            </TableCell>
+
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.hora_salida ? '' : ''}>{row.hora_salida || '-'}</p>
+            </TableCell>
+
+            <TableCell align="center" sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }} onClick={(e) => e.stopPropagation()}>          
+              <Select
+                  options={[
+                    { value: 'en espera', label: 'En Espera' },
+                    { value: 'en proceso', label: 'En Proceso' },
+                    { value: 'Completado', label: 'Completada' },
+                  ]}
+                  value={selectedStatus}
+                  onChange={(optionselected) => {
+                    setSelectedStatus(optionselected);
+                    if (optionselected) {  // Only proceed if optionselected exists
+                      changeRequestStatus({
+                        optionselected: optionselected, 
+                        id: row.id
+                      });
+                    }
+                  }}
+                styles={{
+                  option: (provided, state) => ({
+                    ...provided,
+                    color: getStatusTextColor(state.data.value),
+                    backgroundColor: state.isSelected 
+                      ? "rgba(13, 110, 253, 0.5)" // Fondo azul muy claro al seleccionar
+                      : provided.backgroundColor,
+                    "&:hover": {
+                      backgroundColor: "rgba(13, 110, 253, 0.2)", // Fondo al pasar el mouse
+                    },
+                  }),
+                  singleValue: (provided, state) => ({
+                    ...provided,
+                    color: getStatusTextColor(state.data.value),
+                  }),
+                }}
+              />
+            </TableCell>
+
+            {row.status === 'En espera' && (
+            <TableCell onClick={(e) => e.stopPropagation()} sx={{...tableCellStyles, width: '2%', maxWidth: '2%'}}>
+              <Icon
+                icon="line-md:trash"
+                width="25"
+                height="25"
+                className="text-red-600 cursor-pointer hover:text-red-400"            
+                onClick={()=>disableRequest({requestID:row.id})}
+              />
+            </TableCell>
+          )}
+          </>
+        )}
+
       </TableRow>      
 
 

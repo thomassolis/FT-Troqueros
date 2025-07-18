@@ -9,7 +9,7 @@ import { Back } from "../ui/Back/Back";
 import { GetProcedureFromURL } from "../../functions/GetURL/GetURLInfo";
 import { FaFileExcel } from 'react-icons/fa';
 import { DownloadRequestExcel } from "../../api/Home/home.route";
-import { useEffect, useContext } from "react";
+import { useContext } from "react";
 import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
 import { format } from "date-fns";
 
@@ -31,10 +31,14 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const tableSections: string[] = ["En Espera", "En Proceso", "Completado", 'Cancelado'];
     // Estado para almacenar las fechas formateadas
-    const [formattedDates, setFormattedDates] = useState({
-        start: format(new Date(), 'yyyy-MM-dd'),
-        end: format(new Date(), 'yyyy-MM-dd')
+    const [formattedDates, setFormattedDates] = useState<{
+        start: string | null;
+        end: string | null;
+    }>({
+        start: null,
+        end: null,
     });
+
 
     const handlePageClick = (selectedPage: number) => {        
         setCurrentPage(selectedPage);
@@ -42,24 +46,19 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
 
     const downloadExcel = async() => {
         try{
-            const response = DownloadRequestExcel({selectedOption:selectedOption, searchValue:searchValue, selectedTab:selectedTab, tableSections:tableSections});
+            await DownloadRequestExcel({selectedOption:selectedOption, searchValue:searchValue, selectedTab:selectedTab, tableSections:tableSections, formattedDates:formattedDates});
         }catch(error){
             console.log('Error en downloadExcel: ', error);
         }
 
     }
 
-    // useEffect(() => {
-    //     downloadExcel();
-    // }, [selectedOption, searchValue, selectedTab]);
-
     return(
         <section className="mt-3">
             <div className="flex items-center gap-1 mb-4">
                 {procedure === 'completeRequestHistory'?(<Back text={'Historial de Peticiones'}/>) : (
                     <h1 className={`font-bebas text-black text-2xl  ${sidebarState ? "ml-12" : "ml-16"} max-md:ml-9 max-sm:ml-9`}>PETICIONES</h1>
-                )}
-                {/* <h1 className={`font-bebas text-black text-2xl  ${sidebarState ? "ml-12" : "ml-16"} max-md:ml-9 max-sm:ml-9`}>PETICIONES</h1> */}
+                )}                
                 <Icon 
                     icon="icon-park-outline:add" 
                     className="text-black hover:text-gray-500 cursor-pointer" 
@@ -131,10 +130,14 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                 </div>                    
             </div> 
             
-            <h1 className={`font-bebas text-black text-2xl mt-16 ${sidebarState ? "ml-12" : 'ml-16'} max-md:ml-9 max-sm:ml-9`}>AGENDA</h1>    
-            <div className="w-full flex flex-col justify-center items-center pb-14 ">                
-                <NotificationsCalendar sidebarState={sidebarState}/>
-            </div>
+            {procedure === 'home' && (
+                <>
+                    <h1 className={`font-bebas text-black text-2xl mt-16 ${sidebarState ? "ml-12" : 'ml-16'} max-md:ml-9 max-sm:ml-9`}>AGENDA</h1>    
+                    <div className="w-full flex flex-col justify-center items-center pb-14 ">                
+                        <NotificationsCalendar sidebarState={sidebarState}/>
+                    </div>
+                </>
+            )}
         </section>
     )
 }
