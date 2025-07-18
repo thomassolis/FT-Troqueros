@@ -24,7 +24,7 @@ import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
 import { useLocation } from "react-router-dom";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider, rows, requestData, requestFormData}) => {        
+export const Step1: React.FC<StepsRequestsProps> = () => {        
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
     // const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
     const { control, formState: { errors } } = useFormContext<RequestsFormValues>();
@@ -181,15 +181,17 @@ export const Step1: React.FC<StepsRequestsProps> = ({useProvider, setUseProvider
     )
 }
 
-export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, rows, requestData, requestFormData}) => {        
+export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, rows, requestFormData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
     const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();    
     useEffect(() => {        
-    if (requestFormData.proveedor) {        
+    if (requestFormData?.proveedor) {        
         setValue('isProviderRequest', true);
-        setUseProvider(true);
+        if (setUseProvider) {
+            setUseProvider(true);
+        }
     }
-    }, [requestFormData.proveedor, setValue]);
+    }, [requestFormData?.proveedor, setValue]);
 
     useEffect(()=>{
         if(useProvider===false){
@@ -213,12 +215,12 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
     }, []);    
 
     //Constantes para calcular cuando el checkbox de proveedores está activado o no
-    const multipleServicios = requestFormData.servicios?.length > 1;
-    const hasConductorData = requestFormData.servicios?.some(s => !!s.id_conductor);
-    const hasCabezalData = requestFormData.servicios?.some(s => !!s.id_cabezal);
-    const hasChasisData = requestFormData.servicios?.some(s => !!s.id_chasis);
-    const hasFurgonData = requestFormData.servicios?.some(s => !!s.id_furgon);
-    const hasExtras = requestFormData.servicios?.some(
+    const multipleServicios = (requestFormData?.servicios?.length ?? 0) > 1;
+    const hasConductorData = requestFormData?.servicios?.some(s => !!s.id_conductor);
+    const hasCabezalData = requestFormData?.servicios?.some(s => !!s.id_cabezal);
+    const hasChasisData = requestFormData?.servicios?.some(s => !!s.id_chasis);
+    const hasFurgonData = requestFormData?.servicios?.some(s => !!s.id_furgon);
+    const hasExtras = requestFormData?.servicios?.some(
     s => (Array.isArray(s.costos_extras) && s.costos_extras.length > 0) ||
         (Array.isArray(s.nuevos_costos_extras) && s.nuevos_costos_extras.length > 0)
     );
@@ -256,7 +258,7 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                     id="providerCheck"
                     className="accent-blue-500"
                     disabled={isDisabled}
-                    onChange={(e) => {
+                    onChange={(e) => {                        
                         setUseProvider(e.target.checked);
                     }}
                 />
@@ -347,11 +349,11 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
     )
 }
 
-export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows, serviceTypes, setServiceTypes, isInitialLoad, setIsInitialLoad, isEntregaVacioSelected, setIsEntregaVacioSelected, requestData, requestFormData}) => {                    
+export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows, serviceTypes, setServiceTypes, isInitialLoad, setIsInitialLoad, requestData, requestFormData}) => {                    
     const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);//Estados que maneja los datos que tiene el select de servicios
     const [routesInformation, setRoutesInformation] = useState<Record<string, any>>({});
     const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({}); 
-    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
+    const { control, setValue, register } = useFormContext<RequestsFormValues>();
 
     const location = useLocation();
     const isEditMode = location.pathname.includes('edit')    

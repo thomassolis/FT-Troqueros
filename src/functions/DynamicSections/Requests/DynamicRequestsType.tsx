@@ -20,8 +20,7 @@ interface DynamicRequestsTypeProps {
 onUpdate: (id: number, field: keyof ServiceType, name: string| number, value: string | number) => void;
   onDelete: (id: number) => void;
   setServicesSelect: React.Dispatch<React.SetStateAction<SelectOptionTypes[]>>;
-  servicesSelect: SelectOptionTypes[];
-  useProvider?: boolean; 
+  servicesSelect: SelectOptionTypes[];  
 }
 
 
@@ -32,8 +31,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   onUpdate,
   servicesSelect,
   setServicesSelect,
-  onDelete,
-  useProvider,
+  onDelete,  
   requestFormData,
   isEditMode,
   serviceTypes

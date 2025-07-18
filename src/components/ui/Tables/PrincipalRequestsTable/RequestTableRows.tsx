@@ -35,29 +35,47 @@ function createData(
   chasis: string,
   cabezal: string,
   furgon: string,  
-  id_proveedor: string,
+  hora_salida:string,
+  fecha_salida:string,
+  id_proveedor: string,  
+  profit:number,
   status: string,
+  precio_proveedor:number,
+  fecha_creacion:string,
+  monto:number,
   services: {  // Change from tuple to regular array of objects
     conductor: string,
     id_peticion: string,
     cliente: string,
+    monto:number,
     servicio: string,
     cabezal: string,
     chasis: string,
+    hora_salida:string,
+    fecha_creacion:string,
+    fecha_salida:string,
     furgon: string,
     customerId: string,
-    date: string
+    precio_proveedor:number,
+    profit:number,
+    date: string,
   }[]  // Note the [] instead of []
 ) {
   return {
     id,
     nombreCliente,
     servicio,
+    precio_proveedor,
     conductor,
+    monto,
+    fecha_salida,
     chasis,
     cabezal,
     furgon,
     id_proveedor,
+    fecha_creacion,
+    profit,
+    hora_salida,
     status,
     services,
   };
@@ -68,22 +86,31 @@ interface RequestTableRowsProps {
   row: ReturnType<typeof createData>;
   selectedTab: number; // Añade esta prop
   procedure: string;
+  // onStatusChange?: (id: string, newStatus: string) => void;
+  // onDelete?: (id: string) => void;
 }
 
 
 function RequestTableRows({ row, selectedTab, procedure }: RequestTableRowsProps) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});      
+  useEffect(()=>{
+    console.log('selectedStatus', selectedStatus)
+  },[selectedStatus])
+  const statusOptions = [
+  { value: 'en espera', label: 'En Espera' },
+  { value: 'en proceso', label: 'En Proceso' },
+  { value: 'Completado', label: 'Completada' },
+];
+
   const navigate = useNavigate();  
   //Función que mapea el status recibido para que vaya acorde con el label, value del select
   useEffect(() => {
     if (row.status) {
-      const statusMap: Record<string, {value: string, label: string}> = {
-        'En espera': { value: 'en espera', label: 'En Espera' },
-        'En proceso': { value: 'en proceso', label: 'En Proceso' },
-        'Completado': { value: 'Completado', label: 'Completada' },
-      };
-      setSelectedStatus(statusMap[row.status] || null);
+      const matched = statusOptions.find(opt =>
+        opt.label.toLowerCase() === row.status.toLowerCase()
+      );
+      setSelectedStatus(matched || null);
     }
   }, [row.status]);
 
@@ -91,6 +118,7 @@ function RequestTableRows({ row, selectedTab, procedure }: RequestTableRowsProps
   const changeRequestStatus = async ({ optionselected, id }: { optionselected: { value: string, label: string }, id: string }) => {
     try {
       await UpdateRequestStatus({ status: optionselected.value, id: id });
+      // onStatusChange?.(id, optionselected.label);
     } catch (error) {
       console.error('changeRequestStatus: ', error);
     }
@@ -110,17 +138,26 @@ const getStatusTextColor = (statusValue:string) => {
   }
 };
 
+const tableCellStyles = {
+  width: '13.5%', // Mismo ancho para todas las celdas normales
+  maxWidth: '13.5%',
+  wordWrap: 'break-word',
+  whiteSpace: 'normal',
+  padding: '8px',
+  border: '1px solid #e0e0e0',
+  boxSizing: 'border-box',
+};
+
   const disableRequest = (requestID:string) => {  
     console.log('Row al eliminar: ', row);
     DoubleConfirmationAlert({
       title:'¿Estás seguro que deseas deshabilitar esta petición?',
       text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',
       id: requestID,
-      type: 'deleteRequest'
+      type: 'deleteRequest',
+      // onConfirm: () => onDelete?.(row.id)
     });
   }
-
-
   return (
     <React.Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className={` ${(!row.id_proveedor && row.services.length === 0) ? 'hover:bg-gray-300 cursor-pointer' : ''} ? 'hover:bg-gray-200':''} ${row.id_proveedor ? 'bg-green-300 hover:bg-green-400 cursor-pointer' : ''}  ${row.services.length>0? 'bg-blue-200 hover:bg-blue-300 cursor-pointer': ''}`} onClick={()=>navigate(`/home/Request/edit/${row.id}`)}>
@@ -161,15 +198,12 @@ const getStatusTextColor = (statusValue:string) => {
           <>
         <TableCell align="center" sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }} onClick={(e) => e.stopPropagation()}>          
         <Select
-            options={[
-              { value: 'en espera', label: 'En Espera' },
-              { value: 'en proceso', label: 'En Proceso' },
-              { value: 'Completado', label: 'Completada' },
-            ]}
+            options={statusOptions}
             value={selectedStatus}
             onChange={(optionselected) => {
               setSelectedStatus(optionselected);
               if (optionselected) {  // Only proceed if optionselected exists
+                console.log('optionselected',optionselected);
                 changeRequestStatus({
                   optionselected: optionselected, 
                   id: row.id
@@ -237,11 +271,7 @@ const getStatusTextColor = (statusValue:string) => {
 
             <TableCell align="center" sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }} onClick={(e) => e.stopPropagation()}>          
               <Select
-                  options={[
-                    { value: 'en espera', label: 'En Espera' },
-                    { value: 'en proceso', label: 'En Proceso' },
-                    { value: 'Completado', label: 'Completada' },
-                  ]}
+                  options={statusOptions}
                   value={selectedStatus}
                   onChange={(optionselected) => {
                     setSelectedStatus(optionselected);
@@ -295,7 +325,7 @@ const getStatusTextColor = (statusValue:string) => {
         <TableCell
           style={{ padding: 0}}
           padding="none"
-          colSpan={10}          
+          colSpan={procedure === 'home'? 10:15}          
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ 
@@ -315,11 +345,17 @@ const getStatusTextColor = (statusValue:string) => {
 
         <TableBody>
           {row.services?.map((historyRow) => (
-            <TableRow key={`${historyRow.date}-${historyRow.customerId}`} className='bg-blue-200'> {/* Key más único */}
-              <TableCell align='center' sx={{...tableCellStyles, width: '4.2%', maxWidth: '4.2%'}} ></TableCell>
-              <TableCell align='center' sx={{...tableCellStyles, width: '8%', maxWidth: '8%'}}><p className='font-bold py-1'>{historyRow.id_peticion}</p></TableCell>
-              <TableCell align='center' sx={tableCellStyles}>{historyRow.cliente}</TableCell>
-              <TableCell align='center' sx={tableCellStyles}>{historyRow.servicio}</TableCell>
+            <TableRow key={`${historyRow.date}-${historyRow.customerId}`} className='bg-blue-200'> {/* Key más único */}              
+              <TableCell align='center' sx={{ ...tableCellStyles, width: '4.6%', maxWidth: '4.6%' }}></TableCell>
+              <TableCell align='center' sx={{ ...tableCellStyles, width: '8%', maxWidth: '8%' }}>
+                  <p className='font-bold py-1'>{historyRow.id_peticion}</p>
+              </TableCell>
+              <TableCell align='center' sx={tableCellStyles} className='bg-emerald-400'>
+                <p style={{ margin: 0, wordBreak: 'break-word' }}>{historyRow.cliente}</p>
+              </TableCell>
+              <TableCell align='center' sx={tableCellStyles}>
+                <p style={{ margin: 0, wordBreak: 'break-word' }}>{historyRow.servicio}</p>
+              </TableCell>
               <TableCell align='center' sx={tableCellStyles}>
                 <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.conductor ? '' : 'text-red-500'}>
                   {historyRow.conductor || 'No asignado'}
@@ -339,14 +375,57 @@ const getStatusTextColor = (statusValue:string) => {
               </TableCell>
 
               <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
-                <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.furgon ? '' : 'text-red-500'}>
-                  {row.furgon || 'No asignado'}
+                <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.furgon ? '' : 'text-red-500'}>
+                  {historyRow.furgon || 'No asignado'}
                 </p>
               </TableCell>
 
 
-              <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}></TableCell>
-              <TableCell sx={{...tableCellStyles, width: '2%', maxWidth: '2%', marginLeft:'10px'}}></TableCell>
+
+              {procedure === 'completeRequestHistory' ? (
+                <>
+                  <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                    <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.monto ? '' : 'text-red-500'}>
+                      {historyRow.monto || '-'}
+                    </p>
+                  </TableCell>
+
+                  <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                    <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.precio_proveedor ? '' : 'text-red-500'}>
+                      {historyRow.precio_proveedor || '-'}
+                    </p>
+                  </TableCell>
+
+                  <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                    <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.profit ? '' : 'text-red-500'}>
+                      {historyRow.profit || '-'}
+                    </p>
+                  </TableCell>
+
+                  <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                    <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.fecha_creacion ? '' : 'text-red-500'}>
+                      {historyRow.fecha_creacion || '-'}
+                    </p>
+                  </TableCell>
+
+                  <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                    <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.fecha_salida ? '' : 'text-red-500'}>
+                      {historyRow.fecha_salida || '-'}
+                    </p>
+                  </TableCell>
+
+                  <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>
+                    <p style={{ margin: 0, wordBreak: 'break-word' }} className={historyRow.hora_salida ? '' : 'text-red-500'}>
+                      {historyRow.hora_salida || '-'}
+                    </p>
+                  </TableCell>
+
+
+                  <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}>Status</TableCell>              
+                </>
+              ):(
+                <TableCell align='center' sx={{ ...tableCellStyles, width: '12%', maxWidth: '12%' }}></TableCell>              
+              )}
             </TableRow>
           )) ?? (
             <TableRow>

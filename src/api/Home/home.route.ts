@@ -2,15 +2,15 @@ import { request } from 'http';
 import axios from '../axios.ts'
 import toast from 'react-hot-toast';
 
-interface statusResponse {
-    success: boolean;
-    message: string;
-}
+// interface statusResponse {
+//     success: boolean;
+//     message: string;
+// }
 
-interface DataResponse {
-    status: statusResponse | null;
-    data: Record<string, string>[];
-}
+// interface DataResponse {
+//     status: statusResponse | null;
+//     data: Record<string, string>[];
+// }
 
 interface RequestParams {
     tableSection: string    
@@ -61,7 +61,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
         
         console.log('Parámetros que se envían: ', params);
         const response = await axios.get('/requests/see_requests', { params });  
-        console.log('DataForRequestTable: ',response);      
+        console.log('DataForRequestTable: ',response);
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data   

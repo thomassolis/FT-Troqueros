@@ -7,13 +7,11 @@ import { useParams } from "react-router-dom";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
 import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
 import { CreateNewRequest } from "../../../api/Requests/requests.route";
-import { getProvidersDataByID } from "../../../api/Providers/providers.route";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
 import { Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
 import { GetRequestDataPerID } from "../../../api/Requests/requests.route";
 import { EditRequestData } from "../../../api/Requests/requests.route";
 import { CleanRequestDataBeforeSend } from "../../../functions/cleanData/CleanRequestDataBeforeSendToApi/cleanRequestData";
-import { ServicesActions } from "../../../api/Services/services.route";
 
 export interface ServiceType {
   id: number;
@@ -26,7 +24,8 @@ export const StepperFormRequests = () => {
   const {requestID} = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const procedure = GetProcedureFromURL();    
-  const [useProvider, setUseProvider] = useState(false);    //Estado que validará si una petición será manejada por un proveedor o no
+const [useProvider, setUseProvider] = useState<boolean | null>(null);
+  //Estado que validará si una petición será manejada por un proveedor o no
   const [requestFormData, setRequestFormData]= useState<RequestsFormValues>({} as RequestsFormValues);
   //Estado que maneja si una 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -71,10 +70,7 @@ export const StepperFormRequests = () => {
     const {
     handleSubmit,
     reset,
-    trigger,
-    setValue,
-    register,
-    control,
+    trigger,            
     watch,
     formState: { errors }
   } = methods;
@@ -116,7 +112,7 @@ export const StepperFormRequests = () => {
   useEffect(() => {
     const subscription = watch((value) => {
       console.log("📋 Formulario actualizado:", value);    
-      setRequestFormData(value);
+      setRequestFormData(value as RequestsFormValues);
     });
     return () => subscription.unsubscribe();
   }, [watch]);
@@ -192,21 +188,14 @@ const onSubmit = async (data: any) => {
 
     <div className="w-[85%]">
       <div hidden={activeStep !== 0}>
-        <Step1
-          useProvider={useProvider}
-          setUseProvider={setUseProvider}
-          rows={rows}
-          requestData={requestData}
-          requestFormData = {requestFormData}
-        />
+        <Step1/>
       </div>
 
       <div hidden={activeStep !== 1}>
         <Step2
           useProvider={useProvider}
           setUseProvider={setUseProvider}          
-          rows={rows}
-          requestData={requestData}
+          rows={rows}          
           requestFormData = {requestFormData}
         />
       </div>

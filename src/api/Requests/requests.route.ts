@@ -6,8 +6,8 @@ import { CreateReadStreamOptions } from "fs/promises";
 interface SelectDataProps {
     type: string,
     serviceID?: number | string
-    fecha_salida:string | null
-    hora_salida: string | null
+    fecha_salida?:string | null
+    hora_salida?: string | null
 }
 
 //Extrae toda la data para los select al momento de crear una petición
@@ -77,7 +77,11 @@ export const CreateNewRequest = async({data}:CreateNewRequestProps) => {
 }
 
 //Obtiene los datos de 1 petición
-export const GetRequestDataPerID = async ({requestID}:string) => {    
+interface GetRequestDataPerIDProps{
+    requestID: string|undefined
+}
+
+export const GetRequestDataPerID = async ({requestID}:GetRequestDataPerIDProps) => {    
     try{
         const response = await axios.get(`requests/see_request_id/${requestID}`);        
         return response.data.data.data

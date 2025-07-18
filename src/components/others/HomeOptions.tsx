@@ -29,7 +29,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
     const [totalRecords, setTotalRecords] = useState(0);
     const [pageSize, setPageSize] = useState<number>(10)
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const tableSections: string[] = ["En Espera", "En Proceso", "Completado", 'Cancelado'];
+    const tableSections: string[] = ["Todos","En Espera", "En Proceso", "Completado", 'Cancelado'];
     // Estado para almacenar las fechas formateadas
     const [formattedDates, setFormattedDates] = useState<{
         start: string | null;

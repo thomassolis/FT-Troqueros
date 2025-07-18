@@ -8,7 +8,7 @@ import Paper from '@mui/material/Paper';
 import RequestTableRows from "./RequestTableRows";
 import { FadeLoader } from 'react-spinners';
 import { TableRowVariables } from '../../../others/TableTabs';
-
+import { useState, useEffect } from 'react';
 interface TableProps {
   tableData: TableRowVariables[];
   sidebarState: boolean;
@@ -20,25 +20,50 @@ interface TableProps {
 
 
 export const RequestsTable = ({ tableData, sidebarState, isLoading, selectedTab, procedure }: TableProps) => {  
+const [rows, setRows] = useState<TableRowVariables[]>([]);
+ useEffect(() => {
+    if (tableData) {
+      const mappedRows = tableData.map(item => ({
+        id: item?.id_peticion,
+        nombreCliente: item?.cliente,
+        servicio: item?.servicio,
+        conductor: item?.conductor,
+        chasis: item?.chasis,
+        cabezal: item?.cabezal,
+        furgon: item?.furgon,
+        id_proveedor: item?.proveedor,
+        monto: item?.monto,
+        precio_proveedor: item?.precio_proveedor,
+        profit: item?.profit,
+        fecha_creacion: item?.fecha_creacion,
+        fecha_salida: item?.fecha_salida,
+        hora_salida: item?.fecha_salida,
+        status: item?.status || 'Sin Status',
+        services: item?.services || [],
+      }));
+      setRows(mappedRows);
+    }
+  }, [tableData]);
 
-const rows = (tableData || []).map(item => ({
-  id: item?.id_peticion,          
-  nombreCliente: item?.cliente,  
-  servicio: item?.servicio,     
-  conductor: item?.conductor,    
-  chasis: item?.chasis,            
-  cabezal: item?.cabezal,        
-  furgon: item?.furgon,          
-  id_proveedor: item?.proveedor, 
-  monto: item?.monto, 
-  precio_proveedor: item?.precio_proveedor, 
-  profit: item?.profit, 
-  fecha_creacion: item?.fecha_creacion,
-  fecha_salida: item?.fecha_salida,
-  hora_salida: item?.fecha_salida,
-  status: item?.status || 'Sin Status',
-  services: item?.services || [],   
-}));
+  //   const handleStatusChange = (id: string, newStatus: string) => {
+  //   setRows(prev =>
+  //     prev.map(row =>
+  //       row.id === id ? { ...row, status: newStatus } : row
+  //     )
+  //   );
+  // };
+
+  // const handleDelete = (id: string) => {
+  //   setRows(prev => prev.filter(row => row.id !== id));
+  // };
+
+  //   const filteredRows = rows.filter(row => {
+  //     if (selectedTab === 0) return row.status === 'En espera';
+  //     if (selectedTab === 1) return row.status === 'En proceso';
+  //     if (selectedTab === 2) return row.status === 'Completado';
+  //   return true;
+  //   });
+
 
   return (
       <div className={`${procedure==='completeRequestHistory'?'overflow-x-auto max-w-[1200px]':'w-full'}`}>
@@ -67,8 +92,8 @@ const rows = (tableData || []).map(item => ({
                     <TableCell align="center">Creación De Petición</TableCell> 
                     <TableCell align="center">Comienzo De Petición</TableCell> 
                     <TableCell align="center">Hora De Comienzo De Petición</TableCell> 
-                    <TableCell align="center" sx={{paddingX:'60px'}} >Status</TableCell> 
-                    <TableCell align="center"></TableCell> 
+                    <TableCell align="center" sx={{paddingX:'60px'}} >Status</TableCell>                     
+                    <TableCell align="center" sx={{paddingX:'60px'}} ></TableCell>
                   </>
                 )
 
@@ -91,6 +116,8 @@ const rows = (tableData || []).map(item => ({
                       row={row} 
                       selectedTab={selectedTab} 
                       procedure={procedure}
+                      // onStatusChange={handleStatusChange}
+                      // onDelete={handleDelete}
                     />
                   ))
                 ) : (

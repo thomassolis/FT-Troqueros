@@ -58,11 +58,11 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
     }, [selectedTab, selectedOption, searchValue, currentPage, selectedStatus, formattedDates]);
 
     const RequestDataForHomeTable = async (index: number): Promise<void> => {
-        const tableSections: string[] = ["En Espera", "En Proceso", "Completado", 'Cancelado'];
+        const tableSections: string[] = ["","En Espera", "En Proceso", "Completado", 'Cancelado'];
         
         try {
             setIsLoading(true);
-            const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                       
+            const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                                   
             setTableData(response.data as unknown as TableRowVariables[]);
             setTotalRecords(response.totalRegistros); 
             setPageSize(response.limite);
@@ -108,7 +108,7 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
                 </TabList>
 
                 {/* TabPanels dinámicos */}
-                {[0, 1, 2, 3].map((index) => (
+                {[0, 1, 2, 3, 4].map((index) => (
                     <TabPanel key={index}>
                         <RequestsTable 
                             tableData={tableData} 
