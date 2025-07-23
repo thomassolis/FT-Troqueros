@@ -20,8 +20,7 @@ import { SubmitTableForm } from './DataTableFunctions/DataTableFunctions';
 import { handleEdit } from './DataTableFunctions/DataTableFunctions';
 import { DeleteService } from './DataTableFunctions/DataTableFunctions';
 
-function Row(props: { id:any, row: { name: string, history: any[] }, servicesData:any, reloadServices:() => Promise<void> }) {  
-
+function Row(props: { id:any, row: { name: string, history: any[] }, servicesData:any, reloadServices:() => Promise<void> }) {    
   const { id, row, reloadServices } = props; 
   const [open, setOpen] = React.useState(false);
   const [isAdding, setIsAdding] = React.useState(false);
@@ -107,7 +106,7 @@ const {register, handleSubmit, reset} = useForm();
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    {['Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Acciones'].map((item)=>(
+                    {['Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Tiempo Promedio', 'Acciones'].map((item)=>(
                         <TableCell align="center">{item}</TableCell>    
                     ))}                    
                   </TableRow>
@@ -153,6 +152,17 @@ const {register, handleSubmit, reset} = useForm();
                         ):(historyRow.tarifa+'$')}                        
                       </TableCell>
 
+                      <TableCell align="center">
+                        {(editingRouteId === index) ? (
+                        <Input
+                            defaultValue={historyRow.tiempo_estimado}
+                            type='number'                            
+                            className2={'text-gray-400 w-[60%]'}
+                            {...register('tiempo_estimado',{valueAsNumber: true})}
+                          />
+                        ):(historyRow.tiempo_estimado+'h')}   
+                      </TableCell>
+
 
                       <TableCell align="center">
                         {(editingRouteId === index) ? (
@@ -165,8 +175,7 @@ const {register, handleSubmit, reset} = useForm();
                                 onClick={handleSubmit((data) =>
                                     SubmitTableForm(data, editingRouteId, localHistory, editRoute, row, setLocalHistory, setEditingRouteId, reset, isAdding, setIsAdding)
                                 )}
-
-                                // onClick={()=>alert('Clic')}
+                                
                             />
                             <Icon
                               icon="basil:cancel-solid"
@@ -237,6 +246,17 @@ const {register, handleSubmit, reset} = useForm();
                         {...register('tarifa', { required: true })}
                     />
                     </TableCell>
+
+                    <TableCell align="center">
+                    <input
+                        placeholder="Tiempo Estimado2"                        
+                        type='number'
+                        style={{ padding: "4px", width: "100%" }}
+                        className='border border-gray-300 rounded'
+                        {...register('tiempo_estimado',{valueAsNumber: true})}
+                    />
+                    </TableCell>
+                    
                     <TableCell align="center">
                       <button
                           type="submit"

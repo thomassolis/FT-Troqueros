@@ -84,7 +84,8 @@ interface GetRequestDataPerIDProps{
 export const GetRequestDataPerID = async ({requestID}:GetRequestDataPerIDProps) => {    
     try{
         const response = await axios.get(`requests/see_request_id/${requestID}`);        
-        return response.data.data.data
+        console.log('response.data.data.data: ', response.data.data.data)
+        return response.data.data.data        
     }catch(error){
         console.error('Error en GetRequestDataPerID ', error);
     }
@@ -108,7 +109,7 @@ export const EditRequestData = async ({data, requestID, id_pedidoServicio}: Crea
         ...data,
         id_peticion:requestID
     }    
-
+    console.log('totalData', totalData);
     try{
         const response = await axios.put('requests/update_request',totalData);
         if(response.data.success){
@@ -125,7 +126,6 @@ export const EditRequestData = async ({data, requestID, id_pedidoServicio}: Crea
 
 
 //RUTA PARA ELIMINAR LOS COSTOS EXTRAS DE LA PETICIÓN
-
 export const DeleteExtraprice = async(id:number) => {
     try{
         const response = await axios.delete(`requests/delete_extra_costs_request/${id}`);                

@@ -36,7 +36,8 @@ const isValid = Array.isArray(data.datos_servicio) &&
     (typeof item === 'object' && item !== null &&
       'lugar_origen' in item &&
       'lugar_destino' in item &&
-      'tarifa' in item)
+      'tarifa' in item && 
+      'tiempo_estimado' in item)
   );
 
 
@@ -53,7 +54,8 @@ const formData: serviceTypes = {
         .map(item => ({
           lugar_origen: item.lugar_origen,
           lugar_destino: item.lugar_destino,
-          tarifa: item.tarifa
+          tarifa: item.tarifa,
+          tiempo_estimado:item.tiempo_estimado,
         }))
     : []
 };

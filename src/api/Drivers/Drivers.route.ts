@@ -74,6 +74,7 @@ export const sendDataForUpdateDrivers = async ({data, driverID}: sendDataForUpda
     }
 
     try{
+        console.log('totalData: ', totalData);
         const response = await axios.put('/drivers/update_driver', totalData,{
             headers:{
                 'Content-Type': 'multipart/form-data'

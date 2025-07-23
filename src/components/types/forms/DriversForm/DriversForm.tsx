@@ -14,6 +14,7 @@ import {
     tipo_licencia: string;  
     telefono: string;
     email: string;
+    pass: string; 
   }
 
 export interface StepsDrivers {

@@ -58,10 +58,8 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
             params.startDate = formattedDates.start; // "2025-07-08"
             params.endDate = formattedDates.end;     // "2025-07-19"
         }
-        
-        console.log('Parámetros que se envían: ', params);
-        const response = await axios.get('/requests/see_requests', { params });  
-        console.log('DataForRequestTable: ',response);
+                
+        const response = await axios.get('/requests/see_requests', { params });          
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data   
@@ -77,23 +75,29 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
 };
 
 //Envío de id de petición y el status cada vez que se cambia en la interfaz para que se actualize en la bd
-export const UpdateRequestStatus = async({status, id}:UpdateRequestStatusParams): Promise<void> =>{
-    try{
-        const response = await axios.patch('/requests/update_status_request', {
-            id_peticion: id,
-            status: status
-        });
-        if(response.data.success){
-            toast.success(response.data.message)
-        }else{
-            toast.error(response.data.message)
-        }        
-        return response.data;
-    }catch(e:any){
-        toast.error(e.response.data.message)
-        console.error('Error en: UpdateRequestStatus', e)
+export const UpdateRequestStatus = async (
+  { status, id }: UpdateRequestStatusParams
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await axios.patch('/requests/update_status_request', {
+      id_peticion: id,
+      status: status
+    });
+
+    if (response.data.success) {
+      toast.success(response.data.message);
+    } else {
+      toast.error(response.data.message);
     }
-}
+
+    return response.data;
+  } catch (e: any) {
+    toast.error(e.response.data.message);
+    console.error('Error en: UpdateRequestStatus', e);
+    return { success: false, message: e.response.data.message }; // para evitar undefined
+  }
+};
+
 
 //Download Excel
 interface DownloadRequestExcelProps {
@@ -101,10 +105,6 @@ interface DownloadRequestExcelProps {
     searchValue?:string
 }
 export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections, formattedDates}: DownloadRequestExcelProps) => {
-    console.log('SelectedOption', selectedOption);
-    console.log('searchValue', searchValue);
-    console.log('selectedTab', selectedTab);
-    console.log('tableSections', tableSections);
 
     // Mapeo específico según tus requerimientos
     const getApiParam = (value: string) => {
@@ -127,8 +127,7 @@ export const DownloadRequestExcel = async({selectedOption, searchValue, selected
         params.endDate = formattedDates.end;
     }
          
-    try {
-        console.log('Parámetros enviados a la API:', params);
+    try {        
         const response = await axios.get('/download/download_request', {params, responseType: 'blob'});
 
         // Crear el archivo descargable

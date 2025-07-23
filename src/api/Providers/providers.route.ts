@@ -30,8 +30,8 @@ export const GetProviders = async({page, limit, search}: GetProvidersProps) =>{
 }
 //Crea nuevos proveedores
 export const createNewProvider = async({data}:any) => {
-    try{
-        const response = await axios.post('/suppliers/add', data);        
+    try{        
+        const response = await axios.post('/suppliers/add_supplier', data);        
 
         if(response.data.success){
             toast.success(response.data.message);

@@ -1,16 +1,16 @@
 import { 
     UseFormRegister, 
-    FieldErrors, 
-    Control, 
-    UseFormSetValue, 
-    UseFormGetValues, 
-    UseFormWatch 
+    FieldErrors,     
+    UseFormSetValue,         
   } from 'react-hook-form';
 
   export interface CustomersFormValues {
     nombre: string;
     ruc: string;
+    correo: string;
+    fechaUltimoPedido?: Date | null;
     direccion: string;    
+    telefono: string;
     nombrePersonaContacto: string;
     telPersonaContacto: string;
     emailPersonaContacto: string;
@@ -18,6 +18,7 @@ import {
     tipoCuenta?:string;
     numeroCuenta?:string
     nombreCuenta?:string
+    dv?:number;
 
     cedRepresentanteLegal?: string[]; // en lugar de string
     avisoOperaciones?: string[];
@@ -44,9 +45,9 @@ export interface StepOneCustomers {
       tipoCuenta?:string;
       numeroCuenta?:string
       nombreCuenta?:string
-
-cedRepresentanteLegal?: string[]; // en lugar de string
-avisoOperaciones?: string[];
+      dv?:number;
+      cedRepresentanteLegal?: string[]; // en lugar de string
+      avisoOperaciones?: string[];
     }    
   }
 

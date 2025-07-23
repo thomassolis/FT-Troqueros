@@ -41,14 +41,13 @@ export const AmountTable = ({
 }: AmountTableProps) => {
     const [addExtraPrice, setAddExtraPrice] = useState(false);
     const location = useLocation();
-    const isEditMode = location.pathname.includes('edit')             
-    console.log('requestFormData en Amount', requestFormData);
+    const isEditMode = location.pathname.includes('edit')                 
     // Observamos los valores del formulario
     const descripcion = watch(`servicios.${selectedIndex}.costos_extras.descripcion`);
     const precio = watch(`servicios.${selectedIndex}.costos_extras.precio`);
     const costosExtras = watch(`servicios.${selectedIndex}.costos_extras`) || [];
     const nuevos_costos_extras = watch(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];
-
+    console.log('useProviderrr', useProvider);
     const handleSaveExtra = () => {  
     if (!descripcion || precio == null) return;    
     const nuevoCostoExtra = {
@@ -234,7 +233,7 @@ export const AmountTable = ({
 
                 {/* Formulario para añadir nuevos costos extras */}
 
-                { useProvider === false ?
+                { (useProvider === false || useProvider === null) ?
                     (!addExtraPrice) ? (
                         <tr className="cursor-pointer hover:text-gray-400 text-gray-500 italic text-center">
                             <td colSpan={2} className="py-2 px-4 border border-gray-400" onClick={() => setAddExtraPrice(true)}>

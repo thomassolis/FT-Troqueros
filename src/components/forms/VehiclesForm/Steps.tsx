@@ -10,18 +10,16 @@ import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
 import { useContext } from "react";
 import { changeVehicleValue } from "../../../functions/changeVehicleType/changeVehicleType";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import dayjs from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue, errors}) => {  
   const {vehicleType} = useContext(vehicleTypeContext)!;
   const vehicle = changeVehicleValue(vehicleType);
 
-  useEffect(() => {    
-    if (vehicleData && setValue && vehicleData.placa) {      
-      setValue('placa', vehicleData.placa);
-    }
-  }, [vehicleData, setValue]);
-  
-  
   return (
     <div className="" id="Step1">
       <h1 className="text-black mt-10 ml-6 text-lg font-semibold">{`Llena el siguiente formulario para crear el nuevo ${vehicle} `}</h1>      
@@ -44,31 +42,7 @@ export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue
   );
 };
 
-export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setValue}) => {
-  const convertirFechaString = (fecha: string) => {
-    if (!fecha) return ''; // por si acaso viene vacío
-    const [dia, mes, anio] = fecha.split('/');
-    return `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
-  };
-  
-  useEffect(() => {
-    if (vehicleData && setValue) {
-      setValue('numPoliza', vehicleData.numero_poliza ?? '');
-  
-      if (vehicleData.fecha_expedicion_poliza) {
-        setValue('fechaExpedicion', convertirFechaString(vehicleData.fecha_expedicion_poliza));
-      }
-      if (vehicleData.fecha_caducidad_poliza) {
-        setValue('fechaCaducidad', convertirFechaString(vehicleData.fecha_caducidad_poliza));
-      }
-      if (vehicleData.fecha_ultimo_revisado) {
-        setValue('fechaUltRevisado', convertirFechaString(vehicleData.fecha_ultimo_revisado));
-      }
-      if (vehicleData.fecha_renovacion_revisado) {
-        setValue('fechaRenovacion', convertirFechaString(vehicleData.fecha_renovacion_revisado));
-      }
-    }
-  }, [vehicleData, setValue]);
+export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setValue, control, errors}) => {
   
   return (
     <section id="Step2 w-full">
@@ -102,19 +76,62 @@ export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setV
             <div className="flex flex-col gap-12 items-center w-full justify-center mt-12 ">
               <div className="h-10">
               <Input 
-                type="string" 
+                type="text" 
                 className2={'py-5'}                
                 {...register('numPoliza')}                   
               />
               </div>            
 
 
-              <Input 
+
+              {/* <Input 
                 type="date" 
                 className2={'py-5'}                
                 {...register('fechaExpedicion')}
                 
-              />
+              /> */}
+
+<Controller
+  name="fechaExpedicion"
+  control={control}
+  rules={{ required: 'Campo Requerido' }}
+  render={({ field }) => {
+    // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
+    const parsedDate = field.value
+      ? dayjs(
+          field.value,
+          field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
+        )
+      : null;
+
+    return (
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
+          <DatePicker
+            label="Selecciona una fecha"
+            format="DD/MM/YYYY"
+            value={parsedDate}
+            onChange={(date) => {
+              // 👇 Guardar siempre en formato YYYY-MM-DD
+              const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
+              field.onChange(formattedDate);
+            }}
+            slotProps={{
+              textField: {
+                error: !!errors.fechaExpedicion,
+                helperText: errors.fechaExpedicion?.message,
+                sx: { backgroundColor: 'white' },
+                fullWidth: true,
+              },
+            }}
+          />
+        </DemoContainer>
+      </LocalizationProvider>
+    );
+  }}
+/>
+
+
 
               <Input 
                 type="date" 

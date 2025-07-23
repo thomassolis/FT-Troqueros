@@ -12,7 +12,7 @@ interface VehicleData {
   id_chasis?: string | null;
   numero_poliza?: string | null;
   placa?: string | null;
-  status?: string | null;
+  status?: string | null;  
 }
 
 interface CustomerData {
@@ -28,6 +28,7 @@ interface CustomerData {
   tipoCuenta: string;
   nombreCuenta: string;
   numeroCuenta: string;
+  dv: number;
 }
 
 interface DriversData {

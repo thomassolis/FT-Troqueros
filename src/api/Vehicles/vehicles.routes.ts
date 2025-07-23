@@ -97,6 +97,7 @@ export const getVehicleData = async({vehicleType, vehicleID}:getVehicleDataProps
     }
     try{        
         const response = await axios.get(`/${vehicleType}/${action}/${vehicleID}`);
+        console.log('responserARO', response);
         return response.data.data;
     }catch(error){
         console.error('Error en getVehicleData: ', error)
@@ -124,6 +125,7 @@ export const sendDataForUpdate = async({data, vehicleType, vehicleID, available}
             id: vehicleID,            
             ...data
           };
+          console.log('dataForUpddate', dataForUpddate)
     try{
         const response = await axios.put(`/${vehicleType}/${action}`, dataForUpddate,{
             headers:{

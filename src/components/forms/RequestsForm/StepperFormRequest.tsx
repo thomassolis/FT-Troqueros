@@ -8,10 +8,16 @@ import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
 import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
 import { CreateNewRequest } from "../../../api/Requests/requests.route";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
-import { Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
+// import {Step1, Step2, Step3, Step4, Step5 } from "./Steps/RequestsSteps";
 import { GetRequestDataPerID } from "../../../api/Requests/requests.route";
 import { EditRequestData } from "../../../api/Requests/requests.route";
 import { CleanRequestDataBeforeSend } from "../../../functions/cleanData/CleanRequestDataBeforeSendToApi/cleanRequestData";
+// import { Step1 } from "./Steps/RequestsSteps/StepOne";
+import Step1 from "./Steps/StepOne";
+import Step2 from "./Steps/StepTwo";
+import Step3 from "./Steps/StepThree";
+import Step4 from "./Steps/StepFour";
+import Step5 from "./Steps/StepFive";
 
 export interface ServiceType {
   id: number;

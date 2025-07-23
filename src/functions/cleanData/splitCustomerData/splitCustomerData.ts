@@ -11,6 +11,7 @@ interface VehicleData {
     tipoCuenta: string;
     numeroCuenta: string
     fechaUltimoPedido: string;
+    dv:number;
 }
 
 interface SplitCustomerDataProps {
@@ -23,6 +24,7 @@ interface generalData {
     nombre: string;
     ruc: string;
     direccion: string;
+    dv: number;
 }
 
 interface contactPerson {
@@ -39,14 +41,15 @@ interface dataBank {
 }
 
 export const SplitCustomerData = (data: VehicleData): SplitCustomerDataProps => {
-    if (!data.id_cliente || !data.nombre || !data.ruc) {
+    if (!data.id_cliente || !data.nombre || !data.ruc ) {
         throw new Error("Datos inválidos para un cliente.");
     }
     
     const generalData: generalData = {      
         nombre: data.nombre,
         ruc: data.ruc,
-        direccion: data.direccion
+        direccion: data.direccion,
+        dv: data.dv
     };
 
     const contactPerson: contactPerson = {

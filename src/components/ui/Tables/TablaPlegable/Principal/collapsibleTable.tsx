@@ -21,8 +21,10 @@ export default function CollapsibleTable({servicesData, reloadServices}:Collapsi
       lugar_origen: pedido.lugar_origen,
       lugar_destino: pedido.lugar_destino,
       tarifa: pedido.tarifa ? `${pedido.tarifa}` : 'N/A',
+      tiempo_estimado: pedido.tiempo_estimado ? `${pedido.tiempo_estimado}` : 'N/A',
     })),
   })) || [];
+  
 
   return (
     <TableContainer component={Paper} className='max-h-[400px] overflow-y-auto'>

@@ -4,13 +4,11 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 export const ProtectedRoute = () => {
   const { isAuthenticated } = useContext(AuthContext)!;
-  const location = useLocation();
+  const location = useLocation();  
 
-  console.log('IsAuthenticated', isAuthenticated);
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace state={{ from: location }} />;
-  }
+  // if (!isAuthenticated) {
+    // return <Navigate to="/" replace state={{ from: location }} />;
+  // }
 
   return <Outlet />; // Aquí se renderizan las rutas hijas protegidas
 }

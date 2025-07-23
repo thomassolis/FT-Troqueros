@@ -4,7 +4,7 @@ import { GetModuleFromURL } from "../../../functions/GetURL/GetURLInfo"
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo"
 import { StepperFormProviders } from "../../forms/ProvidersForm/StepperFormProviders"
 import { ServicesForm } from "../../forms/Services/servicesForm"
-import { StepperFormRequests } from "../../forms/RequestsForm/StepperFormRequest"
+// import { StepperFormRequests } from "../../forms/RequestsForm/StepperFormRequest"
 import { useLocation } from "react-router-dom"
 
 export const DriversCreation = () =>{
@@ -45,7 +45,7 @@ export const DriversCreation = () =>{
                         text={isEditMode ? `EDICIÓN DE PETICIÓN ${procedure}` : `CREACIÓN DE PETICIÓN`}
                         redirectTo="/home"
                     />
-                    <StepperFormRequests/>
+                    {/* <StepperFormRequests/> */}
                 </>
             ):(null)}            
         </section>

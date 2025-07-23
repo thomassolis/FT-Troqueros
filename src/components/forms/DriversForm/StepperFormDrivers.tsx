@@ -1,47 +1,34 @@
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useForm, FormProvider } from "react-hook-form";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
 import { Step1, Step2, Step3 } from "./Steps/DriversSteps";
 import { DriversFormValues } from "../../types/forms/DriversForm/DriversForm";
-import { useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import { GetDriversDataByID } from "../../../api/Drivers/Drivers.route";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
-import { SendDataForNewDriver } from "../../../api/Drivers/Drivers.route";
-import { sendDataForUpdateDrivers } from "../../../api/Drivers/Drivers.route";
-import { StepperFormProviders } from "../ProvidersForm/StepperFormProviders";
+import { SendDataForNewDriver, sendDataForUpdateDrivers } from "../../../api/Drivers/Drivers.route";
 
 export const StepperFormDrivers = () => {
-  const [driversData, setDriversData] = useState({});
-  const {driverID} = useParams();
+  // const name: string = 123; // ❌ number asignado a string
+
+  const [driversData, setDriversData] = useState<any>({});
+  const { driverID } = useParams();
   const [isLoading, setIsLoading] = useState(false);
-  const procedure = GetProcedureFromURL();  
-
-  //Obtendrá los datos por ID
-  useEffect(()=>{
-
-    if(driverID){      
-      setIsLoading(true);
-      const FetchCustomerDataByID = async() =>{
-        try{
-          const response = await GetDriversDataByID({driverID});               
-          setDriversData(response);
-        }catch(error){
-          console.error('Error en StepperFormCustomers', error);
-        } finally{
-          setIsLoading(false);
-        }
-      }
-
-      FetchCustomerDataByID();
-    }
-    
-  }, [driverID])
-
-
+  const procedure = GetProcedureFromURL();
   const [activeStep, setActiveStep] = useState(0);
+  const navigate = useNavigate();
+
+  const methods = useForm<DriversFormValues>({
+    defaultValues: {
+      nombre: "",
+      cedula: "",      
+      telefono: "",
+      email: "",      
+      // fotoCedula: null,
+      // fotoLicencia: null,
+    }
+  });
 
   const {
     register,
@@ -50,19 +37,53 @@ export const StepperFormDrivers = () => {
     watch,
     formState: { errors },
     setValue,
-    getValues,    
+    getValues,
     control,
-  } = useForm<DriversFormValues>();
+    reset,
+  } = methods;
 
-  const navigate = useNavigate();
-  const formData = watch();
+  // Cargar datos del chofer si se está editando
+  useEffect(() => {
+    if (driverID) {
+      setIsLoading(true);
+      const fetchDriverData = async () => {
+        try {
+          const response = await GetDriversDataByID({ driverID });
+          setDriversData(response);
+        } catch (error) {
+          console.error("Error al obtener datos del chofer", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchDriverData();
+    }
+  }, [driverID]);
 
-  // Navegar al siguiente paso con validación
-  const nextStep = async () => {    
-      setActiveStep((prev) => prev + 1);    
+  // Usar reset cuando llegan los datos
+  useEffect(() => {
+    if (procedure === "modify" && driversData && Object.keys(driversData).length > 0) {
+      reset({
+        nombre: driversData.nombre ?? "",
+        cedula: driversData.cedula ?? "",        
+        telefono: driversData.telefono ?? "",
+        email: driversData.email ?? "",
+        apellido: driversData.apellido ?? "",
+        tipo_licencia: driversData.tipo_licencia ?? "",        
+        // fotoCedula: Array.isArray(driversData.fotoCedula) ? driversData.fotoCedula : null,
+        // fotoLicencia: Array.isArray(driversData.fotoLicencia) ? driversData.fotoLicencia : null,
+        // pazSalvo: Array.isArray(driversData.pazSalvo) ? driversData.pazSalvo : null,
+        // recordPolicivo: Array.isArray(driversData.recordPolicivo) ? driversData.recordPolicivo : null,
+      });
+    }
+  }, [driversData]);
+
+  // Validación y envío
+  const nextStep = async () => {
+    const isStepValid = await trigger();
+    if (isStepValid) setActiveStep((prev) => prev + 1);
   };
 
-  // Navegar al paso anterior
   const prevStep = () => {
     if (activeStep > 0) {
       setActiveStep((prev) => prev - 1);
@@ -71,94 +92,86 @@ export const StepperFormDrivers = () => {
     }
   };
 
-
-  const onSubmit = async (data: any) => {        
+  const onSubmit = async (data: DriversFormValues) => {
     setIsLoading(true);
-    if(procedure === 'create'){      
-      const response = await SendDataForNewDriver({data});
-      if(response.success){
-        navigate('/home/Drivers');
-      }
-    } else if (procedure === 'modify'){        
-        const response = await sendDataForUpdateDrivers({data, driverID});
-        if(response.success){
-          navigate('/home/Drivers');
-        }
-      }
-    
-    setIsLoading(false);            
-  };
 
+    const response = procedure === "create"
+      ? await SendDataForNewDriver({ data })
+      : await sendDataForUpdateDrivers({ data, driverID });
+
+    if (response.success) {
+      navigate("/home/Drivers");
+    }
+
+    setIsLoading(false);
+  };
 
   return (
     <section className="flex flex-col items-center w-full">
       <StepperLine step={activeStep} />
-      
-      <form onSubmit={handleSubmit(onSubmit)} /*enctype="multipart/form-data"*/ className="w-full flex flex-col items-center">
-        <div className="w-[85%]">
-          {activeStep === 0 && (
-              <Step1              
+
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center">
+          <div className="w-[85%]">
+            {activeStep === 0 && (
+              <Step1
                 register={register}
                 setValue={setValue}
-                errors={errors} 
+                errors={errors}
                 driversData={driversData}
               />
-          )}
-
-          {activeStep === 1 && (
+            )}
+            {activeStep === 1 && (
               <Step2
-                register={register} 
+                register={register}
                 setValue={setValue}
-                errors={errors}                  
-                driversData={driversData}                     
+                errors={errors}
+                driversData={driversData}
               />
-          )}
-
-          {activeStep === 2 && (
+            )}
+            {activeStep === 2 && (
               <Step3
-                register={register} 
-                setValue={setValue} 
-                errors={errors} 
-                driversData={driversData} 
-                control={control}                                 
-              />
-          )}
-        </div>
-        
-        <div className="w-[90%] flex items-center justify-between mt-12">
-          <div className="w-[10%] flex">
-            <Button                 
-              onClick={prevStep} 
-              className2="p-2 w-full"
-              bgColor="bg-red-600"
-              text="Atrás"
-              textColor="text-white"
-            />
-          </div>
-
-          <div className="w-[10%] flex">
-            {activeStep < 2 ? (
-              <Button
-                onClick={async () => {
-                  const isStepValid = await trigger(); // valida los campos actuales
-                  if (isStepValid) nextStep();
-                }}
-                className2="p-2 w-full"
-                textColor="text-white"
-                bgColor="bg-[#1B5316]"
-                text="Siguiente"
-              />
-            ) : (
-              <Button
-                type="submit"
-                className2="bg-green-600 p-2 w-full"
-                text="Enviar"
+                register={register}
+                setValue={setValue}
+                errors={errors}
+                driversData={driversData}
+                control={control}
               />
             )}
           </div>
-        </div>
-      
-      </form>
+
+          <div className="w-[90%] flex items-center justify-between mt-12">
+            <div className="w-[10%] flex">
+              <Button
+                onClick={prevStep}
+                className2="p-2 w-full"
+                bgColor="bg-red-600"
+                text="Atrás"
+                textColor="text-white"
+              />
+            </div>
+
+            <div className="w-[10%] flex">
+              {activeStep < 2 ? (
+                <Button
+                  onClick={nextStep}
+                  className2="p-2 w-full"
+                  textColor="text-white"
+                  bgColor="bg-[#1B5316]"
+                  text="Siguiente"
+                />
+              ) : (
+                <Button
+                  type="submit"
+                  className2="bg-green-600 p-2 w-full"
+                  text="Enviar"
+                  isLoading={isLoading}
+                />
+              )}
+            </div>
+          </div>
+        </form>
+      </FormProvider>
     </section>
   );
 };

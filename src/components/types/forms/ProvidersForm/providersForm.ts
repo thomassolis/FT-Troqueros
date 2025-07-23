@@ -17,7 +17,8 @@ import {
     nombreCuenta:string;
     numeroCuenta: string;  
     persona_contacto: string;  
-    
+    numeroYappy: string;  
+    tipoBanco: string;
   }
 
 export interface StepsProviders {
@@ -35,7 +36,8 @@ export interface StepsProviders {
         telefono?: string;      
         nombreCuenta?: string;     
         numeroCuenta?: string;     
-        persona_contacto?: string;           
+        persona_contacto?: string;    
+        numeroYappy?: string;       
     }
     }    
 

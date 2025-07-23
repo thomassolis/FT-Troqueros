@@ -1,23 +1,12 @@
 import { SmallLabel } from "../../../ui/Labels/smallLabel"
 import { Input } from "../../../ui/inputs/input"
-import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
+import Select from "react-select"
 import { StepsProvidersProps } from "../../../types/forms/ProvidersForm/providersForm"
 import { useEffect } from "react"
+import { Controller } from "react-hook-form"
+import { bankData } from "../../../others/Data/BankData"
 
 export const Step1: React.FC<StepsProvidersProps> = ({register, errors, setValue, providersData}) => {    
-
-        useEffect(() => {
-        if (providersData && setValue) {            
-            if (providersData.nombre) {
-                setValue('nombre', providersData.nombre ?? '');
-            }
-            if (providersData.persona_contacto) {
-                setValue('personaContacto', providersData.persona_contacto ?? '');
-            }              
-
-        }
-      }, [providersData, setValue]);
-
 
     return (
         <section className="w-full ">                        
@@ -68,21 +57,6 @@ export const Step1: React.FC<StepsProvidersProps> = ({register, errors, setValue
 }
 
 export const Step2: React.FC<StepsProvidersProps> = ({register, errors, setValue, providersData}) => {
-
-        useEffect(() => {
-        if (providersData && setValue) {            
-            if (providersData.celular) {
-                setValue('celular', providersData.celular ?? '');
-            }
-            if (providersData.telefono) {
-                setValue('telefono', providersData.telefono ?? '');
-            }     
-            if (providersData.email) {
-                setValue('email', providersData.email ?? '');
-            }           
-
-        }
-    }, [providersData, setValue]);
 
     return (
         <section className="w-full ">                        
@@ -144,23 +118,6 @@ export const Step2: React.FC<StepsProvidersProps> = ({register, errors, setValue
 
 export const Step3: React.FC<StepsProvidersProps> = ({register, control, providersData, setValue}:any) => {
     
-    useEffect(() => {
-        if (providersData && setValue) {            
-            if (providersData.numero_yappy) {
-                setValue('numeroYappy', providersData.numero_yappy ?? '');
-            }
-            if (providersData.nombre_cuenta) {
-                setValue('nombreCuenta', providersData.nombre_cuenta ?? '');
-            }            
-            if (providersData.tipo_banco) {
-                setValue('tipoBanco', providersData.tipo_banco ?? '');
-            }      
-            if (providersData.numero_cuenta) {
-                setValue('numeroCuenta', providersData.numero_cuenta ?? '');
-            }    
-
-        }
-    }, [providersData, setValue]);
 
     return (
         <section className="w-full ">                        
@@ -210,13 +167,22 @@ export const Step3: React.FC<StepsProvidersProps> = ({register, control, provide
 
                         </div>  
 
-                        <div className="flex items-center gap-3">
-                            <Input 
-                                type="string" 
-                                className2={'py-5'} 
-                                placeholder="Ejm: Banco General"               
-                                {...register('tipoBanco')}  
-                            />
+                        <div className="flex items-center gap-3 w-full">                            
+
+                        <Controller
+                            name="tipoBanco"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    className="w-full text-black"
+                                    options={bankData}
+                                    placeholder="Seleccione un banco"
+                                    value={bankData.find(option => option.value === field.value) || null}
+                                    onChange={(selectedOption) => field.onChange(selectedOption?.value)}
+                                    onBlur={field.onBlur}
+                                />
+                            )}
+                        />
 
                         </div>                      
                          

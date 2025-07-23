@@ -15,7 +15,7 @@ export const DynamicSections = ({ id, numero, onDelete, register, error }: Dynam
 
   return (
     <div className="flex flex-col gap-20">
-      <div className="grid grid-cols-[auto_1fr_1fr_0.5fr_auto] items-center gap-3 w-full ">
+      <div className="grid grid-cols-[auto_1fr_1fr_0.5fr_auto_auto] items-center gap-3 w-full ">
         
         <div className="min-w-[40px] border border-gray-500 py-1 px-2 text-black rounded-md text-center">
           {numero}
@@ -59,6 +59,15 @@ export const DynamicSections = ({ id, numero, onDelete, register, error }: Dynam
           {error.datos_servicio?.[id]?.tarifa && (
             <span className="text-red-500 text-sm">Campo requerido</span>
           )}
+        </div>
+
+        <div className="w-full">
+          <Input
+            type="number"
+            className2="py-4 w-full max-w-[200px]"
+            placeholder="Tiempo Estimado"            
+            {...register(`datos_servicio.${id}.tiempo_estimado`, {valueAsNumber: true})}
+          />       
         </div>
 
         {/* Icono de eliminar */}

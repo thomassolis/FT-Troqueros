@@ -86,27 +86,23 @@ interface RequestTableRowsProps {
   row: ReturnType<typeof createData>;
   selectedTab: number; // Añade esta prop
   procedure: string;
-  // onStatusChange?: (id: string, newStatus: string) => void;
+  onStatusChange: (id: string, newStatus: string) => void
   // onDelete?: (id: string) => void;
 }
 
 
-function RequestTableRows({ row, selectedTab, procedure }: RequestTableRowsProps) {
+function RequestTableRows({ row, selectedTab, procedure, onStatusChange }: RequestTableRowsProps) {
   const [open, setOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});      
-  useEffect(()=>{
-    console.log('selectedStatus', selectedStatus)
-  },[selectedStatus])
+  const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});        
   const statusOptions = [
   { value: 'en espera', label: 'En Espera' },
   { value: 'en proceso', label: 'En Proceso' },
-  { value: 'Completado', label: 'Completada' },
+  { value: 'Completado', label: 'Completado' },
 ];
-
   const navigate = useNavigate();  
   //Función que mapea el status recibido para que vaya acorde con el label, value del select
   useEffect(() => {
-    if (row.status) {
+    if (row.status) {      
       const matched = statusOptions.find(opt =>
         opt.label.toLowerCase() === row.status.toLowerCase()
       );
@@ -117,15 +113,18 @@ function RequestTableRows({ row, selectedTab, procedure }: RequestTableRowsProps
   //Función para cambiar el status de una petición
   const changeRequestStatus = async ({ optionselected, id }: { optionselected: { value: string, label: string }, id: string }) => {
     try {
-      await UpdateRequestStatus({ status: optionselected.value, id: id });
-      // onStatusChange?.(id, optionselected.label);
+      const response = await UpdateRequestStatus({ status: optionselected.value, id: id });      
+      if(response.success){
+        onStatusChange?.(id, optionselected.label);
+      }      
+      console.log('changeRequestStatus', response);
     } catch (error) {
       console.error('changeRequestStatus: ', error);
     }
   };
 
   //Cambio de color en las opciones del select
-const getStatusTextColor = (statusValue:string) => {
+const getStatusTextColor = (statusValue:string) => {  
   switch (statusValue) {
     case 'en espera':
       return '#ffc109'; // Amarillo (texto)
@@ -148,19 +147,24 @@ const tableCellStyles = {
   boxSizing: 'border-box',
 };
 
-  const disableRequest = (requestID:string) => {  
-    console.log('Row al eliminar: ', row);
-    DoubleConfirmationAlert({
+  const disableRequest = async (requestID:string) => {        
+    const id = requestID 
+    console.log('ID:' , id);
+    const response = await DoubleConfirmationAlert({
       title:'¿Estás seguro que deseas deshabilitar esta petición?',
       text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',
       id: requestID,
       type: 'deleteRequest',
       // onConfirm: () => onDelete?.(row.id)
     });
+    if(response.success){
+      onStatusChange?.(id.requestID, 'Cancelado');
+    }
+    console.log('responseDelete: ', response);
   }
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className={` ${(!row.id_proveedor && row.services.length === 0) ? 'hover:bg-gray-300 cursor-pointer' : ''} ? 'hover:bg-gray-200':''} ${row.id_proveedor ? 'bg-green-300 hover:bg-green-400 cursor-pointer' : ''}  ${row.services.length>0? 'bg-blue-200 hover:bg-blue-300 cursor-pointer': ''}`} onClick={()=>navigate(`/home/Request/edit/${row.id}`)}>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className={` ${(!row.id_proveedor && row.services.length === 0) ? 'hover:bg-gray-300 cursor-pointer' : ''} ? 'hover:bg-gray-200':''} ${row.id_proveedor ? 'bg-orange-300 hover:bg-[#FFAD4E] cursor-pointer' : ''}  ${row.services.length>0? 'bg-blue-200 hover:bg-blue-300 cursor-pointer': ''}`} onClick={()=>navigate(`/home/Request/edit/${row.id}`)}>
         <TableCell sx={{ ...tableCellStyles, width: '2%', maxWidth: '2%' }} onClick={(e) => e.stopPropagation()}>
           {Array.isArray(row.services) && row.services.length > 0 ? (                        
             <IconButton
@@ -202,11 +206,12 @@ const tableCellStyles = {
             value={selectedStatus}
             onChange={(optionselected) => {
               setSelectedStatus(optionselected);
-              if (optionselected) {  // Only proceed if optionselected exists
-                console.log('optionselected',optionselected);
+              if (optionselected) {
                 changeRequestStatus({
-                  optionselected: optionselected, 
-                  id: row.id
+                  optionselected,
+                  id: row.id,
+                }).then(() => {
+                  onStatusChange(row.id, optionselected.value); // ← aquí disparas el cambio al padre
                 });
               }
             }}
@@ -229,7 +234,7 @@ const tableCellStyles = {
         />
         </TableCell>
 
-          {row.status === 'En espera' && (
+          {(row.status === 'En espera' || row.status === 'en proceso' || row.status === 'Completado') && (
             <TableCell onClick={(e) => e.stopPropagation()} sx={{...tableCellStyles, width: '2%', maxWidth: '2%'}}>
               <Icon
                 icon="line-md:trash"

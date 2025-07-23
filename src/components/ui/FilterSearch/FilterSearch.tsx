@@ -57,11 +57,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
       start: formattedStart,
       end: formattedEnd
     });
-
-    console.log('Fechas formateadas:', {
-      start: formattedStart,
-      end: formattedEnd
-    });
+    
   };
 
   const togglePicker = () => {

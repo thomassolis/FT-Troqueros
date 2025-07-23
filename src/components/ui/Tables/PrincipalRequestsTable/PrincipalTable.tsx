@@ -9,6 +9,8 @@ import RequestTableRows from "./RequestTableRows";
 import { FadeLoader } from 'react-spinners';
 import { TableRowVariables } from '../../../others/TableTabs';
 import { useState, useEffect } from 'react';
+
+
 interface TableProps {
   tableData: TableRowVariables[];
   sidebarState: boolean;
@@ -45,24 +47,12 @@ const [rows, setRows] = useState<TableRowVariables[]>([]);
     }
   }, [tableData]);
 
-  //   const handleStatusChange = (id: string, newStatus: string) => {
-  //   setRows(prev =>
-  //     prev.map(row =>
-  //       row.id === id ? { ...row, status: newStatus } : row
-  //     )
-  //   );
-  // };
-
-  // const handleDelete = (id: string) => {
-  //   setRows(prev => prev.filter(row => row.id !== id));
-  // };
-
-  //   const filteredRows = rows.filter(row => {
-  //     if (selectedTab === 0) return row.status === 'En espera';
-  //     if (selectedTab === 1) return row.status === 'En proceso';
-  //     if (selectedTab === 2) return row.status === 'Completado';
-  //   return true;
-  //   });
+  const handleStatusChange = (rowID: string, newStatus: string) => {
+    console.log('rowID: ', rowID)
+    console.log('newStatus: ', newStatus);
+    console.log('rows: ', rows);  
+    setRows(prev => prev.filter(r => r.id !== rowID)); // elimina de la tabla  
+};
 
 
   return (
@@ -116,7 +106,7 @@ const [rows, setRows] = useState<TableRowVariables[]>([]);
                       row={row} 
                       selectedTab={selectedTab} 
                       procedure={procedure}
-                      // onStatusChange={handleStatusChange}
+                      onStatusChange={handleStatusChange}
                       // onDelete={handleDelete}
                     />
                   ))

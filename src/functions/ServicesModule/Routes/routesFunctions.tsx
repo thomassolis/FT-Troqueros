@@ -30,7 +30,8 @@ export const editRoute = async(id_servicio_datos: string, id: string, /*setEditi
         id_servicio_datos: id_servicio_datos,
         lugar_origen: data.lugarOrigen,
         lugar_destino: data.lugarDestino,
-        tarifa: data.tarifa
+        tarifa: data.tarifa,
+        tiempo_estimado: data.tiempo_estimado
     }    
         
 

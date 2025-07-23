@@ -114,6 +114,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
             };          
 
               return (
+                
                 <tr key={rowIndex}>
                   <th>{service}</th>
 

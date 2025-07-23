@@ -78,6 +78,8 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   // Generamos las filas basadas en todos los serviceTypes  
   // Estado para controlar si es la primera carga
     let globalRowIndex = 0;
+
+
     useEffect(() => {
       
       //Al momento de editar la petición, esta función es la que se encarga de llenar los datos de la petición
@@ -103,13 +105,13 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
 
         setRows(newRows);
       }else{        
-        
+        let rowNumberCounter = 1; 
         // Función que se encarga de de convertir serviceTypes en el formato que le conviene a la tabla, es decir dividir el quantity con el tipo de servicio y generar una fila por cada una
         const newRows: RouteRow[] = serviceTypes.flatMap((st) => {
           
           return Array.from({ length: st.quantity }).map((_, i) => {
-            const rowNumber = i + 1;
-            const composedKey = `${st.id}-${rowNumber}`;
+            const rowNumber = i + 1;            
+            const composedKey = `${st.id}-${rowNumberCounter}`;
             
             // Solo usar datos previos si el serviceType es el mismo (no recién creado)
             const prevRow = rows.find(r => r.serviceTypeId === st.id && r.rowNumber === rowNumber);
@@ -118,7 +120,7 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
             return {
               serviceTypeId: st.id,
               serviceType: st.selectedValue,
-              rowNumber,
+              rowNumber: rowNumberCounter++,
               serviceID: st.serviceID,
               rowIndex: globalRowIndex++,
               id_servicio_datos: routeIDsByRow[composedKey] || prevRow?.id_servicio_datos || '',
@@ -162,7 +164,6 @@ const getRoutesInformation = async (
 
   const composedKey = `${groupIndex}-${rowNumber}`; // esto ya está bien, porque ahora groupIndex es id
 
-
   try {
     const response = await SelectData({ type: 'routesInfo', serviceID: serviceID });    
     // Si response es un array, toma solo el primero
@@ -187,7 +188,7 @@ const getRoutesInformation = async (
         ...prev,
         [composedKey]: route.id_servicio_datos
       }));
-
+      console.log('RowNumber: ', rowNumber);
       setValue(`servicios.${rowNumber - 1}.tarifa`, Number(flatInfo.tarifa));
     }
   } catch (error) {
@@ -218,9 +219,8 @@ const getRoutesInformation = async (
       </thead>
       <tbody>
         {rows.map((row, rowIndex) => {
-          const fieldName = `servicios.${rowIndex}` as const;
-
-            
+          const fieldName = `servicios.${rowIndex}` as const;   
+            console.log(`Row ${rowIndex}: rowNumber = ${row.rowNumber}`);
           return(
           <tr key={`${row.serviceType}-${rowIndex}`}>
             <td className="border border-gray-400 px-4 py-2 text-center">
@@ -292,7 +292,8 @@ const getRoutesInformation = async (
                   render={({ field }) => (
                     <input
                       type="number"
-                      value={row.tarifa} // usa field.value (no row.tarifa)
+                      value={field.value || 0}
+                      // value={row.tarifa} // usa field.value (no row.tarifa)
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         field.onChange(value);

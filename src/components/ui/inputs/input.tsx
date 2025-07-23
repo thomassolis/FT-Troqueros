@@ -6,7 +6,7 @@ interface InputProps {
     className2?: string | null;
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     name?:string    
-    defaultValue?:string
+    defaultValue?:string|number
     value?:string | number
     min?:string | number
     max?:string | number

@@ -17,8 +17,7 @@ interface Servicio {
 }
 
 export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {
-  const servicios = requestFormData?.servicios || [];
-  console.log('requestFormData en Invoice: ', requestFormData);
+  const servicios = requestFormData?.servicios || [];  
   const normalizeExtras = (extras: any): Extra[] => {
     if (!extras) return [];
     if (Array.isArray(extras)) return extras;

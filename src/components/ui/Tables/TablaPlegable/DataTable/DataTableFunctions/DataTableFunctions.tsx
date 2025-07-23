@@ -23,6 +23,7 @@ export const SubmitTableForm = async(
       lugarOrigen: data.lugarOrigen,
       lugarDestino: data.lugarDestino,
       tarifa: data.tarifa,
+      tiempo_estimado: data.tiempo_estimado,
     });
 
     if (response?.success) {
@@ -33,6 +34,7 @@ export const SubmitTableForm = async(
               lugar_origen: data.lugarOrigen,
               lugar_destino: data.lugarDestino,
               tarifa: data.tarifa,
+              tiempo_estimado: data.tiempo_estimado,
             }
           : item
       );
@@ -46,6 +48,7 @@ export const SubmitTableForm = async(
     const newEntry = {
       lugar_origen: data.lugarSalida,
       lugar_destino: data.lugarLlegada,
+      tiempo_estimado: data.tiempo_estimado,
       tarifa: data.tarifa,
       id_servicio:row.id,
       id_servicio_datos: Date.now(), // ID temporal hasta que se confirme con el backend

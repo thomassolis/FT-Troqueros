@@ -4,5 +4,6 @@ export interface serviceTypes {
     lugar_origen: string;
     lugar_destino: string;
     tarifa: number;
+    tiempo_estimado?: number; 
   }[];
 }

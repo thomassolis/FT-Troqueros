@@ -48,7 +48,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
         try{
             await DownloadRequestExcel({selectedOption:selectedOption, searchValue:searchValue, selectedTab:selectedTab, tableSections:tableSections, formattedDates:formattedDates});
         }catch(error){
-            console.log('Error en downloadExcel: ', error);
+            console.error('Error en downloadExcel: ', error);
         }
 
     }
@@ -112,7 +112,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                     />                
                     <div className="flex gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-green-300 rounded-sm border border-gray-400">
+                            <div className="w-3 h-3 bg-orange-300 rounded-sm border border-gray-400">
 
                             </div>
                             <p className="text-black">Proveedor</p>
@@ -129,6 +129,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                     <Paginacion pageSize= {pageSize} totalRecords={totalRecords} handlePageClick = {handlePageClick}/>            
                 </div>                    
             </div> 
+            
             
             {procedure === 'home' && (
                 <>

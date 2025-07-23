@@ -6,25 +6,11 @@ import { useEffect } from "react"
 import { InsertFiles } from "../../../ui/Files/insertFiles"
 import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
 import { Controller } from "react-hook-form"
-
+import { bankData } from "../../../others/Data/BankData"
+import Select  from "react-select"
 
 export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, errors, customersData}) =>{
 
-    useEffect(() => {
-        if (customersData && setValue) {
-            if (customersData.ruc) {
-                setValue('nombre', customersData.nombre ?? '');
-            }
-      
-            if (customersData.ruc) {
-                setValue('ruc', customersData.ruc ?? '');
-            }         
-            if (customersData.direccion) {
-                setValue('direccion', customersData.direccion ?? '');
-            }         
-
-        }
-      }, [customersData, setValue]);
     return(
         <section className="w-full ">
                             
@@ -40,7 +26,11 @@ export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, err
                         
                         <div className="h-10 flex items-center">
                             <SmallLabel text="Ruc de la empresa"/>
-                        </div>                    
+                        </div>           
+
+                        <div className="h-10 flex items-center">
+                            <SmallLabel text="DV de la empresa"/>
+                        </div>         
 
                         <div className="h-10 flex items-center">
                             <SmallLabel text="Dirección de oficinas"/>
@@ -73,7 +63,16 @@ export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, err
                             {errors.ruc && (
                                 <span className="text-red-500">{errors.ruc.message}</span>
                             )}
-                        </div>                        
+                        </div>      
+                        <div className="flex items-center gap-3">
+                            <Input 
+                                type="number" 
+                                className2="py-5" 
+                                placeholder="DV de empresa"               
+                                {...register('dv', { valueAsNumber: true })}  
+                                // disabled={isLoading}
+                            />
+                        </div>                  
                         <Input 
                             type="string" 
                             className2={'py-5'} 
@@ -89,20 +88,6 @@ export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, err
 
 export const StepTwo: React.FC<StepOneCustomerProps> = ({register, setValue, customersData}) =>{
 
-    useEffect(() => {
-        if (customersData && setValue) {
-            if (customersData.ruc) {
-                setValue('nombrePersonaContacto', customersData.nombrePersonaContacto ?? '');
-            }
-            if (customersData.ruc) {
-                setValue('telPersonaContacto', customersData.telPersonaContacto ?? '');
-            }         
-            if (customersData.direccion) {
-                setValue('emailPersonaContacto', customersData.emailPersonaContacto ?? '');
-            }         
-
-        }
-      }, [customersData, setValue]);
 
     return(
         <section className="w-full ">
@@ -153,24 +138,8 @@ export const StepTwo: React.FC<StepOneCustomerProps> = ({register, setValue, cus
     )
 }
 
-export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, customersData}) =>{
-    useEffect(() => {
-        if (customersData && setValue) {
-            if (customersData.ruc) {
-                setValue('nombreBanco', customersData.nombreBanco ?? '');
-            }
-            if (customersData.ruc) {
-                setValue('tipoCuenta', customersData.tipoCuenta ?? '');
-            }         
-            if (customersData.direccion) {
-                setValue('nombreCuenta', customersData.nombreCuenta ?? '');
-            }       
-            if (customersData.direccion) {
-              setValue('numeroCuenta', customersData.numeroCuenta ?? '');
-            }
+export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, customersData, control}) =>{
 
-        }
-      }, [customersData, setValue]);
     return(
         <section className="w-full ">
                             
@@ -199,11 +168,19 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, c
                     </div>
 
                     <div className="flex flex-col gap-12 items-start w-full  mt-12 ">
-                        <Input 
-                            type="string" 
-                            className2={'py-5'} 
-                            placeholder="Ejm. Banco General"               
-                            {...register('nombreBanco')}  
+                        <Controller
+                            name="nombreBanco"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    className="w-full text-black"
+                                    options={bankData}
+                                    placeholder="Seleccione un banco"
+                                    value={bankData.find(option => option.value === field.value) || null}
+                                    onChange={(selectedOption) => field.onChange(selectedOption?.value)}
+                                    onBlur={field.onBlur}
+                                />
+                            )}
                         />
                         <Input 
                             type="string" 
@@ -234,28 +211,6 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, c
 
 export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, customersData, setValue }) => {
         const procedure = GetProcedureFromURL();
-
-    // Inicializar valores al cargar (solo en modo modify)
-    useEffect(() => {
-        if (procedure === 'modify') {
-            if (customersData.cedRepresentanteLegal) {
-                setValue(
-                    "cedRepresentanteLegal", 
-                    Array.isArray(customersData.cedRepresentanteLegal) 
-                        ? customersData.cedRepresentanteLegal 
-                        : [customersData.cedRepresentanteLegal]
-                );
-            }
-            if (customersData.avisoOperaciones) {
-                setValue(
-                    "avisoOperaciones",
-                    Array.isArray(customersData.avisoOperaciones)
-                        ? customersData.avisoOperaciones
-                        : [customersData.avisoOperaciones]
-                );
-            }
-        }
-    }, [procedure, customersData, setValue]);
 
     return (
         <section className="w-full">                    
