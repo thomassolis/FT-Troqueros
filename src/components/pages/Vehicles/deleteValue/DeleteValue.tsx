@@ -23,7 +23,7 @@ interface DeleteRowProps {
     module: string;
     tableData: any
 }
-export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module, tableData}: DeleteRowProps) =>{    
+export const DeleteRow = ({vehicle, nombre, /*deleteValue,*/ vehicleType, id, setTableData, module}: DeleteRowProps) =>{    
     let response:{
         message: string,
         success: boolean

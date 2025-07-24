@@ -1,12 +1,9 @@
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
-import { useState, createContext } from "react";
+import { useState } from "react";
 
 // Definir el contexto del Outlet
-interface OutletContextType {
-  sidebarState: boolean;
-}
 
 export const Layout = () => {
   const [sidebarState, setSidebarState] = useState<boolean>(false);

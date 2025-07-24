@@ -23,7 +23,7 @@ const getStatusColor = (status: string) => {
     return status === "Disponible" ? "text-green-600" : "text-red-500";
 };
 
-export const Select = ({ statusOptions, apiRequest, id, defaultValue, tableData, module }: SelectProps) => {
+export const Select = ({ statusOptions, apiRequest, id, defaultValue, module }: SelectProps) => {
     const { vehicleType } = useContext(vehicleTypeContext)!;
     const [selectedOption, setSelectedOption] = useState<string>(defaultValue || statusOptions[0]);
     const initialRender = useRef(true);

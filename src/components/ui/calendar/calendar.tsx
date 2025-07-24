@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import Modal from "react-modal";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { getDataForCalendar } from "../../../api/Home/home.route";
 import { useNavigate } from "react-router-dom";
+import { EventPropGetter } from 'react-big-calendar';
+import { CSSProperties } from 'react';
+
 // Configuración de moment para español (opcional)
 moment.locale('es', {
   week: {
@@ -47,40 +50,40 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
   const closeModal = () => setSelectedEvent(null);
 
   // Estilos personalizados para los eventos según su tipo
-  const eventStyleGetter = (event: any) => {
-    let backgroundColor = "#3174ad"; // Azul por defecto
-    let borderColor = "#3174ad";
-    
-    if (event.type === "Vacio") {
-      backgroundColor = "#93A0F4"; // Verde para Vacío
-      borderColor = "white";
-    } else if (event.type === "Peticion" || event.type === "peticion") {
-      backgroundColor = "#FFAD4E"; // Naranja para Petición
-      borderColor = "#F57C00";
-    } else if (event.type === "reunion") {
-      backgroundColor = "#9C27B0"; // Morado para reunión
-      borderColor = "#7B1FA2";
-    }
+const eventStyleGetter: EventPropGetter<any> = (event) => {
+  let backgroundColor = "#3174ad";
+  let borderColor = "#3174ad";
+  
+  if (event.type === "Vacio") {
+    backgroundColor = "#93A0F4";
+    borderColor = "white";
+  } else if (event.type === "Peticion" || event.type === "peticion") {
+    backgroundColor = "#FFAD4E";
+    borderColor = "#F57C00";
+  } else if (event.type === "reunion") {
+    backgroundColor = "#9C27B0";
+    borderColor = "#7B1FA2";
+  }
 
-    return {
-      style: {
-        backgroundColor,
-        border: `1px solid ${borderColor}`,
-        borderRadius: "4px",
-        opacity: 0.9,
-        color: "white",
-        fontSize: "0.85rem",
-        padding: "2px 5px",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        overflow: "hidden",
-        textOverflow: "ellipsis"
-      },
-    };
+  const style: CSSProperties = {
+    backgroundColor,
+    border: `1px solid ${borderColor}`,
+    borderRadius: "4px",
+    opacity: 0.9,
+    color: "white",
+    fontSize: "0.85rem",
+    padding: "2px 5px",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center" as const, // Esta es la clave para solucionar el error
+    overflow: "hidden",
+    textOverflow: "ellipsis"
   };
+
+  return { style };
+};
 
   // Formateador para mostrar horas en formato 24h
   const timeGutterFormat = (date: Date) => {
@@ -119,9 +122,9 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
         formats={{
           timeGutterFormat: timeGutterFormat,
           eventTimeRangeFormat: ({ start, end }, culture, localizer) => {
-            return localizer.format(start, "HH:mm", culture) + 
+            return localizer?.format(start, "HH:mm", culture) + 
               " - " + 
-              localizer.format(end, "HH:mm", culture);
+              localizer?.format(end, "HH:mm", culture);
           }
         }}
         dayPropGetter={() => ({

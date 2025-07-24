@@ -15,7 +15,7 @@ export const StepperFormProviders = () => {
   const procedure = GetProcedureFromURL();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
-  const foo: number = "hola";
+  
   const methods = useForm<ProvidersFormValues>({
     defaultValues: {
       nombre: "",            
@@ -27,11 +27,9 @@ export const StepperFormProviders = () => {
   const {
     register,
     handleSubmit,
-    trigger,
-    watch,
+    trigger,    
     formState: { errors },
-    setValue,
-    getValues,
+    setValue,    
     control,
     reset
   } = methods;

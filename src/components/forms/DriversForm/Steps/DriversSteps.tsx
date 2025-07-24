@@ -4,9 +4,8 @@ import { Controller } from "react-hook-form"
 import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
 import { InsertFiles } from "../../../ui/Files/insertFiles"
 import { StepsDriversProps } from "../../../types/forms/DriversForm/DriversForm"
-import { useEffect } from "react"
 
-export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversData, setValue}) => {    
+export const Step1: React.FC<StepsDriversProps> = ({register, errors}) => {    
     
     return (
         <section className="w-full ">                        
@@ -96,7 +95,7 @@ export const Step1: React.FC<StepsDriversProps> = ({register, errors, driversDat
     )
 }
 
-export const Step2: React.FC<StepsDriversProps> = ({register, errors, setValue, driversData}) => {
+export const Step2: React.FC<StepsDriversProps> = ({register}) => {
 
     return (
         <section className="w-full ">                        
@@ -142,7 +141,7 @@ export const Step2: React.FC<StepsDriversProps> = ({register, errors, setValue, 
     )
 }
 
-export const Step3: React.FC<StepsDriversProps> = ({register, control, driversData, setValue}:any) => {
+export const Step3: React.FC<StepsDriversProps> = ({control, driversData}:any) => {
     const procedure = GetProcedureFromURL();      
     return (
         <section className="w-full">                    
@@ -160,7 +159,7 @@ export const Step3: React.FC<StepsDriversProps> = ({register, control, driversDa
                                     <InsertFiles
                                         files={procedure === 'modify' ? (Array.isArray(driversData.licencia) ? driversData.licencia : []) : []}
                                         procedure={procedure}
-                                        onFileReady={(file, name) => field.onChange(file)}
+                                        onFileReady={(file) => field.onChange(file)}
                                         fileName={field.name}
                                     />
                                 )}
@@ -180,7 +179,7 @@ export const Step3: React.FC<StepsDriversProps> = ({register, control, driversDa
                                                 : []
                                         }
                                         procedure={procedure}
-                                        onFileReady={(file, name) => field.onChange(file)}
+                                        onFileReady={(file) => field.onChange(file)}
                                         fileName={field.name}
                                     />
                                 )}
@@ -200,7 +199,7 @@ export const Step3: React.FC<StepsDriversProps> = ({register, control, driversDa
                                                 : []
                                         }
                                         procedure={procedure}
-                                        onFileReady={(file, name) => field.onChange(file)}
+                                        onFileReady={(file) => field.onChange(file)}
                                         fileName={field.name}
                                     />
                                 )}

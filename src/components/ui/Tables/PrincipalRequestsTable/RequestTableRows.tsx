@@ -4,7 +4,6 @@ import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -13,19 +12,8 @@ import { useState } from 'react';
 import { UpdateRequestStatus } from '../../../../api/Home/home.route';
 import { useNavigate } from 'react-router-dom';
 import { DoubleConfirmationAlert } from '../../Alerts/DoubleConfirmation/doubleConfirmation';
-import { title } from 'process';
-import { text } from 'stream/consumers';
+import { ServiceItem, TableRowVariables } from '../../../others/TableTabs';
 
-// Estilos comunes para las celdas
-const tableCellStyles = {
-  width: '13.5%', // Divide el 100% entre 8 columnas (ajusta según necesidades)
-  maxWidth: '13.5%',
-  wordWrap: 'break-word',
-  whiteSpace: 'normal',
-  padding: '8px',
-  border: '1px solid #e0e0e0',
-  boxSizing: 'border-box',
-};
 
 function createData(
   id: string,
@@ -35,49 +23,38 @@ function createData(
   chasis: string,
   cabezal: string,
   furgon: string,  
-  hora_salida:string,
-  fecha_salida:string,
+  hora_salida: string,
+  fecha_salida: string,
   id_proveedor: string,  
-  profit:number,
+  profit: number,
   status: string,
-  precio_proveedor:number,
-  fecha_creacion:string,
-  monto:number,
-  services: {  // Change from tuple to regular array of objects
-    conductor: string,
-    id_peticion: string,
-    cliente: string,
-    monto:number,
-    servicio: string,
-    cabezal: string,
-    chasis: string,
-    hora_salida:string,
-    fecha_creacion:string,
-    fecha_salida:string,
-    furgon: string,
-    customerId: string,
-    precio_proveedor:number,
-    profit:number,
-    date: string,
-  }[]  // Note the [] instead of []
-) {
+  precio_proveedor: number,
+  fecha_creacion: string,
+  monto: number,
+  services: ServiceItem[]
+): TableRowVariables {
   return {
     id,
+    id_peticion: id, // Asigna el mismo valor que id
     nombreCliente,
+    cliente: nombreCliente, // Asigna el mismo valor que nombreCliente
     servicio,
-    precio_proveedor,
     conductor,
-    monto,
-    fecha_salida,
     chasis,
     cabezal,
     furgon,
-    id_proveedor,
-    fecha_creacion,
-    profit,
     hora_salida,
+    fecha_salida,
+    id_proveedor,
+    proveedor: id_proveedor, // Asigna el mismo valor que id_proveedor
+    profit,
     status,
+    precio_proveedor,
+    fecha_creacion,
+    monto,
     services,
+    customerId: '', // Valor por defecto
+    date: '' // Valor por defecto
   };
 }
 
@@ -91,7 +68,7 @@ interface RequestTableRowsProps {
 }
 
 
-function RequestTableRows({ row, selectedTab, procedure, onStatusChange }: RequestTableRowsProps) {
+function RequestTableRows({ row, procedure, onStatusChange }: RequestTableRowsProps) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});        
   const statusOptions = [
@@ -158,7 +135,7 @@ const tableCellStyles = {
       // onConfirm: () => onDelete?.(row.id)
     });
     if(response.success){
-      onStatusChange?.(id.requestID, 'Cancelado');
+      onStatusChange?.(requestID, 'Cancelado');
     }
     console.log('responseDelete: ', response);
   }
@@ -241,7 +218,7 @@ const tableCellStyles = {
                 width="25"
                 height="25"
                 className="text-red-600 cursor-pointer hover:text-red-400"            
-                onClick={()=>disableRequest({requestID:row.id})}
+                onClick={()=>disableRequest(row.id)}
               />
             </TableCell>
           )}
@@ -313,7 +290,7 @@ const tableCellStyles = {
                 width="25"
                 height="25"
                 className="text-red-600 cursor-pointer hover:text-red-400"            
-                onClick={()=>disableRequest({requestID:row.id})}
+                onClick={()=>disableRequest(row.id)}
               />
             </TableCell>
           )}

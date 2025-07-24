@@ -7,15 +7,19 @@ import { SelectOptionTypes } from "../../../types/Select/select";
 import { Controller, Control } from "react-hook-form";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 import { RouteRow } from "../../../../context/Requests/DynamicRequestsOptions";
-import { NeonWarning } from "../../Warning/NeonWarning";
+import { UseFormSetValue } from "react-hook-form";
 
 interface SelectionTeamTableProps {
     title: string[];
     control: Control<RequestsFormValues>;
-    useProvider: boolean;    
-    rows: RouteRow[];    
+    useProvider: boolean| null | undefined;    
+    rows: RouteRow[] | null | undefined;    
+    requestFormData: RequestsFormValues | undefined;
+    setValue: UseFormSetValue<RequestsFormValues>;
+
+
 }
-export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setRows, requestData, setValue, register}: SelectionTeamTableProps) => {      
+export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setValue}: SelectionTeamTableProps) => {      
 
     ///////
     const [driversData, setDriversData] = useState<SelectOptionTypes[]>([]);
@@ -42,7 +46,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
             }
         }));
     };
-    const serviceDescription = formattedServiceDescriptions(rows)
+    const serviceDescription = formattedServiceDescriptions(rows??[])
 
     //Esto se activará al entrar al componente para cargar los datos del select, ya que normalmente se cargan al presionar el select
   useEffect(() => {
@@ -56,9 +60,8 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
 
     if (!requestFormData?.servicios?.length) return;
 
-    requestFormData.servicios.forEach((servicio, index) => {
-      const basePath = `servicios.${index}`;
-      setValue(`${basePath}.id_pedidoServicio`, servicio.id_pedidoServicio || '');
+    requestFormData.servicios.forEach((servicio, index) => {      
+      setValue(`servicios.${index}.id_pedidoServicio`, servicio.id_pedidoServicio || '');
     });
     };
 
@@ -69,7 +72,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
     const getRoutesForSelect = async(type:"service" | "routes" | "customers" | "providers" | "drivers" | "chasis" | 'cabezal' | 'furgon') => {      
         try{
             setIsLoading(true);
-            const response = await SelectData({type, fecha_salida:requestFormData.fecha_salida, hora_salida: requestFormData.hora_salida});
+            const response = await SelectData({type, fecha_salida:requestFormData?.fecha_salida, hora_salida: requestFormData?.hora_salida});
 
             const transformedData = TransformSelectData({type:type, data:response});
             // setSelectData(transformedData ?? []);
@@ -127,7 +130,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                           {...field}
                           isClearable
                           onMenuOpen={() => getRoutesForSelect('drivers')}
-                          isDisabled={useProvider}
+                          isDisabled={!!useProvider}
                           options={driversData}
                           isLoading={isLoading}
                           placeholder={'Select...'}
@@ -135,10 +138,9 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                           // value={driversData.find(o => o.value === field.value) || null}
                           value={driversData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
                           styles={{
-                            singleValue: (provided, state) => {                            
-                              const selected = driversData.find(option => option.value === field.value) || { label: field.value, value: field.value }                 
-                              const data = state.data as any;
-                              const color = selected?.success === 1 ? 'red' : 'black'; // Cambia los colores según tu necesidad                              
+                            singleValue: (provided) => {                            
+                              const selected = driversData.find(option => option.value === field.value) || { label: field.value, value: field.value }                                               
+                              const color = 'success' in selected && selected.success === 1 ? 'red' : 'black'; // Cambia los colores según tu necesidad                              
                               return {
                                 ...provided,
                                 color: color,
@@ -186,9 +188,9 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                           value={chasisData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
                           
                           styles={{
-                            singleValue: (provided, state) => {
+                            singleValue: (provided) => {
                               const selected = chasisData.find(option => option.value === field.value) || { label: field.value, value: field.value }                                               
-                              const color = selected?.success === 1 ? 'red' : 'black'; // Cambia los colores según tu necesidad
+                              const color = 'success' in selected && selected.success === 1 ? 'red' : 'black';
                               return {
                                 ...provided,
                                 color: color,
@@ -223,14 +225,15 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                           isClearable
                           onMenuOpen={() => getRoutesForSelect('cabezal')}
                           options={cabezalData}
-                          isDisabled={useProvider}
+                          isDisabled={!!useProvider}
                           isLoading={isLoading}
                           onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}                        
                           value={cabezalData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
                           styles={{
-                            singleValue: (provided, state) => {
+                            singleValue: (provided) => {
                               const selected = cabezalData.find(option => option.value === field.value) || { label: field.value, value: field.value }                
-                              const color = selected?.success === 1 ? 'red' : 'black'; // Cambia los colores según tu necesidad
+                              const color = 'success' in selected && selected.success === 1 ? 'red' : 'black';
+
                               return {
                                 ...provided,
                                 color: color,
@@ -277,9 +280,9 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                           }}                        
                           value={furgonData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
                           styles={{
-                            singleValue: (provided, state) => {
+                            singleValue: (provided) => {
                               const selected = furgonData.find(option => option.value === field.value) || { label: field.value, value: field.value }        
-                              const color = selected?.success === 1 ? 'red' : 'black'; // Cambia los colores según tu necesidad
+                              const color = 'success' in selected && selected.success === 1 ? 'red' : 'black';
                               return {
                                 ...provided,
                                 color: color,

@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { DateRangePicker } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { DownloadRequestExcel } from "../../../api/Home/home.route";
+
 
 interface SelectOption {
   value: string;
@@ -19,33 +19,40 @@ interface SelectOption {
 
 interface FilterSearchProps {
   vehicleType?: string | null | undefined
-  selectedOption: SelectOption | null;
-  setSelectedOption: React.Dispatch<React.SetStateAction<SelectOption | null>>;
+  selectedOption?: SelectOption | null;
+  setSelectedOption?: React.Dispatch<React.SetStateAction<SelectOption | null>>;
+  formattedDates?: {
+    start: string | null;
+    end: string | null;
+  }
+  setFormattedDates?: React.Dispatch<React.SetStateAction<{
+    start: string | null;
+    end: string | null;
+  }>>;
 }
 
 interface submitData {
   id_chasis: string    
 }
 
-export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, formattedDates, setFormattedDates}: FilterSearchProps) => {
-  const { handleSubmit, formState: { errors } } = useForm<submitData>();
+export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, setFormattedDates}: FilterSearchProps) => {
+  const { handleSubmit } = useForm<submitData>();
   const location = useLocation();
   const pathSegments = location.pathname.split('/').filter(Boolean); 
   const lastSegment = pathSegments[pathSegments.length - 1];    
-  const {searchValue, setSearchValue} = useContext(searchValueContext)!;
+  const {setSearchValue} = useContext(searchValueContext)!;
 
   // Filtro de fecha
   const [showPicker, setShowPicker] = useState(false);
   const [state, setState] = useState([
     {
-      startDate: null,
-      endDate: null,
+      startDate: undefined,
+      endDate: undefined,
       key: "selection"
     }
-  ]);
-  const pickerRef = useRef(null);
+  ]);  
 
-  const handleSelect = (ranges) => {
+  const handleSelect = (ranges:any) => {
     const { startDate, endDate } = ranges.selection;
     setState([ranges.selection]);
     
@@ -53,10 +60,12 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
     const formattedStart = format(startDate, 'yyyy-MM-dd');
     const formattedEnd = format(endDate, 'yyyy-MM-dd');
     
-    setFormattedDates({
-      start: formattedStart,
-      end: formattedEnd
-    });
+    if (setFormattedDates) {
+      setFormattedDates({
+        start: formattedStart,
+        end: formattedEnd
+      });
+    }
     
   };
 
@@ -68,21 +77,23 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
     setSearchValue(event.target.value);                         
   };   
 
-  const onSubmit: SubmitHandler<submitData> = (data) => {            
-    // Aquí puedes usar formattedDates.start y formattedDates.end
-    // para enviar las fechas en formato YYYY-MM-DD
-  };        
+  const onSubmit: SubmitHandler<submitData> = () => {};        
 
   // Cierra el picker al hacer clic fuera
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
-        setShowPicker(false);
-      }
+const pickerRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  function handleClickOutside(event: MouseEvent) {
+    if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+      setShowPicker(false);
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
+
+
 
   return(
     <div className="flex bg-red-">
@@ -96,7 +107,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
             ]}  
             className="text-black max-w-[35%] min-w-[20%]"        
             value={selectedOption}
-            onChange={(optionselected) => {setSelectedOption(optionselected)}}                                                            
+            onChange={(optionselected) => {setSelectedOption?.(optionselected)}}                                                            
             menuPortalTarget={document.body} // Esto renderiza el menú en el body
             styles={{
                 menuPortal: base => ({ ...base, zIndex: 9999 }),
@@ -149,7 +160,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
             ]}  
             className="text-black w-full min-w-[20%]"        
             value={selectedOption}
-            onChange={(optionselected) => {setSelectedOption(optionselected)}}                                       
+            onChange={(optionselected) => {setSelectedOption?.(optionselected)}}                                       
             styles={{
               control: (base) => ({                                
                 ...base,
@@ -207,7 +218,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, fo
                 `Buscar Servicio por Nombre`
             ): lastSegment === 'Providers' ? (
                 `Buscar Proveedor por Nombre`
-            ): null
+            ): ''
           }                                
           className2={"py-5 rounded-none border border-gray-400"}
           onChange={handleInputChange}                                

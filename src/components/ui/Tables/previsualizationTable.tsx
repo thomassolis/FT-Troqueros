@@ -136,10 +136,11 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     <tbody>
                         {tableData.length > 0 ? (
                             tableData.map((item, index) => (
-                                <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center">
+                                
+                                <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center">                           
                                     {Object.entries(item)
                                         .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente" && key !== "id_conductor" && key !== "id_proveedor" && key !== "numero_cuenta" && key !== "tipo_banco")
-                                        .map(([key, value], idx) => (
+                                        .map(([_key, value], idx) => (
                                             <td key={idx} className="px-6 py-4 whitespace-nowrap text-black">
                                                 {headerTable[idx] === "STATUS" ? (
                                                     <Select 

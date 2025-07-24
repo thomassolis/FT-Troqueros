@@ -1,80 +1,82 @@
-import { SetStateAction } from 'react';
-import { Dispatch } from 'react';
-import { ServiceType } from '../../../forms/RequestsForm/StepperFormRequest';
-import { 
-  UseFormRegister, 
-  FieldErrors, 
-  Control, 
-  UseFormSetValue, 
-  UseFormGetValues, 
+import { Dispatch, SetStateAction } from 'react';
+import {
+  UseFormRegister,
+  FieldErrors,
+  Control,
+  UseFormSetValue,
+  UseFormGetValues,
   UseFormWatch,
   UseFormStateReturn
 } from 'react-hook-form';
 import { RouteRow } from '../../../../context/Requests/DynamicRequestsOptions';
+import { ServiceType } from '../../../forms/RequestsForm/StepperFormRequest';
+
+//
+// DATOS DEL FORMULARIO (React Hook Form)
+// ---------------------------------------
 
 export interface Servicio {
   id_conductor?: string;
   id_servicio_datos: string;
-  tarifa?: number|string;  
+  tarifa?: number | string;
   entrega_vacio?: boolean;
   lugar_origen?: string;
   lugar_destino?: string;
-  [key: string]: any; // Para propiedades dinámicas  
+  [key: string]: any;
 }
 
 export interface RequestsData {
   id_servicio?: string;
-  // Otros campos de metadata si son necesarios
 }
 
 export interface RequestsFormValues {
   id_cliente: string;
   tipo_entregaProveedor: boolean;
-  defaultValues:{}
   fecha_salida: string;
   hora_salida: string;
   costos_extras: number;
-  id_proveedor: string|null;
+  id_proveedor: string | null;
   id_servicio_datos: string;
   isProviderRequest: boolean;
-  precio_proveedor: number|null;
+  precio_proveedor: number | null;
   fecha_limite: string;
   servicios?: Servicio[];
   requestsData?: RequestsData;
   tipo_entregaVacio?: boolean;
-  watch?: UseFormWatch<RequestsFormValues>;
-  errors?: FieldErrors<RequestsFormValues> | null;  
-  useProvider?:boolean|null;
-  setUseProvider: Dispatch<SetStateAction<boolean | null>>;
-  id_pedidoServicio: string
-  setRows?: Dispatch<SetStateAction<RouteRow[]>>;
-  proveedor?:string
+  id_pedidoServicio: string;
+  proveedor?: string;  
 }
 
-export interface StepsRequests {
-  register?: UseFormRegister<RequestsFormValues> | null;
-  setValue?: UseFormSetValue<RequestsFormValues> | null;
+//
+// PROPS QUE SE PASAN A LOS COMPONENTES Step1, Step2, etc.
+// --------------------------------------------------------
+
+export interface StepsRequestsProps {
+  // Estados compartidos entre pasos
+  requestFormData?: RequestsFormValues;
+  requestData?: RequestsFormValues;
+  useProvider?: boolean | null;
+  setUseProvider?: Dispatch<SetStateAction<boolean | null>>;
+  rows?: RouteRow[] | null;
+  setRows?: Dispatch<SetStateAction<RouteRow[]>>;
+  serviceTypes?: ServiceType[];
+  setServiceTypes?: Dispatch<SetStateAction<ServiceType[]>>;
+  isInitialLoad?: boolean;
+  setIsInitialLoad?: Dispatch<SetStateAction<boolean>>;
+
+  // Opcionales si necesitas acceso a funciones del form
+  register?: UseFormRegister<RequestsFormValues>;
+  setValue?: UseFormSetValue<RequestsFormValues>;
   getValues?: UseFormGetValues<RequestsFormValues>;
-  watch?: UseFormWatch<RequestsFormValues> | null;
-  errors?: FieldErrors<RequestsFormValues> | null;  
+  watch?: UseFormWatch<RequestsFormValues>;
+  errors?: FieldErrors<RequestsFormValues>;
+  control?: Control<RequestsFormValues>;
+  formState?: UseFormStateReturn<RequestsFormValues>;
+
+  // Navegación opcional entre pasos
   nextStep?: () => void;
   prevStep?: () => void;
-  control?: Control<RequestsFormValues> | null;
-  formState?: UseFormStateReturn<RequestsFormValues>;
-  rows?: RouteRow[] | null;
-  useProvider?:boolean | null
-  setUseProvider?: Dispatch<SetStateAction<boolean | null>> | null;
-  requestFormData?: RequestsFormValues| null
-  setRows?: Dispatch<SetStateAction<RouteRow[]>>;
 
-  serviceTypes?: ServiceType[]
-  setServiceTypes?: Dispatch<SetStateAction<ServiceType[]>>;
-  isInitialLoad?:boolean
-  setIsInitialLoad?: Dispatch<SetStateAction<boolean>>;
-  requestData?:RequestsFormValues| null;
-}
-
-export interface StepsRequestsProps extends StepsRequests {
+  // Extras si los necesitas
   customProp?: string;
-  // Props adicionales específicas del componente
 }

@@ -1,7 +1,6 @@
 import axios from "../axios.ts";
 import { RequestsFormValues } from "../../components/types/forms/RequestsForm/requestsForm.ts";
 import toast from "react-hot-toast";
-import { CreateReadStreamOptions } from "fs/promises";
 
 interface SelectDataProps {
     type: string,
@@ -92,7 +91,7 @@ export const GetRequestDataPerID = async ({requestID}:GetRequestDataPerIDProps) 
 }
 
 //Ruta para eliminar un servicio de una petición
-export const DeleteServiceFromRequest = async(serviceID:string) => {
+export const DeleteServiceFromRequest = async(serviceID:string|undefined) => {
     try{
         const response = await axios.delete(`requests/delete_service_request/${serviceID}`);        
         return response.data        
@@ -103,7 +102,7 @@ export const DeleteServiceFromRequest = async(serviceID:string) => {
 
 
 //Ruta para actualizar toda la petición seleccionada
-export const EditRequestData = async ({data, requestID, id_pedidoServicio}: CreateNewRequestProps) => {    
+export const EditRequestData = async ({data, requestID}: CreateNewRequestProps) => {    
 
     const totalData = {
         ...data,
@@ -126,7 +125,7 @@ export const EditRequestData = async ({data, requestID, id_pedidoServicio}: Crea
 
 
 //RUTA PARA ELIMINAR LOS COSTOS EXTRAS DE LA PETICIÓN
-export const DeleteExtraprice = async(id:number) => {
+export const DeleteExtraprice = async(id:string |undefined) => {
     try{
         const response = await axios.delete(`requests/delete_extra_costs_request/${id}`);                
         return response.data;

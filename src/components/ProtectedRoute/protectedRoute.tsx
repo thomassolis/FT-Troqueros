@@ -1,14 +1,30 @@
+import { Navigate, Outlet } from "react-router-dom";
 import { AuthContext } from "../../context/auth/authProvider";
 import { useContext } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
-export const ProtectedRoute = () => {
-  const { isAuthenticated } = useContext(AuthContext)!;
-  const location = useLocation();  
 
-  // if (!isAuthenticated) {
-    // return <Navigate to="/" replace state={{ from: location }} />;
-  // }
+const ProtectedRoute = () => {
+  const auth = useContext(AuthContext);
 
-  return <Outlet />; // Aquí se renderizan las rutas hijas protegidas
-}
+  if (!auth) return null;
+
+  if (auth.loading) {
+    // Puedes usar un spinner en lugar de este texto
+    return <p>Cargando...</p>;
+  }
+
+  if (!auth.isAuthenticated) {
+    // 🚨 Solo cuando ya sabemos que loading terminó y no está autenticado
+    return <Navigate to="/" replace />;
+  }
+
+    useEffect(() => {
+        console.log("isAuthenticated: ", auth?.isAuthenticated);
+        console.log("loading: ", auth?.loading);
+    }, [auth?.isAuthenticated, auth?.loading]);
+
+  return <Outlet />;
+};
+
+export default ProtectedRoute;

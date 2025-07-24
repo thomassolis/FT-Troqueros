@@ -1,6 +1,6 @@
 import Select from 'react-select';
 import { SelectData } from '../../../../api/Requests/requests.route';
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { TransformSelectData } from '../../../../functions/transformSelectData/TransformSelectData';
 import { SelectOptionTypes } from '../../../types/Select/select';
 import { ServiceType } from '../../../../context/Requests/DynamicRequestsOptions';
@@ -20,7 +20,7 @@ import { WarningAlert } from '../../Alerts/Warning/Warning';
 
 interface ServicesSelectionTableProps {
   titles: string[];
-  serviceTypes: ServiceType[];
+  serviceTypes: ServiceType[]|undefined;
   servicesSelect: SelectOptionTypes[]
   routeIDsByRow: Record<string, string>;
   setRouteIDsByRow: React.Dispatch<React.SetStateAction<Record<string, string>>>;   
@@ -29,35 +29,31 @@ interface ServicesSelectionTableProps {
   control: Control<RequestsFormValues>
   register: UseFormRegister<RequestsFormValues>;
   setValue: UseFormSetValue<RequestsFormValues>;
-  setRows: React.Dispatch<React.SetStateAction<RouteRow[]>>;  
-  rows: RouteRow[];
+  setRows: React.Dispatch<React.SetStateAction<RouteRow[]>>| undefined;  
+  rows: RouteRow[]| null | undefined;
   isEditMode: boolean
+  isInitialLoad: boolean| undefined;
+  setIsInitialLoad: React.Dispatch<React.SetStateAction<boolean>>| undefined;  
+  requestFormData?: RequestsFormValues;
 }
 
 export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({ 
   titles, 
-  serviceTypes ,
-  servicesSelect,
-  control,
-  register,
+  serviceTypes ,  
+  control,  
   setValue,
   rows, 
   setRows,
   routesInformation,
-  setRoutesInformation,
-  requestData,
+  setRoutesInformation,  
   isEditMode,
   requestFormData
-}) => {
-  
-  
-  // const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
+}) => {      
   const [isLoading, setIsLoading] = useState(false);
-  const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;  
-  const [selectData, setSelectData] = useState<SelectOptionTypes[]>([]);
+  const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;    
   const [selectDataMap, setSelectDataMap] = useState<Record<string, SelectOptionTypes[]>>({});
   
-  const deleteService = async({serviceID}:string) => {
+  const deleteService = async({serviceID}:{ serviceID: string }) => {
     
     
     const response = await DoubleConfirmationAlert({
@@ -69,7 +65,7 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
     
     if(response.success){
       
-      setRows(prev => prev.filter(row => row.serviceTypeId !== serviceID));
+      setRows?.(prev => prev.filter(row => row.serviceTypeId !== Number(serviceID)));
     }
   }
 
@@ -86,8 +82,7 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
       if (isEditMode && requestFormData?.servicios?.length) {
 
         
-        const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => {
-          const composedKey = `${servicio.id_pedidoServicio}-${index + 1}`; 
+        const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => {          
           return {
             serviceTypeId: servicio.id_pedidoServicio, // o puedes usar Date.now() si prefieres
             serviceType: servicio.servicio,
@@ -100,21 +95,22 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
             tarifa: servicio.tarifa || 0,
             entrega_vacio: servicio.entrega_vacio || false, // si viene de backend, pon el valor real
             fecha_limite: servicio.fecha_limite || '',     // si viene, inclúyelo aquí también
+            selectedOption: servicio?.selectedOption || '', 
           };
         });
 
-        setRows(newRows);
+        setRows?.(newRows);
       }else{        
         let rowNumberCounter = 1; 
         // Función que se encarga de de convertir serviceTypes en el formato que le conviene a la tabla, es decir dividir el quantity con el tipo de servicio y generar una fila por cada una
-        const newRows: RouteRow[] = serviceTypes.flatMap((st) => {
+        const newRows: RouteRow[] = serviceTypes?.flatMap((st) => {
           
           return Array.from({ length: st.quantity }).map((_, i) => {
             const rowNumber = i + 1;            
             const composedKey = `${st.id}-${rowNumberCounter}`;
             
             // Solo usar datos previos si el serviceType es el mismo (no recién creado)
-            const prevRow = rows.find(r => r.serviceTypeId === st.id && r.rowNumber === rowNumber);
+            const prevRow = rows?.find(r => r.serviceTypeId === st.id && r.rowNumber === rowNumber);
             
             
             return {
@@ -129,10 +125,11 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
               tarifa: routesInformation[composedKey]?.tarifa || prevRow?.tarifa || '',
               entrega_vacio: prevRow?.entrega_vacio || false,
               fecha_limite: prevRow?.fecha_limite || '',
+              selectedOption: prevRow?.selectedOption || '', 
             };
           });
-        });
-        setRows(newRows);
+        })?? [];
+        setRows?.(newRows);
       }
     }, [routeIDsByRow, serviceTypes, requestFormData]);
 
@@ -197,9 +194,9 @@ const getRoutesInformation = async (
 };
 
   const handleEntregaVacioChange = (rowIndex: number, value: boolean) => {      
-    const updatedRows = [...rows];
+    const updatedRows = [...(rows ?? [])];
     updatedRows[rowIndex].entrega_vacio = value;
-    setRows(updatedRows); // Actualiza el estado de filas
+    setRows?.(updatedRows); // Actualiza el estado de filas
   };
   return (
     <table className="w-full border border-gray-300 text-sm text-left text-black">
@@ -210,7 +207,7 @@ const getRoutesInformation = async (
               {title}
             </th>
           ))} 
-          {rows.some(row => row.entrega_vacio) && (
+          {rows?.some(row => row.entrega_vacio) && (
             <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
               Fecha Límite
             </th>
@@ -218,7 +215,7 @@ const getRoutesInformation = async (
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, rowIndex) => {
+        {rows?.map((row, rowIndex) => {
           const fieldName = `servicios.${rowIndex}` as const;   
             console.log(`Row ${rowIndex}: rowNumber = ${row.rowNumber}`);
           return(
@@ -233,7 +230,7 @@ const getRoutesInformation = async (
                 render={({ field }) => {
                   
                   // 👇 Aquí va la lógica de options y selectedOption
-                  const options = selectDataMap[row.serviceID] || [];
+                  const options = row.serviceID ? selectDataMap[row.serviceID] ?? [] : [];
                   const selectedOption =
                     options.find(opt => Number(opt.value) === Number(field.value)) ??
                     row.selectedOption ??
@@ -253,23 +250,34 @@ const getRoutesInformation = async (
                       isLoading={isLoading}
                       isDisabled={isEditMode}
                       onChange={(selectedOption) => {
-                        field.onChange(selectedOption?.value);
+                        if (typeof selectedOption === 'object' && selectedOption !== null) {
+                          field.onChange(selectedOption.value);
+                        } else {
+                          field.onChange(selectedOption);
+                        }
 
                         const updatedRows = [...rows];
                         updatedRows[rowIndex] = {
                           ...updatedRows[rowIndex],
-                          id_servicio_datos: selectedOption?.value || '',
-                          selectedOption,
-                        };                        
-                        setRows(updatedRows);
+                          id_servicio_datos:
+                          typeof selectedOption === 'object' && selectedOption !== null
+                            ? String(selectedOption.value)
+                            : '',
+                          selectedOption: selectedOption && typeof selectedOption === 'object'
+                            ? String(selectedOption.value)
+                            : '',
+                        };
 
-                        if (selectedOption?.value) {
+    
+                        setRows?.(updatedRows);
+                        if (typeof selectedOption === 'object' && selectedOption !== null && 'value' in selectedOption) {
                           getRoutesInformation(
                             Number(selectedOption.value),
                             row.serviceTypeId,
                             row.rowNumber
                           );
                         }
+
                       }}
                       onMenuOpen={() => getRoutesForSelect(row.serviceID)}
                     />
@@ -380,7 +388,7 @@ const getRoutesInformation = async (
                     className="text-red-600 cursor-pointer hover:text-red-400"
                     onClick={
                       rows.length>1 ? (
-                        ()=>deleteService({serviceID: row.serviceTypeId})
+                        () => deleteService({ serviceID: String(row.serviceTypeId) })
                       ) : (
                         ()=>WarningAlert({title: 'Oops', text: 'No podrás eliminar este servicio ya que no puede existir una petición sin servicios. Debes eliminar la petición completa desde la tabla principal.'})
                       )                     

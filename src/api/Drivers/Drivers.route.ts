@@ -118,7 +118,7 @@ interface changeDriverStatusStatus {
 
 export const changeDriverStatus = async({id_conductor, status}:changeDriverStatusStatus) => {
     try{
-        const response = await axios.patch('/drivers/update_status_driver',{id_conductor, status} );
+        await axios.patch('/drivers/update_status_driver',{id_conductor, status} );
     }catch(error){
         console.error('Error en changeDriverStatus:', error);
     }

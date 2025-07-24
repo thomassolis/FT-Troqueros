@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
@@ -33,11 +33,9 @@ export const StepperFormDrivers = () => {
   const {
     register,
     handleSubmit,
-    trigger,
-    watch,
+    trigger,    
     formState: { errors },
-    setValue,
-    getValues,
+    setValue,    
     control,
     reset,
   } = methods;

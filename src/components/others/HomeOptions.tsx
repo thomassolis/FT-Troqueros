@@ -11,7 +11,6 @@ import { FaFileExcel } from 'react-icons/fa';
 import { DownloadRequestExcel } from "../../api/Home/home.route";
 import { useContext } from "react";
 import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
-import { format } from "date-fns";
 
 interface MyComponentProps {
     sidebarState: boolean;
@@ -20,7 +19,7 @@ interface MyComponentProps {
 export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {        
     const navigate = useNavigate()    
     const procedure = GetProcedureFromURL()   
-    const {searchValue, setSearchValue} = useContext(searchValueContext)!;     
+    const {searchValue} = useContext(searchValueContext)!;     
     const [selectedTab, setSelectedTab] = useState<number>(0); 
     //ESTADO QUE MANEJARÁ EL VALOR SELECCIONADO DENTRO DEL FILTRADOR DE LA TABLA DE PETICIONES
     const [selectedOption, setSelectedOption] = useState<{value: string, label: string} | null>({value: 'id', label: 'ID'});    
@@ -104,10 +103,9 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                         totalRecords={totalRecords}
                         setPageSize={setPageSize}
                         procedure = {procedure}
-                        tableSections = {tableSections}
+                        // tableSections = {tableSections}
                         selectedTab = {selectedTab}
-                        setSelectedTab = {setSelectedTab} 
-                        setFormattedDates = {setFormattedDates}
+                        setSelectedTab = {setSelectedTab}                         
                         formattedDates = {formattedDates}
                     />                
                     <div className="flex gap-4">

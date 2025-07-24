@@ -21,36 +21,57 @@ interface TableProps {
 
 
 
-export const RequestsTable = ({ tableData, sidebarState, isLoading, selectedTab, procedure }: TableProps) => {  
+export const RequestsTable = ({ tableData, isLoading, selectedTab, procedure }: TableProps) => {  
 const [rows, setRows] = useState<TableRowVariables[]>([]);
- useEffect(() => {
-    if (tableData) {
-      const mappedRows = tableData.map(item => ({
-        id: item?.id_peticion,
-        nombreCliente: item?.cliente,
-        servicio: item?.servicio,
-        conductor: item?.conductor,
-        chasis: item?.chasis,
-        cabezal: item?.cabezal,
-        furgon: item?.furgon,
-        id_proveedor: item?.proveedor,
-        monto: item?.monto,
-        precio_proveedor: item?.precio_proveedor,
-        profit: item?.profit,
-        fecha_creacion: item?.fecha_creacion,
-        fecha_salida: item?.fecha_salida,
-        hora_salida: item?.fecha_salida,
-        status: item?.status || 'Sin Status',
-        services: item?.services || [],
-      }));
-      setRows(mappedRows);
-    }
-  }, [tableData]);
 
-  const handleStatusChange = (rowID: string, newStatus: string) => {
-    console.log('rowID: ', rowID)
-    console.log('newStatus: ', newStatus);
-    console.log('rows: ', rows);  
+const transformToTableRowVariables = (data: any[]): TableRowVariables[] => {
+  return data.map(item => ({
+    // Campos directos
+    ...item,
+    
+    // Mapeo de campos con nombres diferentes
+    id: item.id_peticion || item.id || '',
+    id_peticion: item.id_peticion || item.id || '',
+    nombreCliente: item.cliente || item.nombreCliente || '',
+    cliente: item.cliente || item.nombreCliente || '',
+    id_proveedor: item.proveedor || item.id_proveedor || '',
+    proveedor: item.proveedor || item.id_proveedor || '',
+    
+    // Campos opcionales con valores por defecto
+    customerId: item.customerId || '',
+    date: item.date || '',
+    
+    // Asegurar que services sea un array
+    services: item.services || []
+  }));
+};
+
+useEffect(() => {
+  if (tableData) {
+    const mappedRows = transformToTableRowVariables(tableData.map(item => ({
+      id: item?.id_peticion,
+      nombreCliente: item?.cliente,
+      servicio: item?.servicio,
+      conductor: item?.conductor,
+      chasis: item?.chasis,
+      cabezal: item?.cabezal,
+      furgon: item?.furgon,
+      id_proveedor: item?.proveedor,
+      monto: item?.monto,
+      precio_proveedor: item?.precio_proveedor,
+      profit: item?.profit,
+      fecha_creacion: item?.fecha_creacion,
+      fecha_salida: item?.fecha_salida,
+      hora_salida: item?.fecha_salida,
+      status: item?.status || 'Sin Status',
+      services: item?.services || [],
+    })));
+    
+    setRows(mappedRows);
+  }
+}, [tableData]);
+
+  const handleStatusChange = (rowID: string) => {
     setRows(prev => prev.filter(r => r.id !== rowID)); // elimina de la tabla  
 };
 

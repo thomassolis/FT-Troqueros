@@ -4,7 +4,6 @@ import { InsertFiles } from "../../ui/Files/insertFiles";
 import { SmallLabel } from "../../ui/Labels/smallLabel";
 import { StepOneProps } from "../../types/forms/VehicleForm/VehiclesFormTypes";
 import { StepStepTwoProps } from "../../types/forms/VehicleForm/VehiclesFormTypes";
-import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo";
 import { vehicleTypeContext } from "../../../context/vehicleType/vehicleType";
@@ -16,7 +15,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue, errors}) => {  
+export const StepOne: React.FC<StepOneProps> = ({register, errors}) => {  
   const {vehicleType} = useContext(vehicleTypeContext)!;
   const vehicle = changeVehicleValue(vehicleType);
 
@@ -42,7 +41,7 @@ export const StepOne: React.FC<StepOneProps> = ({register, vehicleData, setValue
   );
 };
 
-export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setValue, control, errors}) => {
+export const StepTwo: React.FC<StepStepTwoProps> = ({register, control, errors}) => {
   
   return (
     <section id="Step2 w-full">
@@ -157,7 +156,7 @@ export const StepTwo: React.FC<StepStepTwoProps> = ({register, vehicleData, setV
   );
 };
 
-export const StepThree: React.FC<StepOneProps> = ({register, setValue, vehicleData, control}) => {
+export const StepThree: React.FC<StepOneProps> = ({vehicleData, control}) => {
 
   const procedure = GetProcedureFromURL();
   const {vehicleType} = useContext(vehicleTypeContext)!;
@@ -182,7 +181,7 @@ export const StepThree: React.FC<StepOneProps> = ({register, setValue, vehicleDa
                       <InsertFiles
                           files={procedure === 'modify' ? (Array.isArray(vehicleData.foto_poliza) ? vehicleData.foto_poliza : []) : []}
                           procedure={procedure}
-                          onFileReady={(file, name) => field.onChange(file)}
+                          onFileReady={(file) => field.onChange(file)}
                           fileName={field.name}
                       />
                   )}
@@ -198,7 +197,7 @@ export const StepThree: React.FC<StepOneProps> = ({register, setValue, vehicleDa
                       <InsertFiles
                           files={procedure === 'modify' ? (Array.isArray(vehicleData.foto_revisado) ? vehicleData.foto_revisado : []) : []}
                           procedure={procedure}
-                          onFileReady={(file, name) => field.onChange(file)}
+                          onFileReady={(file) => field.onChange(file)}
                           fileName={field.name}
                       />
                   )}

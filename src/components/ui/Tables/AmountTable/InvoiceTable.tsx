@@ -1,19 +1,12 @@
+import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
+
 interface InvoiceTableProps {
-  requestFormData: {
-    servicios: Servicio[];
-  };
+  requestFormData: RequestsFormValues | undefined;
 }
 
 interface Extra {
   descripcion: string;
   precio: number;
-}
-
-interface Servicio {
-  tarifa: number | string;
-  costos_extras?: Extra[] | Record<string, any>;
-  nuevos_costos_extras?: Extra[];
-  servicio?: string;
 }
 
 export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {

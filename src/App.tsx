@@ -13,7 +13,7 @@ import { SearchValueProvider } from "./context/searchValueForFilter/searchValue.
 import { NotFoundPage } from "./components/pages/NotFound/NotFoundPage.tsx";
 import { DriversCreation } from "./components/pages/Drivers/DriversCreation.tsx";
 import { DynamicRequestsProvider } from "./context/Requests/DynamicRequestsOptions.tsx";
-import { ProtectedRoute } from "./components/ProtectedRoute/protectedRoute.tsx";
+import ProtectedRoute from "./components/ProtectedRoute/protectedRoute.tsx";
 
 function App() {
 
@@ -25,9 +25,7 @@ function App() {
             <BrowserRouter>
               <div> <Toaster position="top-center" reverseOrder={false} /> </div>        
               <Routes>          
-                <Route path="/" element={<Login />}/>   
-
-                {/* <ProtectedRoute> */}
+                <Route path="/" element={<Login />}/>                   
 
                 <Route element={<ProtectedRoute/>}>
                   <Route path="/home" element={<Layout/>}>           

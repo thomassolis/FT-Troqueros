@@ -2,14 +2,13 @@ import { StepperForm } from "../../../forms/VehiclesForm/StepperForm";
 import { Back } from "../../../ui/Back/Back";
 import { useContext } from "react";
 import { vehicleTypeContext } from "../../../../context/vehicleType/vehicleType";
-import { useLocation } from "react-router-dom";
 import { changeVehicleValue } from "../../../../functions/changeVehicleType/changeVehicleType";
 import { StepperFormCustomers } from "../../../forms/CustomersForm/StepperFormCustomers";
 import { GetModuleFromURL } from "../../../../functions/GetURL/GetURLInfo";
 import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo";
 
 export const  ChasisCreation = () => {    
-  const {vehicleType, setVehicleType} = useContext(vehicleTypeContext)!;
+  const {vehicleType} = useContext(vehicleTypeContext)!;
     
   const module = GetModuleFromURL();
   const procedure = GetProcedureFromURL();

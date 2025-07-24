@@ -1,16 +1,5 @@
-import { request } from 'http';
 import axios from '../axios.ts'
 import toast from 'react-hot-toast';
-
-// interface statusResponse {
-//     success: boolean;
-//     message: string;
-// }
-
-// interface DataResponse {
-//     status: statusResponse | null;
-//     data: Record<string, string>[];
-// }
 
 interface RequestParams {
     tableSection: string    
@@ -20,11 +9,18 @@ interface RequestParams {
     };
     searchValue: string | null
     currentPage:number
+    // formattedDates?: {
+    //     start: string | number;
+    //     end: string | number;
+    // };
+
+    formattedDates: { start: string | number | null; end: string | number | null; }
+
 }
 interface UpdateRequestStatusParams {
     // selectedOptions: {[key: number]: string}
     status:string,
-    id: string
+    id: string | undefined
 }
 
 //---------------------------------------------------------TABLA----------------------------------------------
@@ -54,7 +50,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
         }
         
         // Agregar parámetros de fecha si están disponibles
-        if (formattedDates) {
+        if (formattedDates?.start != null && formattedDates?.end != null) {
             params.startDate = formattedDates.start; // "2025-07-08"
             params.endDate = formattedDates.end;     // "2025-07-19"
         }
@@ -101,18 +97,20 @@ export const UpdateRequestStatus = async (
 
 //Download Excel
 interface DownloadRequestExcelProps {
-    selectedOption?: string
-    searchValue?:string
+    selectedOption: { value: string; label: string; } | null
+    searchValue:string | null
+    selectedTab: number
+    tableSections?: string[]
+    formattedDates: { start: string | null; end: string | null; }
 }
-export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections, formattedDates}: DownloadRequestExcelProps) => {
-
+export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections, formattedDates}: DownloadRequestExcelProps) => {    
     // Mapeo específico según tus requerimientos
     const getApiParam = (value: string) => {
         return value === 'id' ? 'idPeticion' : value;
     };
 
     const params: Record<string, any> = {
-        status: tableSections[selectedTab]
+        status: tableSections?.[selectedTab]
     };
 
     // Solo agregar el parámetro de búsqueda si hay un valor seleccionado y un valor de búsqueda

@@ -6,13 +6,13 @@ export const SendLoginCredentials = async (data: any, navigate: any) => {
         const response = await axios.post('/auth/login', data);     
       
         if (response.data.success) {                        
-                toast.success(response.data.message);
-                navigate('/home'); 
-                return response.data
-            } else {
-                toast.error(response.data.message);
-                return null;
-            }            
+            toast.success(response.data.message);
+            navigate('/home'); 
+            return response.data
+        } else {
+            toast.error(response.data.message);
+            return null;
+        }            
     } catch (error: any) {
         console.error('Error en SendLoginCredentials:', error);
         

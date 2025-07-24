@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "../../ui/buttons/button";
 import { StepperLine } from "../../ui/stepper/StepperLine";
@@ -12,7 +12,7 @@ import { SendDataForCreationCustomer, sendDataForUpdateCustomers } from "../../.
 export const StepperFormCustomers = () => {
   const [customersData, setCustomersData] = useState<any>({});
   const { clienteID } = useParams();
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, setIsLoading] = useState(false);
   const procedure = GetProcedureFromURL();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
@@ -32,11 +32,9 @@ export const StepperFormCustomers = () => {
   const {
     register,
     handleSubmit,
-    trigger,
-    watch,
+    trigger,    
     formState: { errors },
-    setValue,
-    getValues,
+    setValue,    
     control,
     reset,
   } = methods;

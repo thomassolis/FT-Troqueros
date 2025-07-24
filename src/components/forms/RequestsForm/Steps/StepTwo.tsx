@@ -1,40 +1,16 @@
 import { useEffect, useState } from "react";
 import { Input } from "../../../ui/inputs/input";
-import { SmallLabel } from "../../../ui/Labels/smallLabel";
 import Select from 'react-select';
 import { Controller, useFormContext } from "react-hook-form";
 import { SelectData } from "../../../../api/Requests/requests.route";
 import { StepsRequestsProps } from "../../../types/forms/RequestsForm/requestsForm";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { ServicesSelectionTable } from "../../../ui/Tables/RequestsForm/servicesSelection";
-import { DynamicRequestsType } from "../../../../functions/DynamicSections/Requests/DynamicRequestsType";
 import { SelectOptionTypes } from "../../../types/Select/select";
 import { TransformSelectData } from "../../../../functions/transformSelectData/TransformSelectData";
-import { ServiceType } from "../../../../context/Requests/DynamicRequestsOptions";
-import { SelectionTeamTable } from "../../../ui/Tables/RequestsForm/selectionTeamTable";
-import { PrevisualizationTab } from "../../../ui/tabs/Tabs";
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from 'dayjs';
-import { NeonWarning } from "../../../ui/Warning/NeonWarning";
-import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
-import { useLocation } from "react-router-dom";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, rows, requestFormData}) => {        
+export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, requestFormData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
-    const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();    
-    useEffect(() => {        
-    if (requestFormData?.proveedor) {        
-        setValue('isProviderRequest', true);
-        if (setUseProvider) {
-            setUseProvider(true);
-        }
-    }
-    }, [requestFormData?.proveedor, setValue]);
+    const { control, setValue, register, formState: { errors } } = useFormContext<RequestsFormValues>();    
 
     useEffect(()=>{
         if(useProvider===false){
@@ -102,7 +78,9 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                     className="accent-blue-500"
                     disabled={isDisabled}
                     onChange={(e) => {                        
-                        setUseProvider(e.target.checked);
+                          if (setUseProvider) {
+                                setUseProvider(e.target.checked);
+                            }
                     }}
                 />
 
@@ -178,7 +156,7 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                             className2="w-[20%] h-8"
                             placeholder="Costo $"                        
                             {...register('precio_proveedor', {valueAsNumber:true, required:'Campo requerido'})}
-                            onChange={(e) => setValue('precio_proveedor', parseFloat(e.target.value))}
+                            // onChange={(e) => setValue('precio_proveedor', parseFloat(e.target.value))}
                         />
                     </div>             
 

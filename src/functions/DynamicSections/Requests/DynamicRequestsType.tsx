@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { SelectData } from "../../../api/Requests/requests.route"
 import { TransformSelectData } from "../../transformSelectData/TransformSelectData"
 import { SelectOptionTypes } from "../../../components/types/Select/select"
-
+import { RequestsFormValues } from "../../../components/types/forms/RequestsForm/requestsForm"
 interface ServiceType {
   id: number;
   selectedValue: string;
@@ -21,6 +21,9 @@ onUpdate: (id: number, field: keyof ServiceType, name: string| number, value: st
   onDelete: (id: number) => void;
   setServicesSelect: React.Dispatch<React.SetStateAction<SelectOptionTypes[]>>;
   servicesSelect: SelectOptionTypes[];  
+  requestFormData: RequestsFormValues|undefined;
+  isEditMode: boolean;
+  serviceTypes?: ServiceType[];
 }
 
 
@@ -83,7 +86,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
             <button
             type="button"
             onClick={() => onDelete(id)}
-            disabled={serviceTypes.length === 1}
+            disabled={serviceTypes?.length === 1}
             className={`text-red-700 hover:text-red-500 disabled:text-gray-400 disabled:cursor-not-allowed`}
             >
             <Icon icon="material-symbols:delete" width="24" height="24" />

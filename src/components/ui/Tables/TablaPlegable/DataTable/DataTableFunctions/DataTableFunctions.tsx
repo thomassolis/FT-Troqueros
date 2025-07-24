@@ -1,7 +1,6 @@
 import Swal from 'sweetalert2'
 import { ServicesActions } from '../../../../../../api/Services/services.route';
 import { RoutesActions } from '../../../../../../api/Services/services.route';
-import { serviceTypes } from '../../../../../types/forms/ServiceForm/serviceTypesForm';
 //Función que se encarga de enviar el formulario cuando se quiere agregar una nueva ruta a un servicio o cuando se quiere editar el nombre de un servicio
 
 export const SubmitTableForm = async(

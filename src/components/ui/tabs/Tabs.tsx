@@ -6,25 +6,28 @@ import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm"
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
+
 interface TabsProps {
-    tabContent: string[];
+    tabContent: string[] | undefined;
     onTabChange: any; // Prop para enviar la opción al padre
-    useProvider?: boolean;    
+    useProvider?: boolean | null ;    
     services?:[{
         serviceType: string;
         rowIndex:number;
     }];
-    rows: RouteRow[];
+    rows?: RouteRow[]| null | undefined;
     register?: UseFormRegister<RequestsFormValues>;
     watch?: UseFormWatch<RequestsFormValues>;
     setValue?: UseFormSetValue<RequestsFormValues>;
+    requestFormData?: RequestsFormValues;
+    errors?: any;
 }
 
 export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, register, watch, setValue, useProvider, requestFormData, errors }: TabsProps) => {
     const [selectedTab, setSelectedTab] = useState<number>(0);
-    const [selectedOption, setSelectedOption] = useState<string>(tabContent[0]);
-    const [selectedIndex, setSelectedIndex] = useState<number>(0);
-    const [filteredRows, setFilteredRows] = useState<string[]>([]);
+    const [selectedOption, setSelectedOption] = useState<string>(tabContent?.[0] ?? '');
+    const [_selectedIndex, setSelectedIndex] = useState<number>(0);
+    const [filteredRows, setFilteredRows] = useState<RouteRow[]>([]);
 
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
@@ -43,8 +46,8 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
         
     // Filtra los rows que coincidan con el índice seleccionado (por grupo)
   useEffect(() => {
-    if (module != "Vehicles" && rows.length) {        
-      const newRows = rows.filter((row) => row.rowIndex === selectedTab);      
+    if (module != "Vehicles" && rows?.length) {        
+      const newRows = rows?.filter((row) => row.rowIndex === selectedTab);      
       setFilteredRows(newRows);      
     }
   }, [module, rows, selectedTab]); 
@@ -56,12 +59,12 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
             selectedIndex={selectedTab}
             onSelect={(index) => {
                 setSelectedTab(index);
-                setSelectedOption(tabContent[index]);
+                setSelectedOption(tabContent?.[0] ?? '');
                 setSelectedIndex(index);
             }}
         >
             <TabList className="bg-troquerosOrange p-2 flex w-[70%] rounded-lg gap-2">
-                {tabContent.map((opt, index) => (
+                {tabContent?.map((opt, index) => (
                     <Tab
                         key={index}
                         className={`w-full rounded-lg cursor-pointer p-1 text-black flex justify-center ${
@@ -74,7 +77,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
             </TabList>
 
             {module === 'Vehicles' ? (
-                tabContent.map((opt, index) => (
+                tabContent?.map((opt, index) => (
                 <TabPanel key={index} className="w-[70%]">
                     {tabHeaders[opt] ? (
                         <PrevisualizationTable 

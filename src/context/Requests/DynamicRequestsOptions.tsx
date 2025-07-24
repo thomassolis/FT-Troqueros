@@ -1,5 +1,4 @@
 import React, { createContext, useState, ReactNode } from "react";
-import { SelectOptionTypes } from "../../components/types/Select/select";
 
 export interface ServiceType {
   id: number;
@@ -8,25 +7,21 @@ export interface ServiceType {
   serviceID?: string;
 }
 
-interface RouteDetails {
-  lugar_origen: string;
-  lugar_destino: string;
-  tarifa: string | number;
-  routeID: string;  
-}
 export interface RouteRow {
   lugar_origen: string;
   lugar_destino: string;
   tarifa: string | number;
-  routeID: string;
+  routeID?: string ;
   serviceTypeId: number;
   serviceType: string;
   rowNumber: number;
   serviceID: string | undefined;
-  groupIndex: number;
+  groupIndex?: number;
   rowIndex: number;
   id_servicio_datos: string;
   entrega_vacio: boolean; // Agregar la propiedad 'entrega_vacio'  
+  fecha_limite: string;
+  selectedOption: string;
 }
 interface DynamicRequestsContextType {
   // serviceTypes: ServiceType[];

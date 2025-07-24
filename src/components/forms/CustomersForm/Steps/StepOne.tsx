@@ -1,15 +1,13 @@
 import { SmallLabel } from "../../../ui/Labels/smallLabel"
 import { Input } from "../../../ui/inputs/input"
-import { StepOneCustomers } from "../../../types/forms/CustomersForm/CustomersForm"
 import { StepOneCustomerProps } from "../../../types/forms/CustomersForm/CustomersForm"
-import { useEffect } from "react"
 import { InsertFiles } from "../../../ui/Files/insertFiles"
 import { GetProcedureFromURL } from "../../../../functions/GetURL/GetURLInfo"
 import { Controller } from "react-hook-form"
 import { bankData } from "../../../others/Data/BankData"
 import Select  from "react-select"
 
-export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, errors, customersData}) =>{
+export const StepOne: React.FC<StepOneCustomerProps> = ({register, errors}) =>{
 
     return(
         <section className="w-full ">
@@ -86,7 +84,7 @@ export const StepOne: React.FC<StepOneCustomerProps> = ({register, setValue, err
     )
 }
 
-export const StepTwo: React.FC<StepOneCustomerProps> = ({register, setValue, customersData}) =>{
+export const StepTwo: React.FC<StepOneCustomerProps> = ({register}) =>{
 
 
     return(
@@ -138,7 +136,7 @@ export const StepTwo: React.FC<StepOneCustomerProps> = ({register, setValue, cus
     )
 }
 
-export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, customersData, control}) =>{
+export const StepThree: React.FC<StepOneCustomerProps> = ({register, control}) =>{
 
     return(
         <section className="w-full ">
@@ -209,7 +207,7 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, setValue, c
 }
 
 
-export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, customersData, setValue }) => {
+export const StepFour: React.FC<StepOneCustomerProps> = ({ control, customersData }) => {
         const procedure = GetProcedureFromURL();
 
     return (
@@ -228,7 +226,7 @@ export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, cu
                                     <InsertFiles
                                         files={procedure === 'modify' ? (Array.isArray(customersData.cedRepresentanteLegal) ? customersData.cedRepresentanteLegal : []) : []}
                                         procedure={procedure}
-                                        onFileReady={(file, name) => field.onChange(file)}
+                                        onFileReady={(file) => field.onChange(file)}
                                         fileName={field.name}
                                     />
                                 )}
@@ -248,7 +246,7 @@ export const StepFour: React.FC<StepOneCustomerProps> = ({ register, control, cu
                                                 : []
                                         }
                                         procedure={procedure}
-                                        onFileReady={(file, name) => field.onChange(file)}
+                                        onFileReady={(file) => field.onChange(file)}
                                         fileName={field.name}
                                     />
                                 )}

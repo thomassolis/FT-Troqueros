@@ -16,7 +16,7 @@ export default function CollapsibleTable({servicesData, reloadServices}:Collapsi
   const rows = servicesData?.map((service:any) => ({
     name: service.nombre,
     id: service.id_servicio,
-    history: service.pedidos.map((pedido:any, index:number) => ({
+    history: service.pedidos.map((pedido:any) => ({
       id_servicio_datos: pedido.id_servicio_datos,
       lugar_origen: pedido.lugar_origen,
       lugar_destino: pedido.lugar_destino,

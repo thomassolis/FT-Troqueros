@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Button } from "../../ui/buttons/button";
@@ -50,11 +50,9 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
   const {
     register,
     handleSubmit,
-    trigger,
-    watch,
+    trigger,    
     formState: { errors },
-    setValue,
-    getValues,
+    setValue,    
     control,
     reset
   } = methods;

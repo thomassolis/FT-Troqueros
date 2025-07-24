@@ -1,6 +1,5 @@
 import axios from "../axios.ts";
 import toast from "react-hot-toast";
-import { ProvidersFormValues } from "../../components/types/forms/ProvidersForm/providersForm.ts";
 
 interface GetProvidersProps {    
     page: number;

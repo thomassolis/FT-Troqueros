@@ -66,7 +66,7 @@ export const CurrentCustomers: React.FC = () => {
         </div>
         
         <div className="w-[70%] flex flex-col items-center gap-5">
-          <FilterSearch /*setSearchValue={setSearchValue}*//>
+          <FilterSearch />
 
           {module === 'Customers' ? (
             <PrevisualizationTable 

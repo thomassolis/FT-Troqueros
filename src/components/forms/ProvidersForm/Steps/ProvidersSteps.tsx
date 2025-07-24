@@ -2,11 +2,10 @@ import { SmallLabel } from "../../../ui/Labels/smallLabel"
 import { Input } from "../../../ui/inputs/input"
 import Select from "react-select"
 import { StepsProvidersProps } from "../../../types/forms/ProvidersForm/providersForm"
-import { useEffect } from "react"
 import { Controller } from "react-hook-form"
 import { bankData } from "../../../others/Data/BankData"
 
-export const Step1: React.FC<StepsProvidersProps> = ({register, errors, setValue, providersData}) => {    
+export const Step1: React.FC<StepsProvidersProps> = ({register, errors}) => {    
 
     return (
         <section className="w-full ">                        
@@ -56,7 +55,7 @@ export const Step1: React.FC<StepsProvidersProps> = ({register, errors, setValue
     )
 }
 
-export const Step2: React.FC<StepsProvidersProps> = ({register, errors, setValue, providersData}) => {
+export const Step2: React.FC<StepsProvidersProps> = ({register}) => {
 
     return (
         <section className="w-full ">                        
@@ -116,9 +115,7 @@ export const Step2: React.FC<StepsProvidersProps> = ({register, errors, setValue
     )
 }
 
-export const Step3: React.FC<StepsProvidersProps> = ({register, control, providersData, setValue}:any) => {
-    
-
+export const Step3: React.FC<StepsProvidersProps> = ({register, control}:any) => {    
     return (
         <section className="w-full ">                        
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Complete la información de contacto del nuevo proveedor</h1>

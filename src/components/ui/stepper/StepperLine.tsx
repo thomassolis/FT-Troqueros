@@ -3,7 +3,6 @@ import { stepConfigCustomers } from "./Stepper";
 import { stepConfigDrivers } from "./Stepper";
 import { stepConfigProviders } from "./Stepper";
 import { stepConfigRequests } from "./Stepper";
-import { useLocation } from "react-router-dom";
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';

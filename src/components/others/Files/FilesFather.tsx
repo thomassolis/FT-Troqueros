@@ -1,4 +1,3 @@
-import { title } from "process";
 import { FilesViewer } from "../../ui/pdfViewer/PDFViewer";
 
 interface FilesFatherProps {

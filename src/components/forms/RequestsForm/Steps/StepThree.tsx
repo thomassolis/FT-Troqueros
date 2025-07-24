@@ -1,30 +1,15 @@
 import { useEffect, useState } from "react";
-import { Input } from "../../../ui/inputs/input";
-import { SmallLabel } from "../../../ui/Labels/smallLabel";
-import Select from 'react-select';
-import { Controller, useFormContext } from "react-hook-form";
-import { SelectData } from "../../../../api/Requests/requests.route";
+import { useFormContext } from "react-hook-form";
 import { StepsRequestsProps } from "../../../types/forms/RequestsForm/requestsForm";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { ServicesSelectionTable } from "../../../ui/Tables/RequestsForm/servicesSelection";
 import { DynamicRequestsType } from "../../../../functions/DynamicSections/Requests/DynamicRequestsType";
 import { SelectOptionTypes } from "../../../types/Select/select";
-import { TransformSelectData } from "../../../../functions/transformSelectData/TransformSelectData";
 import { ServiceType } from "../../../../context/Requests/DynamicRequestsOptions";
-import { SelectionTeamTable } from "../../../ui/Tables/RequestsForm/selectionTeamTable";
-import { PrevisualizationTab } from "../../../ui/tabs/Tabs";
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from 'dayjs';
-import { NeonWarning } from "../../../ui/Warning/NeonWarning";
-import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
 import { useLocation } from "react-router-dom";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows, serviceTypes, setServiceTypes, isInitialLoad, setIsInitialLoad, requestData, requestFormData}) => {                    
+export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows, serviceTypes, setServiceTypes, isInitialLoad, setIsInitialLoad, requestFormData}) => {                    
     const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);//Estados que maneja los datos que tiene el select de servicios
     const [routesInformation, setRoutesInformation] = useState<Record<string, any>>({});
     const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({}); 
@@ -58,7 +43,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
         serviceID: entry.serviceID
         }));
 
-        setServiceTypes(transformedServiceTypes);
+        setServiceTypes?.(transformedServiceTypes);
     }
     }, []);
 
@@ -66,7 +51,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     // Coloca el useEffect aquí
     useEffect(() => {        
       // Limpiar datos de rutas cuando serviceTypes cambie
-      const activeIds = new Set(serviceTypes.map(st => st.id));
+      const activeIds = new Set(serviceTypes?.map(st => st.id));
       
       setRoutesInformation(prev => {
         const updated = { ...prev };
@@ -89,7 +74,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
 
     const newServiceType = () => {
     const newId = Date.now(); // Usar timestamp para mayor unicidad
-    setServiceTypes(prev => [...prev, { 
+    setServiceTypes?.(prev => [...prev, { 
         id: newId, 
         selectedValue: '', 
         quantity: 0, 
@@ -103,7 +88,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
         name: string| number,
         value: string | number
     ) => {            
-    setServiceTypes(prev =>
+    setServiceTypes?.(prev =>
         prev.map(st => {
         if (st.id !== id) return st;
 
@@ -121,15 +106,15 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     let totalRows;
     if (isEditMode){
         //Al momento de editar totalRows dependerá de requestFormData
-        totalRows = Array.isArray(requestFormData.servicios) ? requestFormData.servicios.length : 0;        
+        totalRows = Array.isArray(requestFormData?.servicios) ? requestFormData.servicios.length : 0;        
     }else{
         //Al momento de crear la petición totalRows debe depender de serviceTypes
-        totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);
+        totalRows = serviceTypes?.reduce((acc, st) => acc + st.quantity, 0);
     }
     // const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);            
     const deleteServiceType = (id: number) => {
     // 1. Eliminar de serviceTypes
-    setServiceTypes(prev => prev.filter(st => st.id !== id));
+    setServiceTypes?.(prev => prev.filter(st => st.id !== id));
 
     // 2. Eliminar de routesInformation (usando el mismo ID)
     setRoutesInformation(prev => {
@@ -150,7 +135,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     });
 
     // 4. Eliminar de rows
-    setRows(prev => prev.filter(row => row.serviceTypeId !== id));
+    setRows?.(prev => prev.filter(row => row.serviceTypeId !== id));
     };        
     return (
         <section className="w-full ">                        
@@ -167,9 +152,8 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                         </div>
                     )}            
 
-                    {serviceTypes.map((serviceType) => (                    
-                        <DynamicRequestsType 
-                            useProvider={useProvider}
+                    {serviceTypes?.map((serviceType) => (                    
+                        <DynamicRequestsType                             
                             key={serviceType.id}
                             id={serviceType.id}
                             selectedValue={serviceType.selectedValue}
@@ -196,7 +180,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                     )}
                 </div>            
 
-            {totalRows > 0 && (
+            {(totalRows??0) > 0 && (
                 <div className={`flex flex-col ${isEditMode ? 'mt-20':''}`}>
                     {!isEditMode && 
                         <h1 className="text-black mt-10">Favor seleccione las rutas que le desea asignar a cada servicio</h1>
@@ -215,8 +199,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                         rows = {rows}    
                         setRows={setRows} 
                         isInitialLoad={isInitialLoad}
-                        setIsInitialLoad={setIsInitialLoad}       
-                        requestData={requestData}   
+                        setIsInitialLoad={setIsInitialLoad}                               
                         isEditMode = {isEditMode}  
                         requestFormData={requestFormData}                
                     />

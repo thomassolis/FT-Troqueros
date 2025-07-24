@@ -8,27 +8,50 @@ import { useContext } from "react";
 import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
 import { useNavigate } from "react-router-dom";
 
-export interface TableRowVariables {
+// Definir primero la interfaz para los servicios
+// En un archivo de tipos compartidos (ej. types/requests.ts)
+export interface ServiceItem {
+  conductor: string;
+  id_peticion: string;
+  cliente: string;
+  monto: number;
+  servicio: string;
   cabezal: string;
   chasis: string;
-  cliente: string;
-  conductor: string;
+  hora_salida: string;
   fecha_creacion: string;
-  fecha_finalizacion: string;
   fecha_salida: string;
   furgon: string;
-  hora_salida: string;
+  customerId: string;
+  precio_proveedor: number;
+  profit: number;
+  date: string;
+}
+
+export interface TableRowVariables {
+  // Campos principales
+  id: string;
   id_peticion: string;
+  nombreCliente: string;
+  cliente: string;
+  servicio: string;
+  conductor: string;
+  chasis: string;
+  cabezal: string;
+  furgon: string;
+  id_proveedor: string;
+  proveedor: string;
   monto: number;
   precio_proveedor: number;
   profit: number;
-  proveedor: string;
-  services?: TableRowVariables[]; // Optional if nested
-  servicio: string;
+  fecha_creacion: string;
+  fecha_salida: string;
+  hora_salida: string;
   status: string;
-    customerId: string;  // Add missing property
-  date: string; 
-
+  customerId: string;
+  date: string;
+  fecha_finalizacion?: string;
+  services: ServiceItem[];
 }
 
 interface SidebarProps {
@@ -43,19 +66,37 @@ interface SidebarProps {
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   setTotalRecords: React.Dispatch<React.SetStateAction<number>>;
   setPageSize: React.Dispatch<React.SetStateAction<number>>;
+  selectedTab: number;
+  setSelectedTab: React.Dispatch<React.SetStateAction<number>>;
+  formattedDates: {
+    start: string | null;
+    end: string | null;
+  };
 }
 
 
-export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates, setFormattedDates }: SidebarProps) => {
+export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates }: SidebarProps) => {
     const [tableData, setTableData] = useState<TableRowVariables[]>([]);    
     const [isLoading, setIsLoading] = useState(false);
     const {searchValue} = useContext(searchValueContext)!;       
-    const [selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});       
+    
     const navigate = useNavigate();
 
     useEffect(() => {
         RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
-    }, [selectedTab, selectedOption, searchValue, currentPage, selectedStatus, formattedDates]);
+    }, [selectedTab, selectedOption, searchValue, currentPage, formattedDates]);
+
+    const transformTableData = (data: any[]): TableRowVariables[] => {
+    return data.map(item => ({
+        ...item,
+        // Mapeo de campos con nombres diferentes
+        id: item.id_peticion || item.id || '',
+        nombreCliente: item.cliente || item.nombreCliente || '',
+        id_proveedor: item.proveedor || item.id_proveedor || '',
+        // Asegurar que services sea un array
+        services: item.services || []
+    }));
+    };
 
     const RequestDataForHomeTable = async (index: number): Promise<void> => {
         const tableSections: string[] = ["","En Espera", "En Proceso", "Completado", 'Cancelado'];
@@ -63,7 +104,9 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
         try {
             setIsLoading(true);
             const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                                   
-            setTableData(response.data as unknown as TableRowVariables[]);
+
+            const transformedData = transformTableData(response.data);
+            setTableData(transformedData);
             setTotalRecords(response.totalRegistros); 
             setPageSize(response.limite);
             setCurrentPage(Number(response.paginaActual) || 1);

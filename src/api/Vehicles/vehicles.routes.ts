@@ -1,8 +1,6 @@
-import { Search } from "lucide-react";
 import axios from "../axios.ts";
 import { toast } from 'react-hot-toast';
 import { FormValues } from "../../components/types/forms/VehicleForm/VehiclesFormTypes.tsx";
-import { changeVehicleValue } from "../../functions/changeVehicleType/changeVehicleType.ts";
 interface GetDataForPrevisualizationTableProps {
     tabSelected: string;
     page: number;
@@ -110,7 +108,7 @@ interface sendDataForUpdateProps{
     vehicleID: string | undefined
     available?: string
 }
-export const sendDataForUpdate = async({data, vehicleType, vehicleID, available}:sendDataForUpdateProps) =>{
+export const sendDataForUpdate = async({data, vehicleType, vehicleID}:sendDataForUpdateProps) =>{
     
     let action = ''
     if(vehicleType==='Chasises'){

@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "../../inputs/input";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from "react-hook-form";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
-import { FieldError } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { DoubleConfirmationAlert } from "../../Alerts/DoubleConfirmation/doubleConfirmation";
 
@@ -20,33 +19,33 @@ interface AmountTableProps {
         rowIndex: number;
     }[];
     selectedIndex: number;
-    register: UseFormRegister<RequestsFormValues>;
-    watch: UseFormWatch<RequestsFormValues>;
-    setValue: UseFormSetValue<RequestsFormValues>;
-    useProvider:boolean
+    register?: UseFormRegister<RequestsFormValues>;
+    watch?: UseFormWatch<RequestsFormValues>;
+    setValue?: UseFormSetValue<RequestsFormValues>;
+    useProvider: boolean | null | undefined
     errors: FieldErrors<RequestsFormValues>
+    requestFormData: RequestsFormValues|undefined;
+    setFilteredServiceData: (data: any[]) => void;
 }
 
 
 export const AmountTable = ({
-    filteredServiceData,
-    services,
+    filteredServiceData,    
     selectedIndex,
     register,
     watch,
     setValue,
     useProvider,
-    requestFormData,
-    errors
+    requestFormData
 }: AmountTableProps) => {
     const [addExtraPrice, setAddExtraPrice] = useState(false);
     const location = useLocation();
     const isEditMode = location.pathname.includes('edit')                 
     // Observamos los valores del formulario
-    const descripcion = watch(`servicios.${selectedIndex}.costos_extras.descripcion`);
-    const precio = watch(`servicios.${selectedIndex}.costos_extras.precio`);
-    const costosExtras = watch(`servicios.${selectedIndex}.costos_extras`) || [];
-    const nuevos_costos_extras = watch(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];
+    const descripcion = watch?.(`servicios.${selectedIndex}.costos_extras.descripcion`);
+    const precio = watch?.(`servicios.${selectedIndex}.costos_extras.precio`);
+    const costosExtras = watch?.(`servicios.${selectedIndex}.costos_extras`) || [];
+    const nuevos_costos_extras = watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];
     console.log('useProviderrr', useProvider);
     const handleSaveExtra = () => {  
     if (!descripcion || precio == null) return;    
@@ -59,10 +58,10 @@ export const AmountTable = ({
         ? `servicios.${selectedIndex}.nuevos_costos_extras`
         : `servicios.${selectedIndex}.costos_extras`;
 
-    const currentExtras = watch(path);
+    const currentExtras = watch?.(path as keyof RequestsFormValues);
     const safeExtras = Array.isArray(currentExtras) ? currentExtras : [];
 
-    setValue(path, [...safeExtras, nuevoCostoExtra]);
+    setValue?.(path as any, [...safeExtras, nuevoCostoExtra]);
 
     setAddExtraPrice(false);    
     };
@@ -81,8 +80,8 @@ export const AmountTable = ({
 
     // Nuevos costos extras (solo en edición)
     const nuevosExtras = isEditMode
-    ? Array.isArray(watch(`servicios.${selectedIndex}.nuevos_costos_extras`))
-        ? watch(`servicios.${selectedIndex}.nuevos_costos_extras`).reduce((sum, r) => sum + Number(r.precio || 0), 0)
+    ? Array.isArray(watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`))
+        ? watch(`servicios.${selectedIndex}.nuevos_costos_extras`).reduce((sum: number, r: { precio?: number }) => sum + Number(r.precio || 0), 0)
         : 0
     : 0;
 
@@ -99,9 +98,9 @@ export const AmountTable = ({
         tableHeaders = ['', 'Ruta / Costos Extra', 'Costos', 'SubTotal']
     }
 
-        const pathBase = requestFormData?.servicios?.[selectedIndex]?.costos_extras
-  ? `servicios.${selectedIndex}.costos_extras`
-  : `servicios.${selectedIndex}.nuevos_costos_extras`;
+    requestFormData?.servicios?.[selectedIndex]?.costos_extras
+    ? `servicios.${selectedIndex}.costos_extras`
+    : `servicios.${selectedIndex}.nuevos_costos_extras`;
 
     return (
         <table className="w-[70%] table-auto border border-gray-400 mt-5">            
@@ -130,16 +129,15 @@ export const AmountTable = ({
                         <td className={`py-2 px-4 border border-gray-400 text-center ${useProvider?('text-red-600'):('text-black')}`}>
                             {(!useProvider) ? (
                                 `$${Number(row.tarifa || row.precio || 0).toLocaleString()}`
-                            ):(`$${requestFormData.precio_proveedor}`)}                            
+                            ):(`$${requestFormData?.precio_proveedor}`)}                            
                         </td>
 
-                        <td className={`py-2 px-4 text-black border-r border-gray-400 text-center ${useProvider?('text-green-600'):('text-black')}`}>
-                            {useProvider ? (
-                                `${row.tarifa-requestFormData.precio_proveedor}`
-                            ): (
-                                null
-                            )}
+                        <td className={`py-2 px-4 text-black border-r border-gray-400 text-center ${useProvider ? 'text-green-600' : 'text-black'}`}>
+                        {useProvider && typeof row.tarifa === 'number' && typeof requestFormData?.precio_proveedor === 'number' ? (
+                            row.tarifa - requestFormData.precio_proveedor
+                        ) : null}
                         </td>
+
 
 
                         {useProvider &&
@@ -172,13 +170,13 @@ export const AmountTable = ({
                                         });
                                         if(response.success){
                                             const nuevosCostos = costosExtras.filter((_, i) => i !== index);
-                                            setValue(`servicios.${selectedIndex}.costos_extras`, nuevosCostos);
+                                            setValue?.(`servicios.${selectedIndex}.costos_extras`, nuevosCostos);
                                         }
                          
                                 } else {
                                     // Filtrar y actualizar los costos_extras
-                                    const nuevosCostos = costosExtras.filter((extra, i) => i !== index);
-                                    setValue(`servicios.${selectedIndex}.costos_extras`, nuevosCostos);
+                                    const nuevosCostos = costosExtras.filter((i) => i !== index);
+                                    setValue?.(`servicios.${selectedIndex}.costos_extras`, nuevosCostos);
                                 }
                             }}
                             />
@@ -210,7 +208,7 @@ export const AmountTable = ({
                                     onClick={()=>{                                        
                                         // nuevos_costos_extras.filter((costo)=>costo)
                                         const nuevosCostos = nuevos_costos_extras.filter((_, i) => i !== index);                                        
-                                        setValue(`servicios.${selectedIndex}.nuevos_costos_extras`, nuevosCostos);
+                                        setValue?.(`servicios.${selectedIndex}.nuevos_costos_extras`, nuevosCostos);
 
                                     }}
                                 />
@@ -249,22 +247,22 @@ export const AmountTable = ({
                             <td className="py-2 px-4 text-center border border-gray-400">
                             <Input
                                 type="text"
-                                className2={`py-4 w-full ${errors?.servicios?.[selectedIndex]?.costos_extras?.descripcion ? "border-red-500" : ""}`}
+                                className2={`py-4 w-full`}
                                 placeholder="Descripción del precio extra"
-                                {...register(`servicios.${selectedIndex}.costos_extras.descripcion`)}
+                                {...register?.(`servicios.${selectedIndex}.costos_extras.descripcion`)}
                             />
-                            {errors?.servicios?.[selectedIndex]?.costos_extras?.descripcion && (
+                            {/* {errors?.servicios?.[selectedIndex]?.costos_extras?.descripcion && (
                                 <p className="text-red-500">
                                     {(errors.servicios[selectedIndex]?.costos_extras?.descripcion as FieldError).message}
                                 </p>
-                            )}
+                            )} */}
                             </td>
                             <td className="py-2 px-4 text-center border border-gray-400">
                                 <Input 
                                     type="number"
                                     className2="py-4 w-[40%]"
                                     placeholder="Costo"
-                                    {...register(`servicios.${selectedIndex}.costos_extras.precio`, { valueAsNumber: true, required:true })}
+                                    {...register?.(`servicios.${selectedIndex}.costos_extras.precio`, { valueAsNumber: true, required:true })}
                                 />
                             </td>
                             <td className={`py-3 px-4 text-center ${costosExtras.length>0 ? 'border-none':'border border-gray-400'} flex justify-center items-center`}>
