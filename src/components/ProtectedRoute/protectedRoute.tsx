@@ -1,30 +1,29 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { AuthContext } from "../../context/auth/authProvider";
-import { useContext } from "react";
-import { useEffect } from "react";
+import { useEffect, useContext } from 'react';
+import { Outlet, Navigate } from 'react-router-dom';
+import { ProtectRoute } from '../../api/Login/login.route';
+import { AuthContext } from '../../context/auth/authProvider';
 
+export const ProtectedRoute = () => {
+  const { isAuthenticated, setIsAuthenticated, loading } = useContext(AuthContext)!;
 
-const ProtectedRoute = () => {
-  const auth = useContext(AuthContext);
+  useEffect(() => {
+    const validateToken = async () => {
+      try {
+        const response = await ProtectRoute();        
+        setIsAuthenticated(response.success === true);
+      } catch (error) {
+        console.error('Error al validar el token', error);
+        setIsAuthenticated(false);
+      }
+    };
 
-  if (!auth) return null;
+    // Solo validar si no está cargando y no hay un estado de autenticación
+    if (!loading) {
+      validateToken();
+    }
+  }, [loading, setIsAuthenticated]);
 
-  if (auth.loading) {
-    // Puedes usar un spinner en lugar de este texto
-    return <p>Cargando...</p>;
-  }
+  if (loading) return <p>Cargando...</p>;
 
-  if (!auth.isAuthenticated) {
-    // 🚨 Solo cuando ya sabemos que loading terminó y no está autenticado
-    return <Navigate to="/" replace />;
-  }
-
-    useEffect(() => {
-        console.log("isAuthenticated: ", auth?.isAuthenticated);
-        console.log("loading: ", auth?.loading);
-    }, [auth?.isAuthenticated, auth?.loading]);
-
-  return <Outlet />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
 };
-
-export default ProtectedRoute;

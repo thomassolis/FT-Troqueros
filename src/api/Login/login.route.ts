@@ -27,3 +27,18 @@ export const SendLoginCredentials = async (data: any, navigate: any) => {
     
 };
 
+
+export const ProtectRoute = async () => {
+    try{
+        const response = await axios.post('/validate_token',{},{
+            withCredentials: true, // ✅ incluye cookies si el token está en una cookie
+            headers: {
+            'Content-Type': 'application/json',
+            },
+        });
+        console.log('ProtectRoute',response.data);
+        return response.data        
+    }catch(error){
+        console.error('Error en ProtectRoute');
+    }
+}

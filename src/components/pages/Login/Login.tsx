@@ -57,7 +57,7 @@ export const Login = () => {
     return (
         <section className="grid grid-cols-[50%_1fr] gap-y-[10px] h-screen">
             <div className="bg-cover bg-center h-full bg-troquerosOrange flex items-center justify-center">
-                <img className="w-[290px]" src="/public/troqueros-logo.png" alt="Troqueros Logo" />
+                <img className="w-[290px]" src="/troqueros-logo.png" alt="Troqueros Logo" />
             </div>
 
             <div className="bg-troquerosGray h-full flex items-center w-full">

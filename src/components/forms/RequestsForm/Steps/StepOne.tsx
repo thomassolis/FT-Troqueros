@@ -13,6 +13,8 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from 'dayjs';
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
+import InfoTooltip from "../../../ui/ToolTip/ToolTip";
+
 
 export const Step1: React.FC<StepsRequestsProps> = () => { 
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
@@ -51,7 +53,10 @@ export const Step1: React.FC<StepsRequestsProps> = () => {
                         </div>                    
 
                         <div className="h-10 flex items-center mb-1">
-                            <SmallLabel text="Hora de Salida"/> <span className="text-red-500 ml-1">*</span>
+                            <SmallLabel text="Hora de Salida"/>
+                            <InfoTooltip 
+                                content="De no colocar una hora de salida, tomará como default las 9:00 AM"                                
+                            />
                         </div>         
                         
                     </div>
@@ -108,6 +113,10 @@ export const Step1: React.FC<StepsRequestsProps> = () => {
                                                 onChange={(date) => {
                                                     const formattedDate = dayjs(date).format('YYYY-MM-DD');
                                                     field.onChange(formattedDate);
+                                                }}
+                                                minDate={dayjs().startOf('day')}
+                                                shouldDisableDate={(date) => {
+                                                    return date.isBefore(dayjs(), 'day');
                                                 }}
                                                 slotProps={{
                                                     textField: {

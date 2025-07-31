@@ -54,8 +54,7 @@ export const StepperFormProviders = () => {
 
   // Resetear el formulario si estamos editando
   useEffect(() => {
-    if (procedure === "modify" && Object.keys(providersData).length > 0) {
-      console.log('providersData: ', providersData);
+    if (procedure === "modify" && Object.keys(providersData).length > 0) {      
       reset({
         nombre: providersData.nombre ?? "",                
         telefono: providersData.telefono ?? "",

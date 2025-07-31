@@ -21,6 +21,7 @@ interface TabsProps {
     setValue?: UseFormSetValue<RequestsFormValues>;
     requestFormData?: RequestsFormValues;
     errors?: any;
+    getValues?: any
 }
 
 export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, register, watch, setValue, useProvider, requestFormData, errors }: TabsProps) => {
@@ -28,7 +29,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
     const [selectedOption, setSelectedOption] = useState<string>(tabContent?.[0] ?? '');
     const [_selectedIndex, setSelectedIndex] = useState<number>(0);
     const [filteredRows, setFilteredRows] = useState<RouteRow[]>([]);
-
+    console.log('Rows en Amount', rows);
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
@@ -40,13 +41,15 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
     };
 
     // Ejecutar la función del padre cada vez que cambie la opción
-    useEffect(() => {
+    useEffect(() => {        
         onTabChange(selectedOption);
     }, [selectedOption, onTabChange]);
         
     // Filtra los rows que coincidan con el índice seleccionado (por grupo)
   useEffect(() => {
     if (module != "Vehicles" && rows?.length) {        
+        console.log('rows module :', rows)
+        console.log('selectedTab :', selectedTab)
       const newRows = rows?.filter((row) => row.rowIndex === selectedTab);      
       setFilteredRows(newRows);      
     }
@@ -59,7 +62,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
             selectedIndex={selectedTab}
             onSelect={(index) => {
                 setSelectedTab(index);
-                setSelectedOption(tabContent?.[0] ?? '');
+                setSelectedOption(tabContent?.[index] ?? '');
                 setSelectedIndex(index);
             }}
         >
@@ -101,7 +104,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
                         setValue = {setValue}
                         useProvider={useProvider}
                         requestFormData={requestFormData}
-                        errors={errors}
+                        errors={errors}                                              
                     />
 
                 </div>

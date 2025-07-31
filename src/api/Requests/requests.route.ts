@@ -7,14 +7,19 @@ interface SelectDataProps {
     serviceID?: number | string
     fecha_salida?:string | null
     hora_salida?: string | null
+    requestID?: string
 }
 
 //Extrae toda la data para los select al momento de crear una petición
-export const SelectData = async({type, serviceID, fecha_salida, hora_salida}: SelectDataProps) => {    
+export const SelectData = async({type, serviceID, fecha_salida, hora_salida, requestID}: SelectDataProps) => {    
+    console.log('fecha_salidaSelectData',fecha_salida)
+    console.log('hora_salidaSelectData',hora_salida)
     const params = {
         fecha_salida: fecha_salida,
-        hora_salida: hora_salida
+        hora_salida: hora_salida,
+        IdPeticion: requestID
     }
+    console.log('params', params);
     try{
         let response;
         if(type==='services'){
@@ -33,7 +38,7 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida}: Se
             response = await axios.get(`requests/get_request_suppliers`)
             return response?.data.data;
         } else if (type === 'drivers'){
-            response = await axios.get(`requests/get_request_drivers`, {params});
+            response = await axios.get(`requests/get_request_drivers`, {params});            
             return response?.data.data;
         } else if (type === 'chasis'){
             response = await axios.get(`requests/get_request_vehicles`, {params})
@@ -65,13 +70,13 @@ export const CreateNewRequest = async({data}:CreateNewRequestProps) => {
         if(response.data.success){
             toast.success(response.data.message);
         }else{
-            toast.error(response.data.message);
+            toast.error(response?.data?.message);
         }
 
         return response.data
     }catch(error:any){
         console.error('Error en CreateNewRequest:', error);
-        toast.error(error.response.data.message || 'Error al crear la solicitud');
+        toast.error(error.response.data.message || 'Error al crear la petición');
     }
 }
 
@@ -82,8 +87,7 @@ interface GetRequestDataPerIDProps{
 
 export const GetRequestDataPerID = async ({requestID}:GetRequestDataPerIDProps) => {    
     try{
-        const response = await axios.get(`requests/see_request_id/${requestID}`);        
-        console.log('response.data.data.data: ', response.data.data.data)
+        const response = await axios.get(`requests/see_request_id/${requestID}`);                
         return response.data.data.data        
     }catch(error){
         console.error('Error en GetRequestDataPerID ', error);
@@ -91,7 +95,7 @@ export const GetRequestDataPerID = async ({requestID}:GetRequestDataPerIDProps) 
 }
 
 //Ruta para eliminar un servicio de una petición
-export const DeleteServiceFromRequest = async(serviceID:string|undefined) => {
+export const DeleteServiceFromRequest = async(serviceID:string|number|undefined) => {
     try{
         const response = await axios.delete(`requests/delete_service_request/${serviceID}`);        
         return response.data        
@@ -107,8 +111,7 @@ export const EditRequestData = async ({data, requestID}: CreateNewRequestProps) 
     const totalData = {
         ...data,
         id_peticion:requestID
-    }    
-    console.log('totalData', totalData);
+    }        
     try{
         const response = await axios.put('requests/update_request',totalData);
         if(response.data.success){
@@ -125,7 +128,7 @@ export const EditRequestData = async ({data, requestID}: CreateNewRequestProps) 
 
 
 //RUTA PARA ELIMINAR LOS COSTOS EXTRAS DE LA PETICIÓN
-export const DeleteExtraprice = async(id:string |undefined) => {
+export const DeleteExtraprice = async(id:string |undefined|number) => {
     try{
         const response = await axios.delete(`requests/delete_extra_costs_request/${id}`);                
         return response.data;

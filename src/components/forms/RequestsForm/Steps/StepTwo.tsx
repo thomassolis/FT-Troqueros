@@ -10,8 +10,7 @@ import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsFo
 
 export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, requestFormData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
-    const { control, setValue, register, formState: { errors } } = useFormContext<RequestsFormValues>();    
-
+    const { control, setValue, register, formState: { errors } } = useFormContext<RequestsFormValues>();        
     useEffect(()=>{
         if(useProvider===false){
             setValue('id_proveedor', null);
@@ -35,11 +34,14 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
 
     //Constantes para calcular cuando el checkbox de proveedores está activado o no
     const multipleServicios = (requestFormData?.servicios?.length ?? 0) > 1;
-    const hasConductorData = requestFormData?.servicios?.some(s => !!s.id_conductor);
-    const hasCabezalData = requestFormData?.servicios?.some(s => !!s.id_cabezal);
-    const hasChasisData = requestFormData?.servicios?.some(s => !!s.id_chasis);
-    const hasFurgonData = requestFormData?.servicios?.some(s => !!s.id_furgon);
-    const hasExtras = requestFormData?.servicios?.some(
+    const hasConductorData = requestFormData?.servicios?.filter(Boolean).some(s => !!s.id_conductor);
+    const hasCabezalData = requestFormData?.servicios?.filter(Boolean).some(s => !!s.id_cabezal);
+    const hasChasisData = requestFormData?.servicios?.filter(Boolean).some(s => !!s.id_chasis);
+    const hasFurgonData = requestFormData?.servicios?.filter(Boolean).some(s => !!s.id_furgon);
+    // const hasCabezalData = requestFormData?.servicios?.some(s => !!s.id_cabezal);
+    // const hasChasisData = requestFormData?.servicios?.some(s => !!s.id_chasis);
+    // const hasFurgonData = requestFormData?.servicios?.some(s => !!s.id_furgon);
+    const hasExtras = requestFormData?.servicios?.filter(Boolean).some(
     s => (Array.isArray(s.costos_extras) && s.costos_extras.length > 0) ||
         (Array.isArray(s.nuevos_costos_extras) && s.nuevos_costos_extras.length > 0)
     );
@@ -113,9 +115,8 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                         <Controller
                         name="id_proveedor"
                         control={control}
-                        rules={{ required: "Campo obligatorio" }}
-                        render={({ field }) => (
-                            <>
+                        rules={{ required: true }}
+                        render={({ field }) => (                        
                             <Select 
                                 {...field}
                                 isClearable
@@ -139,11 +140,7 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                                     color: errors?.id_proveedor ? '#d32f2f' : '#6b7280',
                                 }),
                                 }}
-                            />
-                            {errors?.id_proveedor?.message && (
-                                <p className="text-red-500 text-sm mt-1">{errors.id_proveedor.message}</p>
-                            )}
-                            </>
+                            />                               
                         )}
                         />
 
@@ -152,11 +149,10 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                     <div className="flex w-full items-center gap-12">
                         <label className="text-black text-sm mb-1">Costo del proveedor:</label>
                         <Input 
-                            type="number"
-                            className2="w-[20%] h-8"
-                            placeholder="Costo $"                        
-                            {...register('precio_proveedor', {valueAsNumber:true, required:'Campo requerido'})}
-                            // onChange={(e) => setValue('precio_proveedor', parseFloat(e.target.value))}
+                        type="number"
+                        className2={`w-[20%] h-8 ${errors?.precio_proveedor ? 'border-red-500' : 'border-gray-300'}`}
+                        placeholder="Costo $"
+                        {...register('precio_proveedor', {valueAsNumber: true, required: 'Campo requerido'})}
                         />
                     </div>             
 

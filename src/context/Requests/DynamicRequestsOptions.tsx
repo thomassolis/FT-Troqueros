@@ -15,13 +15,13 @@ export interface RouteRow {
   serviceTypeId: number;
   serviceType: string;
   rowNumber: number;
+  id_servicio_datos:string;
+  selectedOption:string
   serviceID: string | undefined;
   groupIndex?: number;
-  rowIndex: number;
-  id_servicio_datos: string;
+  rowIndex: number;  
   entrega_vacio: boolean; // Agregar la propiedad 'entrega_vacio'  
-  fecha_limite: string;
-  selectedOption: string;
+  fecha_limite: string;  
 }
 interface DynamicRequestsContextType {
   // serviceTypes: ServiceType[];
@@ -38,17 +38,6 @@ export const dynamicRequestsContext = createContext<DynamicRequestsContextType |
 
 
 export const DynamicRequestsProvider = ({ children }: { children: ReactNode }) => {
-//   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
-//   {
-//     id: 1,
-//     selectedValue: "",
-//     quantity: 0,
-//     serviceID: "" // Opcional
-//   },
-//   // Más objetos si es necesario
-// ]);
-  // const [rows, setRows] = useState<RouteRow[]>([]);
-  // const [routesInformation, setRoutesInformation] = useState<Record<string, RouteDetails>>({});
   const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({});
   
   return (

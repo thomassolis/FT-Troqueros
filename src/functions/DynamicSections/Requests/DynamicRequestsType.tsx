@@ -6,6 +6,7 @@ import { SelectData } from "../../../api/Requests/requests.route"
 import { TransformSelectData } from "../../transformSelectData/TransformSelectData"
 import { SelectOptionTypes } from "../../../components/types/Select/select"
 import { RequestsFormValues } from "../../../components/types/forms/RequestsForm/requestsForm"
+
 interface ServiceType {
   id: number;
   selectedValue: string;
@@ -24,6 +25,7 @@ onUpdate: (id: number, field: keyof ServiceType, name: string| number, value: st
   requestFormData: RequestsFormValues|undefined;
   isEditMode: boolean;
   serviceTypes?: ServiceType[];
+  useProvider:boolean|null|undefined;
 }
 
 
@@ -37,10 +39,12 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   onDelete,  
   requestFormData,
   isEditMode,
-  serviceTypes
+  serviceTypes,
+  useProvider
 }) => {    
     const [isLoading, setIsLoading] = useState(false);
     useEffect(() => {
+        console.log('useEffect1')
         const getSelectData = async () => {
             try {
                 setIsLoading(true);
@@ -62,6 +66,8 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
                 <Select
                     className="text-black"                    
                     options={servicesSelect}
+                    isClearable                    
+                    placeholder="Selecciona un servicio"
                     value={servicesSelect.find(opt => opt.label === selectedValue)}
                     onChange={(option) => onUpdate(
                         id,
@@ -75,11 +81,21 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
             </div>
 
             <div>
-                <Input                    
+                <Input
                     type="number"
                     className2={'w-full h-9'}
-                    value={quantity}
-                    onChange={(e) => onUpdate(id, 'quantity', Number(e.target.value), 'value')}
+                    placeholder={useProvider?"Máximo 1":"Máximo 5"}
+                    value={quantity === 0 ? '' : quantity} // Mostrar cadena vacía si es 0
+                    onChange={(e) => {
+                    const maxValue = useProvider?1:5;
+                    const inputValue = e.target.value === '' ? 0 : Number(e.target.value);
+                    const validatedValue = Math.min(inputValue, maxValue);
+                    
+                    onUpdate(id, 'quantity', validatedValue, 'value');
+                    }}
+                    max={
+                        useProvider?1:5
+                    }
                 />
             </div>
 

@@ -16,11 +16,12 @@ interface TransformSelectDataProps {
             success:boolean
         }
     ]
+    IdPeticion?:string|undefined
 }
 
 //Cambia los datos recibidos por value/label que son requeridos para el Select
-export const TransformSelectData = ({type, data}:TransformSelectDataProps) => {
-
+export const TransformSelectData = ({type, data, IdPeticion}:TransformSelectDataProps) => {
+console.log('IdPeticion', IdPeticion);
     let transformedData
     if (type === 'service'){
         transformedData = data.map(item => ({

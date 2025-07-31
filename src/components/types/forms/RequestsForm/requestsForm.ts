@@ -6,7 +6,8 @@ import {
   UseFormSetValue,
   UseFormGetValues,
   UseFormWatch,
-  UseFormStateReturn
+  UseFormStateReturn,
+  UseFormReset
 } from 'react-hook-form';
 import { RouteRow } from '../../../../context/Requests/DynamicRequestsOptions';
 import { ServiceType } from '../../../forms/RequestsForm/StepperFormRequest';
@@ -14,7 +15,21 @@ import { ServiceType } from '../../../forms/RequestsForm/StepperFormRequest';
 //
 // DATOS DEL FORMULARIO (React Hook Form)
 // ---------------------------------------
+export interface CostoExtraExistente {
+  id_costos_extras: number;
+  descripcion: string;
+  precio: number;
+}
 
+export interface NuevoCostoExtra {
+  descripcion: string;
+  precio: number;
+}
+
+export interface CostoTemporal {
+  descripcion?: string;
+  precio?: number;
+}
 export interface Servicio {
   id_conductor?: string;
   id_servicio_datos: string;
@@ -22,6 +37,9 @@ export interface Servicio {
   entrega_vacio?: boolean;
   lugar_origen?: string;
   lugar_destino?: string;
+  costos_extras?: CostoExtraExistente[];
+  nuevos_costos_extras?: NuevoCostoExtra[];
+  costo_temporal?: CostoTemporal; // Para el formulario de añadir nuevo costo
   [key: string]: any;
 }
 
@@ -30,21 +48,21 @@ export interface RequestsData {
 }
 
 export interface RequestsFormValues {
-  id_cliente: string;
-  tipo_entregaProveedor: boolean;
-  fecha_salida: string;
-  hora_salida: string;
-  costos_extras: number;
-  id_proveedor: string | null;
-  id_servicio_datos: string;
-  isProviderRequest: boolean;
-  precio_proveedor: number | null;
-  fecha_limite: string;
+  id_cliente?: string|undefined;
+  tipo_entregaProveedor?: boolean|undefined;
+  fecha_salida?: string;
+  hora_salida?: string;
+  id_proveedor?: string | null;
+  id_servicio_datos?: string;
+  isProviderRequest?: boolean;
+  precio_proveedor?: number | null;
+  fecha_limite?: string;
   servicios?: Servicio[];
   requestsData?: RequestsData;
   tipo_entregaVacio?: boolean;
-  id_pedidoServicio: string;
-  proveedor?: string;  
+  id_pedidoServicio?: string;
+  proveedor?: string;
+  // Eliminado: costos_extras: number; // Esto estaba mal definido
 }
 
 //
@@ -54,6 +72,7 @@ export interface RequestsFormValues {
 export interface StepsRequestsProps {
   // Estados compartidos entre pasos
   requestFormData?: RequestsFormValues;
+  setRequestFormData?: Dispatch<SetStateAction<RequestsFormValues>>;
   requestData?: RequestsFormValues;
   useProvider?: boolean | null;
   setUseProvider?: Dispatch<SetStateAction<boolean | null>>;
@@ -72,7 +91,7 @@ export interface StepsRequestsProps {
   errors?: FieldErrors<RequestsFormValues>;
   control?: Control<RequestsFormValues>;
   formState?: UseFormStateReturn<RequestsFormValues>;
-
+  reset?: UseFormReset<RequestsFormValues>
   // Navegación opcional entre pasos
   nextStep?: () => void;
   prevStep?: () => void;

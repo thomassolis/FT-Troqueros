@@ -14,6 +14,7 @@ interface ButtonProps {
     className2?: string | null;
     onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void; 
     navegation?: string;
+    disabled?:boolean;
 }
 
 
@@ -28,6 +29,7 @@ export const Button = ({
     className2,
     onClick,
     navegation,
+    disabled,
 }: ButtonProps) => {
     const navigate = useNavigate();
 
@@ -38,7 +40,7 @@ export const Button = ({
                 p-3 rounded-md w-full flex justify-center items-center font-jersey font-semibold ${className2} ${textColor}
                 ${isSelected ? `${hoverBgColor}` : `${bgColor} hover:opacity-70`}
             `}
-            disabled={isLoading}
+            disabled={isLoading||disabled}
             onClick={(event) => {
                 if(type !== "submit"){
                     event.preventDefault();

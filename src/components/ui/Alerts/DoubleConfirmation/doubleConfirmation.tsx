@@ -6,7 +6,7 @@ import { DeleteExtraprice } from "../../../../api/Requests/requests.route";
 interface DoubleConfirmationAlertProps {
     title: string;
     text: string;
-    id?: string; // ID general (string o undefined)
+    id?: string|number|undefined; // ID general (string o undefined)
     requestID?: string; // ID específico para requests
     type: 'deleteService' | 'deleteRequest' | 'deleteExtraPrice';
 }

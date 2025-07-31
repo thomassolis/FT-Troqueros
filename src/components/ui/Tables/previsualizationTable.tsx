@@ -36,7 +36,8 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const {searchValue, setSearchValue} = useContext(searchValueContext)!;
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
-    const module = pathSegments[pathSegments.length - 1];                
+    const module = pathSegments[pathSegments.length - 1];     
+    
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
     
@@ -44,7 +45,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
         const GetDataForTable = async () => {
             try {
                 setIsLoading(true);
-        setTableData([]); // Limpiar datos antes de cargar nuevos
+                setTableData([]); // Limpiar datos antes de cargar nuevos
                 if(module === 'Vehicles'){                    
                     const response = await GetDataForPrevisualizationTable({
                         tabSelected: tabSelected ?? '',
@@ -137,35 +138,39 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                         {tableData.length > 0 ? (
                             tableData.map((item, index) => (
                                 
-                                <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center">                           
+                                <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center ">                           
                                     {Object.entries(item)
                                         .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente" && key !== "id_conductor" && key !== "id_proveedor" && key !== "numero_cuenta" && key !== "tipo_banco")
                                         .map(([_key, value], idx) => (
-                                            <td key={idx} className="px-6 py-4 whitespace-nowrap text-black">
-                                                {headerTable[idx] === "STATUS" ? (
-                                                    <Select 
-                                                        statusOptions={statusOptions} 
-                                                        apiRequest = {true} 
-                                                        id = {vehicleType === 'Chasises'? (
-                                                                item.id_chasis
-                                                            ): vehicleType === 'Furgones' ? (
-                                                                item.id_furgon
-                                                            ): vehicleType === 'Cabezales' ? (
-                                                                item.id_cabezal
-                                                            ): module === 'Drivers' ? (
-                                                                item.id_conductor
-                                                            ):null} 
-                                                        // id = {item.id_chasis} 
-                                                        defaultValue = {item.status} 
-                                                        tableData = {tableData}
-                                                        module={module}
-                                                    />
-                                                ) : value} 
+                                            <td key={idx} className="px-2 py-4 text-black min-w-[100px] max-w-[300px] break-words">
+                                                <div className="whitespace-normal">
+                                                    {headerTable[idx] === "STATUS" ? (                                                    
+                                                            <Select                                                     
+                                                                statusOptions={statusOptions} 
+                                                                apiRequest = {true} 
+                                                                id = {module === 'Drivers' && vehicleType === 'Chasises' ? (
+                                                                    item.id_conductor
+                                                                ):
+                                                                    vehicleType === 'Chasises'? (
+                                                                        item.id_chasis
+                                                                    ): vehicleType === 'Furgones' ? (
+                                                                        item.id_furgon
+                                                                    ): vehicleType === 'Cabezales' ? (
+                                                                        item.id_cabezal
+                                                                    ):
+                                                                    null} 
+                                                                // id = {item.id_chasis} 
+                                                                defaultValue = {item.status} 
+                                                                tableData = {tableData}
+                                                                module={module}
+                                                            />                                                    
+                                                    ) : value} 
+                                                </div>
                                             </td>
                                         ))
                                     }
 
-                                    <div className="flex gap-6 justify-center items-center">
+                                    <div className="flex gap-6 justify-center items-center">                      
                                         <td className="py-4 whitespace-nowrap text-green-800">
                                             <Icon 
                                                 icon="mdi:eye" 

@@ -73,8 +73,7 @@ export const sendDataForUpdateDrivers = async ({data, driverID}: sendDataForUpda
         id_conductor: driverID
     }
 
-    try{
-        console.log('totalData: ', totalData);
+    try{        
         const response = await axios.put('/drivers/update_driver', totalData,{
             headers:{
                 'Content-Type': 'multipart/form-data'
@@ -117,7 +116,7 @@ interface changeDriverStatusStatus {
 }
 
 export const changeDriverStatus = async({id_conductor, status}:changeDriverStatusStatus) => {
-    try{
+    try{        
         await axios.patch('/drivers/update_status_driver',{id_conductor, status} );
     }catch(error){
         console.error('Error en changeDriverStatus:', error);

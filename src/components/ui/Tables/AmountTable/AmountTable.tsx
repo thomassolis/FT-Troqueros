@@ -5,6 +5,7 @@ import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from "rea
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 import { useLocation } from "react-router-dom";
 import { DoubleConfirmationAlert } from "../../Alerts/DoubleConfirmation/doubleConfirmation";
+import { NuevoCostoExtra } from "../../../types/forms/RequestsForm/requestsForm";
 
 interface AmountTableProps {
     filteredServiceData: {
@@ -41,30 +42,40 @@ export const AmountTable = ({
     const [addExtraPrice, setAddExtraPrice] = useState(false);
     const location = useLocation();
     const isEditMode = location.pathname.includes('edit')                 
-    // Observamos los valores del formulario
-    const descripcion = watch?.(`servicios.${selectedIndex}.costos_extras.descripcion`);
-    const precio = watch?.(`servicios.${selectedIndex}.costos_extras.precio`);
+    // Observamos los valores del formulario        
     const costosExtras = watch?.(`servicios.${selectedIndex}.costos_extras`) || [];
-    const nuevos_costos_extras = watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];
-    console.log('useProviderrr', useProvider);
-    const handleSaveExtra = () => {  
-    if (!descripcion || precio == null) return;    
-    const nuevoCostoExtra = {
-        descripcion,
-        precio: Number(precio)
-    };
+    const nuevos_costos_extras = watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];         
+console.log('RequestFormData AmountTable:', requestFormData);
+console.log('filteredServiceData AmountTable:', filteredServiceData);
+const handleSaveExtra = () => {
+  const descripcion = watch?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`);
+  const precio = watch?.(`servicios.${selectedIndex}.nuevo_costo.precio`);
 
-    const path = isEditMode
-        ? `servicios.${selectedIndex}.nuevos_costos_extras`
-        : `servicios.${selectedIndex}.costos_extras`;
+  if (!descripcion || precio == null || isNaN(Number(precio))) return;
 
-    const currentExtras = watch?.(path as keyof RequestsFormValues);
-    const safeExtras = Array.isArray(currentExtras) ? currentExtras : [];
+  const nuevoCostoExtra: NuevoCostoExtra = {
+    descripcion,
+    precio: Number(precio),
+  };
 
-    setValue?.(path as any, [...safeExtras, nuevoCostoExtra]);
+  const arrayPath = isEditMode
+    ? `servicios.${selectedIndex}.nuevos_costos_extras`
+    : `servicios.${selectedIndex}.costos_extras`;
 
-    setAddExtraPrice(false);    
-    };
+  const currentExtras = watch?.(arrayPath as any) || [];
+
+  const safeExtras = Array.isArray(currentExtras) ? currentExtras : [];
+
+  setValue?.(arrayPath as any, [...safeExtras, nuevoCostoExtra]);
+
+  // Limpiar inputs temporales
+  setValue?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`, '');
+  setValue?.(`servicios.${selectedIndex}.nuevo_costo.precio`, null);
+
+  setAddExtraPrice(false);
+};
+
+
 
 
     // Función para calcular el total
@@ -79,11 +90,12 @@ export const AmountTable = ({
         : 0;
 
     // Nuevos costos extras (solo en edición)
-    const nuevosExtras = isEditMode
-    ? Array.isArray(watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`))
-        ? watch(`servicios.${selectedIndex}.nuevos_costos_extras`).reduce((sum: number, r: { precio?: number }) => sum + Number(r.precio || 0), 0)
-        : 0
+    const extras = watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`);
+
+    const nuevosExtras = isEditMode && Array.isArray(extras)
+    ? extras.reduce((sum: number, r: { precio?: number }) => sum + Number(r.precio || 0), 0)
     : 0;
+
 
 
     return serviciosBase + extrasExistentes + nuevosExtras;
@@ -154,7 +166,7 @@ export const AmountTable = ({
                 
                 {Array.isArray(costosExtras) && costosExtras.map((costo, index) => (
                     <tr key={`extra-${index}`}>                        
-                        <td align="center" className="">
+                        <td align="center" >
                             <Icon
                             icon="line-md:trash"
                             width="25"
@@ -171,11 +183,10 @@ export const AmountTable = ({
                                         if(response.success){
                                             const nuevosCostos = costosExtras.filter((_, i) => i !== index);
                                             setValue?.(`servicios.${selectedIndex}.costos_extras`, nuevosCostos);
-                                        }
-                         
+                                        }                         
                                 } else {
                                     // Filtrar y actualizar los costos_extras
-                                    const nuevosCostos = costosExtras.filter((i) => i !== index);
+                                    const nuevosCostos = costosExtras.filter((_, i) => i !== index);
                                     setValue?.(`servicios.${selectedIndex}.costos_extras`, nuevosCostos);
                                 }
                             }}
@@ -231,64 +242,59 @@ export const AmountTable = ({
 
                 {/* Formulario para añadir nuevos costos extras */}
 
-                { (useProvider === false || useProvider === null) ?
-                    (!addExtraPrice) ? (
-                        <tr className="cursor-pointer hover:text-gray-400 text-gray-500 italic text-center">
-                            <td colSpan={2} className="py-2 px-4 border border-gray-400" onClick={() => setAddExtraPrice(true)}>
-                                Nuevo Costo
-                            </td>
-                            <td className="py-2 px-4 border border-gray-400"></td>
-                        </tr>
-                    ) : (
-                        <tr>
-                            {costosExtras.length > 0 ? (
-                                <td></td>
-                            ):null}                             
-                            <td className="py-2 px-4 text-center border border-gray-400">
-                            <Input
-                                type="text"
-                                className2={`py-4 w-full`}
-                                placeholder="Descripción del precio extra"
-                                {...register?.(`servicios.${selectedIndex}.costos_extras.descripcion`)}
-                            />
-                            {/* {errors?.servicios?.[selectedIndex]?.costos_extras?.descripcion && (
-                                <p className="text-red-500">
-                                    {(errors.servicios[selectedIndex]?.costos_extras?.descripcion as FieldError).message}
-                                </p>
-                            )} */}
-                            </td>
-                            <td className="py-2 px-4 text-center border border-gray-400">
-                                <Input 
-                                    type="number"
-                                    className2="py-4 w-[40%]"
-                                    placeholder="Costo"
-                                    {...register?.(`servicios.${selectedIndex}.costos_extras.precio`, { valueAsNumber: true, required:true })}
-                                />
-                            </td>
-                            <td className={`py-3 px-4 text-center ${costosExtras.length>0 ? 'border-none':'border border-gray-400'} flex justify-center items-center`}>
-                                <Icon 
-                                    icon="ph:check-fill" 
-                                    width="28" 
-                                    height="28" 
-                                    className='text-green-500 rounded-md cursor-pointer hover:text-green-700' 
-                                    onClick={handleSaveExtra}
-                                />
-                                <Icon 
-                                    icon="basil:cancel-solid" 
-                                    width="28" 
-                                    height="28"  
-                                    className='text-red-600 cursor-pointer hover:text-red-800' 
-                                    onClick={() => setAddExtraPrice(false)}
-                                />
-                            </td>
-                            {useProvider &&
-                            <>
-                                <td className="py-2 px-4 text-black border-r border-gray-400 text-center"></td>                               
-                            </>                        
-                            }  
-                        </tr>
-                    ):(<></>)
-                }
+                {(useProvider === false || useProvider === null) &&
+                (!addExtraPrice ? (
+                    <tr className="cursor-pointer hover:text-gray-400 text-gray-500 italic text-center">
+                    <td colSpan={2} className="py-2 px-4 border border-gray-400" onClick={() => setAddExtraPrice(true)}>
+                        Nuevo Costo
+                    </td>
+                    <td className="py-2 px-4 border border-gray-400"></td>
+                    </tr>
+                ) : (
+                    <tr>
+                    {costosExtras.length > 0 && <td></td>}
+                    <td className="py-2 px-4 text-center border border-gray-400">
+                        <Input
+                        type="text"
+                        className2={`py-4 w-full`}
+                        placeholder="Descripción del precio extra"
+                        {...register?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`)}
+                        />
+                    </td>
+                    <td className="py-2 px-4 text-center border border-gray-400">
+                        <Input
+                        type="number"
+                        className2="py-4 w-[40%]"
+                        placeholder="Costo"
+                        {...register?.(`servicios.${selectedIndex}.nuevo_costo.precio`, {
+                            valueAsNumber: true,
+                        })}
+                        />
+                    </td>
+                    <td
+                        className={`py-3 px-4 text-center ${
+                        costosExtras.length > 0 ? 'border-none' : 'border border-gray-400'
+                        } flex justify-center items-center`}
+                    >
+                        <Icon
+                        icon="ph:check-fill"
+                        width="28"
+                        height="28"
+                        className="text-green-500 rounded-md cursor-pointer hover:text-green-700"
+                        onClick={handleSaveExtra}
+                        />
+                        <Icon
+                        icon="basil:cancel-solid"
+                        width="28"
+                        height="28"
+                        className="text-red-600 cursor-pointer hover:text-red-800"
+                        onClick={() => setAddExtraPrice(false)}
+                        />
+                    </td>
+                    {useProvider && <td className="py-2 px-4 text-black border-r border-gray-400 text-center"></td>}
+                    </tr>
+                ))}
+
 
                 {/* Fila de TOTAL */}
                 {!useProvider &&

@@ -3,18 +3,14 @@ import axios from "axios";
 
 interface AuthContextType {
   userRole: string | null;
-  setUserRole: (role: string | null) => void;
   userName: string | null;
-  setUserName: (name: string | null) => void;
   userLastName: string | null;
-  setUserLastName: (lastName: string | null) => void;
   banTime: string | null;
-  setBanTime: (time: string | null) => void;
   userEmail: string | null;
-  setUserEmail: (email: string | null) => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (auth: boolean) => void;
   loading: boolean;
+  logout: () => void; // Nueva función de logout
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -28,12 +24,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const logout = () => {
+    // Limpiar todos los estados de usuario
+    setIsAuthenticated(false);
+    setUserRole(null);
+    setUserName(null);
+    setUserLastName(null);
+    setBanTime(null);
+    setUserEmail(null);
+    
+    // Limpiar cookies/tokens si es necesario
+    // (Aunque no tengas endpoint /auth/logout)
+    document.cookie = 'token=; Max-Age=0; path=/;';
+    localStorage.removeItem('authToken');
+  };
+
   useEffect(() => {
     axios
       .get("/auth/validate", { withCredentials: true })
       .then((res) => {
         const { role, name, lastName, banTime, email } = res.data;
-
         setUserRole(role);
         setUserName(name);
         setUserLastName(lastName);
@@ -53,18 +63,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         userRole,
-        setUserRole,
         userName,
-        setUserName,
         userLastName,
-        setUserLastName,
         banTime,
-        setBanTime,
         userEmail,
-        setUserEmail,
         isAuthenticated,
         setIsAuthenticated,
         loading,
+        logout // Añadir función de logout
       }}
     >
       {children}

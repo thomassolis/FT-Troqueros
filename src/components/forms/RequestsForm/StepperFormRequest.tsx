@@ -26,7 +26,7 @@ export interface ServiceType {
 export const StepperFormRequests = () => {
   
   const {requestID} = useParams();
-  const [_isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const procedure = GetProcedureFromURL();    
   const [useProvider, setUseProvider] = useState<boolean | null>(null);
   //Estado que validará si una petición será manejada por un proveedor o no
@@ -76,16 +76,47 @@ export const StepperFormRequests = () => {
     reset,
     trigger,            
     watch,
-    // formState: { errors }
+    getValues    
   } = methods;
   
   useEffect(() => {
     const subscription = watch((value) => {
-      console.log("📋 Formulario actualizado:", value);    
+      // console.log("📋 Formulario actualizado:", value);    
+      console.log('Value: ', value);
       setRequestFormData(value as RequestsFormValues);
     });
     return () => subscription.unsubscribe();
-  }, [watch]);
+  }, [watch, requestFormData]);
+
+  useEffect(()=>{
+    console.log('requestFormDataa', requestFormData);
+  }, [requestFormData])
+
+  useEffect(()=>{
+    console.log('rows', rows);
+
+    if(!Array.isArray(rows)) return;
+      
+    const updatedRows = rows.map((row)=>{
+      if(/*!row.selectedOption || row.selectedOption === '' ||*/ !row.serviceID || row.serviceID === ''){
+        return {
+          ...row,
+          id_servicio_datos: '',
+          lugar_origen: '',
+          lugar_destino: '',
+          tarifa: 0,
+          entrega_vacio: false,
+          fecha_limite: '',
+        };
+      }
+      return row;
+    })
+    // Solo actualiza si hay algún cambio
+    const isDifferent = JSON.stringify(updatedRows) !== JSON.stringify(rows);
+    if (isDifferent) {
+      setRows(updatedRows);
+    }
+  }, [rows])
 
   const navigate = useNavigate();  
 
@@ -104,7 +135,7 @@ export const StepperFormRequests = () => {
   };
 
 
-const onSubmit = async (data: any) => {   
+const onSubmit = async (data: any) => { 
   try {
     setIsLoading(true);
     const {isProviderRequest, ...payload} = data; // Elimina el campo isProviderRequest
@@ -140,6 +171,11 @@ const onSubmit = async (data: any) => {
     const GetDataForEditRequest = async() => {
       try{
         const response = await GetRequestDataPerID({requestID});  
+        if(response.id_proveedor){
+          setUseProvider(true);
+        }else{
+          setUseProvider(false);
+        }        
         reset(response);         
       }catch(error){
         console.error('Error en GetDataForEditRequest', error);
@@ -147,7 +183,7 @@ const onSubmit = async (data: any) => {
     }
     if (procedure != 'create') GetDataForEditRequest();    
   },[])
-
+ 
 
   return (
     <section className="flex flex-col items-center w-full">            
@@ -179,6 +215,9 @@ const onSubmit = async (data: any) => {
                 isInitialLoad={isInitialLoad}
                 setIsInitialLoad={setIsInitialLoad}                
                 requestFormData={requestFormData}
+                setRequestFormData={setRequestFormData}
+                getValues={getValues}
+                reset={reset}
               />
             </div>
 
@@ -195,7 +234,9 @@ const onSubmit = async (data: any) => {
               <Step5
                 useProvider={useProvider}
                 requestFormData={requestFormData}
-                rows={rows}                
+                rows={rows}  
+                getValues={getValues} 
+                // setValue={setValue}             
               />
             </div>
           </div>
@@ -216,18 +257,34 @@ const onSubmit = async (data: any) => {
                 <Button
                   onClick={async () => {
                     const isStepValid = await trigger();
-                    if (isStepValid) nextStep();
+                    if (isStepValid) {
+                      console.log('nextStep()');
+                      nextStep();
+                    } else {
+                      // // Depuración mejorada
+                      // console.log('Errores de validación:', {
+                      //   step: activeStep,
+                      //   errors: Object.entries(formState.errors).map(([key, error]) => ({
+                      //     campo: key,
+                      //     mensaje: error?.message,
+                      //     tipo: error?.type
+                      //   }))
+                      // });
+                    }
                   }}
                   className2="p-2 w-full"
                   textColor="text-white"
                   bgColor="bg-[#1B5316]"
                   text="Siguiente"
+                  type="button"                  
+                  disabled={(activeStep === 2 && rows.length === 0) ? true : false}       
                 />
               ) : (
                 <Button
                   type="submit"
                   className2="bg-green-600 p-2 w-full"
                   text="Enviar"
+                  isLoading={isLoading}
                 />
               )}
             </div>

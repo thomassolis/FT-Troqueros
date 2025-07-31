@@ -45,8 +45,7 @@ export const StepperFormCustomers = () => {
       setIsLoading(true);
       const fetchCustomerData = async () => {
         try {
-          const response = await GetCustomerDataByID({ clienteID });
-          console.log('Datos del cliente: ', response);
+          const response = await GetCustomerDataByID({ clienteID });          
           setCustomersData(response);
         } catch (error) {
           console.error("Error en StepperFormCustomers", error);
@@ -81,45 +80,51 @@ export const StepperFormCustomers = () => {
     }
   }, [customersData]);
 
+      // Limpieza de datos
+    function cleanObject<T extends Record<string, any>>(obj: T): T {
+      const cleaned = Object.fromEntries(
+        Object.entries(obj).filter(
+          ([_, value]) =>
+            value !== "" &&
+            value !== null &&
+            value !== undefined &&
+            value !== "NaN" &&
+            !(typeof value === "number" && isNaN(value))
+        )
+      );
+      return cleaned as T;
+    }
+
   // Enviar el formulario
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
+    try{
+        setIsLoading(true);
 
-    // Limpieza de datos
-function cleanObject<T extends Record<string, any>>(obj: T): T {
-  const cleaned = Object.fromEntries(
-    Object.entries(obj).filter(
-      ([_, value]) =>
-        value !== "" &&
-        value !== null &&
-        value !== undefined &&
-        value !== "NaN" &&
-        !(typeof value === "number" && isNaN(value))
-    )
-  );
-  return cleaned as T;
-}
-const cleanedData = cleanObject<CustomersFormValues>(data);
+        const cleanedData = cleanObject<CustomersFormValues>(data);
 
-    // Eliminar fechaUltimoPedido si estamos modificando
-    if (procedure === "modify") {
-      delete cleanedData.fechaUltimoPedido;
+        // Eliminar fechaUltimoPedido si estamos modificando
+        if (procedure === "modify") {
+          delete cleanedData.fechaUltimoPedido;
+        }
+
+        // Crear o modificar
+        if (procedure === "create") {
+          const response = await SendDataForCreationCustomer({ data: cleanedData });
+          if (response.success) {
+            navigate("/home/Customers");
+          }
+        } else if (procedure === "modify") {
+          const response = await sendDataForUpdateCustomers({ data: cleanedData, clienteID });
+          if (response.success) {
+            navigate("/home/Customers");
+          }
+        }
+    }catch(error){
+      console.error('Error en StepperFormCustomers', error);
+      setIsLoading(false);
+    }finally {
+      setIsLoading(false);
     }
-
-    // Crear o modificar
-    if (procedure === "create") {
-      const response = await SendDataForCreationCustomer({ data: cleanedData });
-      if (response.success) {
-        navigate("/home/Customers");
-      }
-    } else if (procedure === "modify") {
-      const response = await sendDataForUpdateCustomers({ data: cleanedData, clienteID });
-      if (response.success) {
-        navigate("/home/Customers");
-      }
-    }
-
-    setIsLoading(false);
   };
 
   // Cambiar pasos
@@ -209,6 +214,7 @@ const cleanedData = cleanObject<CustomersFormValues>(data);
                   type="submit"
                   className2="bg-green-600 p-2 w-full"
                   text="Enviar"
+                  isLoading={_isLoading}
                 />
               )}
             </div>

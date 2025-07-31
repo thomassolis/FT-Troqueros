@@ -93,8 +93,7 @@ function RequestTableRows({ row, procedure, onStatusChange }: RequestTableRowsPr
       const response = await UpdateRequestStatus({ status: optionselected.value, id: id });      
       if(response.success){
         onStatusChange?.(id, optionselected.label);
-      }      
-      console.log('changeRequestStatus', response);
+      }            
     } catch (error) {
       console.error('changeRequestStatus: ', error);
     }
@@ -124,9 +123,7 @@ const tableCellStyles = {
   boxSizing: 'border-box',
 };
 
-  const disableRequest = async (requestID:string) => {        
-    const id = requestID 
-    console.log('ID:' , id);
+  const disableRequest = async (requestID:string) => {               
     const response = await DoubleConfirmationAlert({
       title:'¿Estás seguro que deseas deshabilitar esta petición?',
       text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',
@@ -136,12 +133,33 @@ const tableCellStyles = {
     });
     if(response.success){
       onStatusChange?.(requestID, 'Cancelado');
-    }
-    console.log('responseDelete: ', response);
+    }    
   }
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className={` ${(!row.id_proveedor && row.services.length === 0) ? 'hover:bg-gray-300 cursor-pointer' : ''} ? 'hover:bg-gray-200':''} ${row.id_proveedor ? 'bg-orange-300 hover:bg-[#FFAD4E] cursor-pointer' : ''}  ${row.services.length>0? 'bg-blue-200 hover:bg-blue-300 cursor-pointer': ''}`} onClick={()=>navigate(`/home/Request/edit/${row.id}`)}>
+      <TableRow 
+  sx={{ 
+    '& > *': { 
+      borderBottom: 'unset',
+    },
+    transition: 'background-color 0.3s ease',
+  }}
+  className={`
+    ${!row.id_proveedor && row.services.length === 0 
+      ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer' 
+      : ''
+    }
+    ${row.id_proveedor 
+      ? 'bg-purple-200 hover:bg-purple-300 cursor-pointer' 
+      : ''
+    }
+    ${row.services.length > 0 
+      ? 'bg-blue-100 hover:bg-blue-200 cursor-pointer' 
+      : ''
+    }
+  `}
+  onClick={() => navigate(`/home/Request/edit/${row.id}`)}
+>
         <TableCell sx={{ ...tableCellStyles, width: '2%', maxWidth: '2%' }} onClick={(e) => e.stopPropagation()}>
           {Array.isArray(row.services) && row.services.length > 0 ? (                        
             <IconButton
@@ -211,17 +229,17 @@ const tableCellStyles = {
         />
         </TableCell>
 
-          {(row.status === 'En espera' || row.status === 'en proceso' || row.status === 'Completado') && (
+          {/* {(row.status === 'En espera' || row.status === 'en proceso' || row.status === 'Completado') && ( */}
             <TableCell onClick={(e) => e.stopPropagation()} sx={{...tableCellStyles, width: '2%', maxWidth: '2%'}}>
               <Icon
                 icon="line-md:trash"
                 width="25"
                 height="25"
-                className="text-red-600 cursor-pointer hover:text-red-400"            
+                className={`${row.status === 'Cancelado' ? 'cursor-not-allowed text-gray-400' : 'text-red-600 hover:text-red-400 cursor-pointer'}`}            
                 onClick={()=>disableRequest(row.id)}
               />
             </TableCell>
-          )}
+          {/* )} */}
           </>
         )}
 
@@ -327,12 +345,12 @@ const tableCellStyles = {
 
         <TableBody>
           {row.services?.map((historyRow) => (
-            <TableRow key={`${historyRow.date}-${historyRow.customerId}`} className='bg-blue-200'> {/* Key más único */}              
+            <TableRow key={`${historyRow.date}-${historyRow.customerId}`} className='bg-blue-100'> {/* Key más único */}              
               <TableCell align='center' sx={{ ...tableCellStyles, width: '4.6%', maxWidth: '4.6%' }}></TableCell>
               <TableCell align='center' sx={{ ...tableCellStyles, width: '8%', maxWidth: '8%' }}>
                   <p className='font-bold py-1'>{historyRow.id_peticion}</p>
               </TableCell>
-              <TableCell align='center' sx={tableCellStyles} className='bg-emerald-400'>
+              <TableCell align='center' sx={tableCellStyles} >
                 <p style={{ margin: 0, wordBreak: 'break-word' }}>{historyRow.cliente}</p>
               </TableCell>
               <TableCell align='center' sx={tableCellStyles}>

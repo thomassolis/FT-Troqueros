@@ -47,7 +47,7 @@ const transformToTableRowVariables = (data: any[]): TableRowVariables[] => {
 };
 
 useEffect(() => {
-  if (tableData) {
+  if (tableData) {    
     const mappedRows = transformToTableRowVariables(tableData.map(item => ({
       id: item?.id_peticion,
       nombreCliente: item?.cliente,

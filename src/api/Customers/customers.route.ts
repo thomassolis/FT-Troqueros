@@ -42,8 +42,7 @@ interface GetCustomerDataByIDProps{
 }
 export const GetCustomerDataByID = async({clienteID}: GetCustomerDataByIDProps) =>{    
     try{
-        const response =await axios.get(`/clients/see_clients_id/${clienteID}`)        
-        console.log('Response de GetCustomerDataByID: ', response.data.data);
+        const response =await axios.get(`/clients/see_clients_id/${clienteID}`)                
         return response.data.data;
     }catch(error){
         console.error('Error en GetCustomerDataByID', error)
@@ -52,9 +51,8 @@ export const GetCustomerDataByID = async({clienteID}: GetCustomerDataByIDProps) 
 interface SendDataForCreationCustomerProps{
     data: CustomersFormValues;    
 }
-export const SendDataForCreationCustomer = async({data}: SendDataForCreationCustomerProps) =>{    
-    try{
-        console.log('Data cliente nuevo: ', data);
+export const SendDataForCreationCustomer = async({data}: SendDataForCreationCustomerProps) =>{        
+    try{        
         const response = await axios.post('/clients/add_client', data,{
         headers: {
         'Content-Type': 'multipart/form-data',
@@ -80,8 +78,7 @@ export const sendDataForUpdateCustomers = async({data, clienteID}: SendDataForUp
     const totalData = {
         ...data,
         id_cliente: clienteID
-    }
-    console.log('TotalData: ', totalData);
+    }    
     try{
         const response = await axios.put('/clients/update_client', totalData,{
             headers:{

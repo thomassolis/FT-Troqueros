@@ -94,8 +94,7 @@ export const getVehicleData = async({vehicleType, vehicleID}:getVehicleDataProps
         action = 'see_truckvan_id'
     }
     try{        
-        const response = await axios.get(`/${vehicleType}/${action}/${vehicleID}`);
-        console.log('responserARO', response);
+        const response = await axios.get(`/${vehicleType}/${action}/${vehicleID}`);        
         return response.data.data;
     }catch(error){
         console.error('Error en getVehicleData: ', error)
@@ -122,8 +121,7 @@ export const sendDataForUpdate = async({data, vehicleType, vehicleID}:sendDataFo
     const dataForUpddate = {
             id: vehicleID,            
             ...data
-          };
-          console.log('dataForUpddate', dataForUpddate)
+          };          
     try{
         const response = await axios.put(`/${vehicleType}/${action}`, dataForUpddate,{
             headers:{
@@ -147,7 +145,7 @@ interface statusUpdate{
     status: string;
     vehicleID: string | undefined
 }
-export const statusUpdate = async({vehicleType, vehicleID, status}: statusUpdate) =>{
+export const statusUpdate = async({vehicleType, vehicleID, status}: statusUpdate) =>{    
     let action = ''
     if(vehicleType==='Chasises'){
         action = 'update_status_chassis'
@@ -162,7 +160,7 @@ export const statusUpdate = async({vehicleType, vehicleID, status}: statusUpdate
         status: status
     }
     
-    try{
+    try{        
         await axios.patch(`/${vehicleType}/${action}`, data);        
     }catch(error){
         console.error('Error en statusUpdate: ', error)

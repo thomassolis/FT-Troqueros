@@ -28,7 +28,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
     const [totalRecords, setTotalRecords] = useState(0);
     const [pageSize, setPageSize] = useState<number>(10)
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const tableSections: string[] = ["Todos","En Espera", "En Proceso", "Completado", 'Cancelado'];
+    const tableSections: string[] = ["","En Espera", "En Proceso", "Completado", 'Cancelado'];
     // Estado para almacenar las fechas formateadas
     const [formattedDates, setFormattedDates] = useState<{
         start: string | null;
@@ -110,7 +110,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                     />                
                     <div className="flex gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-orange-300 rounded-sm border border-gray-400">
+                            <div className="w-3 h-3 bg-purple-300 rounded-sm border border-gray-400">
 
                             </div>
                             <p className="text-black">Proveedor</p>

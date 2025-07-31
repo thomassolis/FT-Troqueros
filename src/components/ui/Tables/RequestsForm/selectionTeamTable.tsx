@@ -8,6 +8,7 @@ import { Controller, Control } from "react-hook-form";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 import { RouteRow } from "../../../../context/Requests/DynamicRequestsOptions";
 import { UseFormSetValue } from "react-hook-form";
+import { useParams } from "react-router-dom";
 
 interface SelectionTeamTableProps {
     title: string[];
@@ -20,7 +21,20 @@ interface SelectionTeamTableProps {
 
 }
 export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setValue}: SelectionTeamTableProps) => {      
+  const [fecha, setFecha] = useState(requestFormData?.fecha_salida??'');
+  const [hora, setHora] = useState(requestFormData?.hora_salida??'');
+  
+  console.log('requestFormData en SelectionTeamTable', requestFormData);
+  console.log('Fecha', fecha);
+  console.log('Hora', hora);
 
+    // Sincronización cuando requestFormData cambie
+  useEffect(() => {
+    if (requestFormData) {
+      setFecha(requestFormData.fecha_salida ?? "");
+      setHora(requestFormData.hora_salida ?? "");
+    }
+  }, [requestFormData]);
     ///////
     const [driversData, setDriversData] = useState<SelectOptionTypes[]>([]);
     const [chasisData, setChasisData] = useState<SelectOptionTypes[]>([]);
@@ -32,7 +46,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
         Record<number, { chasisDisabled: boolean; furgonDisabled: boolean }>
     >({});    
 
-
+    const {requestID} = useParams<{requestID: string}>();    
     const [isLoading, setIsLoading] = useState<boolean>(false)
     // serviceDescription guardará el formato tipoServicio(LugarOrigen - LugarLLegada) para la primera columna de la tabla
 
@@ -49,32 +63,50 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
     const serviceDescription = formattedServiceDescriptions(rows??[])
 
     //Esto se activará al entrar al componente para cargar los datos del select, ya que normalmente se cargan al presionar el select
-  useEffect(() => {
-    const loadAllOptions = async () => {
-      await Promise.all([
-        getRoutesForSelect('drivers'),
-        getRoutesForSelect('chasis'),
-        getRoutesForSelect('cabezal'),
-        getRoutesForSelect('furgon'),
+useEffect(() => {
+  if (!requestFormData || !requestFormData.fecha_salida || !requestFormData.hora_salida) return;
+
+  console.log('Efecto ejecutado con datos válidos');
+  
+  const loadAllOptions = async () => {
+    const { fecha_salida: fecha, hora_salida: hora } = requestFormData;
+    console.log('fecha-hora actualizados:', fecha, hora);
+
+    try {
+      await Promise.all([        
+        getRoutesForSelect('drivers', requestID, fecha, hora),
+        getRoutesForSelect('chasis', requestID, fecha, hora),
+        getRoutesForSelect('cabezal', requestID, fecha, hora),
+        getRoutesForSelect('furgon', requestID, fecha, hora),
       ]);
 
-    if (!requestFormData?.servicios?.length) return;
+      // Solo si hay servicios y estamos en modo edición
+      if (requestFormData.servicios?.length) {
+        requestFormData.servicios.forEach((servicio, index) => {      
+          setValue(`servicios.${index}.id_pedidoServicio`, servicio.id_pedidoServicio || '');
+        });
+      }
+    } catch (error) {
+      console.error('Error cargando opciones:', error);
+    }
+  };
 
-    requestFormData.servicios.forEach((servicio, index) => {      
-      setValue(`servicios.${index}.id_pedidoServicio`, servicio.id_pedidoServicio || '');
-    });
-    };
+  loadAllOptions();
+}, [requestFormData?.fecha_salida, requestFormData?.hora_salida, requestID, setValue]);
 
-    loadAllOptions();
-  }, [setValue]);
-
-
-    const getRoutesForSelect = async(type:"service" | "routes" | "customers" | "providers" | "drivers" | "chasis" | 'cabezal' | 'furgon') => {      
+    const getRoutesForSelect = async(type:"service" | "routes" | "customers" | "providers" | "drivers" | "chasis" | 'cabezal' | 'furgon', IdPeticion?:string|undefined, fecha?:string|undefined, hora?:string|undefined) => {                        
+        console.log('getRoutesForSelect - Fecha y Hora:', fecha, hora);
+  
+        if (!fecha || !hora) {
+          console.error('Fecha u hora no definidas:', {fecha, hora});
+          return;
+        }
         try{
+          console.log('Pasé')
             setIsLoading(true);
-            const response = await SelectData({type, fecha_salida:requestFormData?.fecha_salida, hora_salida: requestFormData?.hora_salida});
+            const response = await SelectData({type, fecha_salida:fecha, hora_salida: hora, requestID: requestID});
 
-            const transformedData = TransformSelectData({type:type, data:response});
+            const transformedData = TransformSelectData({type:type, data:response, IdPeticion: IdPeticion});
             // setSelectData(transformedData ?? []);
             
             if(type === 'drivers'){
@@ -125,19 +157,33 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                     <Controller
                       name={`${fieldName}.id_conductor`}
                       control={control}
-                      render={({ field }) => (
+                      // rules={{required:true}}
+                      render={({ field, fieldState: { error } }) => (
                         <Select
                           {...field}
                           isClearable
-                          onMenuOpen={() => getRoutesForSelect('drivers')}
-                          isDisabled={!!useProvider}
+                          onMenuOpen={() => getRoutesForSelect('drivers','requestID',requestFormData?.fecha_salida, requestFormData?.hora_salida||'09:00:00')}
+                          isDisabled={!!useProvider}                          
                           options={driversData}
-                          isLoading={isLoading}
-                          placeholder={'Select...'}
+                          isLoading={isLoading}                          
                           onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}                        
                           // value={driversData.find(o => o.value === field.value) || null}
                           value={driversData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
                           styles={{
+                            control: (base, state) => ({
+                              ...base,
+                              borderColor: error ? '#d32f2f' : state.isFocused ? '#2684FF' : base.borderColor,
+                              '&:hover': {
+                                borderColor: error ? '#d32f2f' : state.isFocused ? '#2684FF' : base.borderColor,
+                              },
+                              boxShadow: state.isFocused 
+                                ? `0 0 0 1px ${error ? '#d32f2f' : '#2684FF'}` 
+                                : 'none',
+                            }),
+                            placeholder: (base) => ({
+                              ...base,
+                              color: error ? '#d32f2f' : '#6b7280',
+                            }),
                             singleValue: (provided) => {                            
                               const selected = driversData.find(option => option.value === field.value) || { label: field.value, value: field.value }                                               
                               const color = 'success' in selected && selected.success === 1 ? 'red' : 'black'; // Cambia los colores según tu necesidad                              
@@ -161,18 +207,18 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                             }
                           }}
                         />
-              )}
+                      )}
                     />
                   </th>
 
                   <th>
                     <Controller
                       name={`${fieldName}.id_chasis`}
-                      control={control}
+                      control={control}                      
                       render={({ field }) => (
                         <Select
                           {...field}
-                          onMenuOpen={() => getRoutesForSelect('chasis')}
+                          onMenuOpen={() => getRoutesForSelect('chasis',requestID,requestFormData?.fecha_salida, requestFormData?.hora_salida||'09:00:00')}
                           isClearable
                           options={chasisData}
                           isDisabled={useProvider || rowDisabledFields.chasisDisabled}
@@ -187,7 +233,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                           }}                        
                           value={chasisData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
                           
-                          styles={{
+                          styles={{   
                             singleValue: (provided) => {
                               const selected = chasisData.find(option => option.value === field.value) || { label: field.value, value: field.value }                                               
                               const color = 'success' in selected && selected.success === 1 ? 'red' : 'black';
@@ -218,12 +264,13 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                   <th>
                     <Controller
                       name={`${fieldName}.id_cabezal`}
+                      // rules={{required:true}}
                       control={control}
-                      render={({ field }) => (
+                      render={({ field, fieldState: { error } }) => (
                         <Select
                           {...field}
                           isClearable
-                          onMenuOpen={() => getRoutesForSelect('cabezal')}
+                          onMenuOpen={() => getRoutesForSelect('cabezal',requestID,requestFormData?.fecha_salida, requestFormData?.hora_salida||'09:00:00')}
                           options={cabezalData}
                           isDisabled={!!useProvider}
                           isLoading={isLoading}
@@ -251,7 +298,17 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                                   backgroundColor: state.isSelected ? '#2684FF' : '#f0f0f0'
                                 }
                               };
-                            }
+                            },
+                            control: (base, state) => ({
+                              ...base,
+                              borderColor: error ? '#d32f2f' : state.isFocused ? '#2684FF' : base.borderColor,
+                              '&:hover': {
+                                borderColor: error ? '#d32f2f' : state.isFocused ? '#2684FF' : base.borderColor,
+                              },
+                              boxShadow: state.isFocused 
+                                ? `0 0 0 1px ${error ? '#d32f2f' : '#2684FF'}` 
+                                : 'none',
+                            }),
                           }}
                         />
                       )}
@@ -265,7 +322,7 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
                       render={({ field }) => (
                         <Select
                           {...field}
-                          onMenuOpen={() => getRoutesForSelect('furgon')}
+                          onMenuOpen={() => getRoutesForSelect('furgon',requestID,requestFormData?.fecha_salida, requestFormData?.hora_salida||'09:00:00')}
                           isClearable
                           options={furgonData}
                           isLoading={isLoading}

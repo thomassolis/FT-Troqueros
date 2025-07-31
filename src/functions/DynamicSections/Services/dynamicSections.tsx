@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react"
 import { Input } from "../../../components/ui/inputs/input"
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { serviceTypes } from "../../../components/types/forms/ServiceForm/serviceTypesForm";
+import InfoTooltip from "../../../components/ui/ToolTip/ToolTip";
 
 interface DynamicSectionsProps {
   id: number;
@@ -61,13 +62,16 @@ export const DynamicSections = ({ id, numero, onDelete, register, error }: Dynam
           )}
         </div>
 
-        <div className="w-full">
+        <div className="w-full flex items-center">
           <Input
             type="number"
             className2="py-4 w-full max-w-[200px]"
             placeholder="Tiempo Estimado"            
             {...register(`datos_servicio.${id}.tiempo_estimado`, {valueAsNumber: true})}
-          />       
+          />  
+          <InfoTooltip
+            content="De no colocar un tiempo, se tomará 1.5h"
+          />
         </div>
 
         {/* Icono de eliminar */}

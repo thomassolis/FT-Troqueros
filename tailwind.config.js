@@ -17,7 +17,7 @@ export default {
 
         },
         backgroundImage: {
-          'troqueros-logo': "url('./public/troqueros-logo.png')"
+          'troqueros-logo': "url('/troqueros-logo.png')"
         }
       },
     },

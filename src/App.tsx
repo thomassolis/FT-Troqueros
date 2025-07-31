@@ -13,7 +13,7 @@ import { SearchValueProvider } from "./context/searchValueForFilter/searchValue.
 import { NotFoundPage } from "./components/pages/NotFound/NotFoundPage.tsx";
 import { DriversCreation } from "./components/pages/Drivers/DriversCreation.tsx";
 import { DynamicRequestsProvider } from "./context/Requests/DynamicRequestsOptions.tsx";
-import ProtectedRoute from "./components/ProtectedRoute/protectedRoute.tsx";
+import { ProtectedRoute } from "./components/ProtectedRoute/protectedRoute.tsx";
 
 function App() {
 

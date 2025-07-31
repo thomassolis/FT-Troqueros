@@ -75,8 +75,7 @@ export const RoutesActions = async (actionType: ActionType, updateRouteData:any)
     let response;
     let data;
 
-    if (actionType === 'update') {
-      console.log('updateRouteData: ', updateRouteData)
+    if (actionType === 'update') {      
       response = await axios.put(`/services/update_services/services_data/`, updateRouteData);
     } else if (actionType === 'delete') {
 
@@ -87,8 +86,7 @@ export const RoutesActions = async (actionType: ActionType, updateRouteData:any)
       response = await axios.patch(`/services/activate_service_data`, data)
 
 
-    } else if (actionType==='add'){
-      console.log('updateRouteData', updateRouteData);
+    } else if (actionType==='add'){      
       data = {
         id_servicio: updateRouteData.id_servicio,
         lugar_destino: updateRouteData.lugar_destino,
@@ -121,8 +119,7 @@ export const RoutesActions = async (actionType: ActionType, updateRouteData:any)
 
 //Function for create a new service with its routes
 
-export const CreateNewService = async(formData:serviceTypes) => {
-  console.log('formData', formData);
+export const CreateNewService = async(formData:serviceTypes) => {  
   try{
     const response = await axios.post('/services/add_services', formData);
     

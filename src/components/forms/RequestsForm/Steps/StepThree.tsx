@@ -8,16 +8,70 @@ import { SelectOptionTypes } from "../../../types/Select/select";
 import { ServiceType } from "../../../../context/Requests/DynamicRequestsOptions";
 import { useLocation } from "react-router-dom";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
+// import isEqual from "date-fns/isEqual";
+// import { useRef } from "react";
 
-export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows, serviceTypes, setServiceTypes, isInitialLoad, setIsInitialLoad, requestFormData}) => {                    
+
+export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows, serviceTypes, setServiceTypes, isInitialLoad, setIsInitialLoad, requestFormData, setRequestFormData,reset/* getValues*/}) => {                    
     const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);//Estados que maneja los datos que tiene el select de servicios
     const [routesInformation, setRoutesInformation] = useState<Record<string, any>>({});
     const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({}); 
     const { control, setValue, register } = useFormContext<RequestsFormValues>();
+    // const serviciosSyncDone = useRef(false);
+// useEffect(() => {
+//   if (!Array.isArray(rows)) {
+//     console.log("Rows no es un array, saliendo...");
+//     return;
+//   }
+
+//   // Debug: Verificar contenido de rows y requestFormData
+//   console.log("IDs en rows:", rows.map(r => r.id_servicio_datos || r.serviceID)); // Soporta campos alternativos
+//   console.log("IDs en requestFormData.servicios:", requestFormData?.servicios?.map(s => s.id_servicio_datos));
+
+//   // 1. Extraer IDs de rows (con manejo de campos alternativos)
+//   const rowsIds = new Set(
+//     rows.map(r => r.id_servicio_datos || r.serviceID || r.id) // Ajusta según tu estructura real
+//   );
+//   console.log("IDs únicos en rows (Set):", [...rowsIds]);
+
+//   // 2. Filtrar servicios
+//   const cleanedServicios = (requestFormData?.servicios ?? []).filter(s => 
+//     rowsIds.has(s.id_servicio_datos.toString()) // Asegurar comparación como string
+//   );
+//   console.log("Servicios filtrados:", cleanedServicios);
+
+//   // 3. Obtener servicios actuales del formulario
+//   const currentServicios = getValues('servicios') || [];
+//   console.log("Servicios actuales en formulario:", currentServicios);
+
+//   // 4. Comparar y actualizar si hay cambios (comparación profunda o por IDs)
+//   const currentIds = new Set(currentServicios.map(s => s.id_servicio_datos?.toString()));
+//   const newIds = new Set(cleanedServicios.map(s => s.id_servicio_datos?.toString()));
+
+//   if (!isEqual([...currentIds], [...newIds])) {
+//     console.log("Actualizando servicios...", {
+//       old: currentServicios,
+//       new: cleanedServicios
+//     });
+
+//     setValue('servicios', cleanedServicios, { shouldValidate: true });
+
+//     if (setRequestFormData) {
+//       setRequestFormData(prev => ({
+//         ...prev,
+//         servicios: cleanedServicios,
+//       }));
+//     }
+
+//     serviciosSyncDone.current = true;
+//     console.log("Sincronización completada.");
+//   } else {
+//     console.log("No hay cambios en los servicios.");
+//   }
+// }, [rows?.length]); // Dependencia ajustada
 
     const location = useLocation();
     const isEditMode = location.pathname.includes('edit')    
-    
     //Función que hace que si requestData viene con valores pase estos datos al serviceTypes para que se forme la tabla
     useEffect(() => {
     if (requestFormData?.servicios?.length) {
@@ -101,9 +155,30 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
         return { ...st, ...updated };
         })
     );
+  
+    // if (requestFormData?.servicios) {
+    //     const updatedServicios = requestFormData.servicios.map(service => ({
+    //         ...service,
+    //         id_servicio_datos: '',
+    //         tarifa: 0
+    //     }));
+        
+    //     // Necesitarías actualizar el estado que contiene requestFormData
+    //     // Por ejemplo:
+    //     setRequestFormData(prev => ({ ...prev, servicios: updatedServicios }));
+    // }
     };    
 
     let totalRows;
+    // useEffect(()=>{
+    //     console.log('serviceTypesUseEffect: ',serviceTypes)
+    // },[serviceTypes])
+    // useEffect(()=>{
+    //     console.log('routesInformationUseEffect: ',routesInformation)
+    // },[routesInformation])
+    // useEffect(()=>{
+    //     console.log('routeIDsByRowUseEffect', routeIDsByRow);
+    // },[routeIDsByRow])
     if (isEditMode){
         //Al momento de editar totalRows dependerá de requestFormData
         totalRows = Array.isArray(requestFormData?.servicios) ? requestFormData.servicios.length : 0;        
@@ -113,10 +188,15 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     }
     // const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);            
     const deleteServiceType = (id: number) => {
+        console.log('id rECIBIDO:',id);        
     // 1. Eliminar de serviceTypes
+
+    console.log('serviceTypes: ', serviceTypes);
     setServiceTypes?.(prev => prev.filter(st => st.id !== id));
+    console.log('serviceTypes2: ', serviceTypes);
 
     // 2. Eliminar de routesInformation (usando el mismo ID)
+    console.log('routesInformation:',routesInformation);
     setRoutesInformation(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {
@@ -126,6 +206,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     });
 
     // 3. Eliminar de routeIDsByRow (usando el mismo ID)
+    console.log('routeIDsByRow:',routeIDsByRow);
     setRouteIDsByRow(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {
@@ -153,7 +234,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                     )}            
 
                     {serviceTypes?.map((serviceType) => (                    
-                        <DynamicRequestsType                             
+                        <DynamicRequestsType                                                      
                             key={serviceType.id}
                             id={serviceType.id}
                             selectedValue={serviceType.selectedValue}
@@ -165,6 +246,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                             requestFormData={requestFormData}
                             isEditMode={isEditMode}
                             serviceTypes={serviceTypes}
+                            useProvider={useProvider}
                         />
                     ))}
 
@@ -186,7 +268,9 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                         <h1 className="text-black mt-10">Favor seleccione las rutas que le desea asignar a cada servicio</h1>
                     }                                                         
                     <ServicesSelectionTable                    
-                        titles={['Tipo de Servicio', 'Rutas', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Vacío']}                    
+                        titles={
+                            ['Tipo de Servicio', 'Rutas', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Vacío']                        
+                        }                    
                         serviceTypes={serviceTypes}
                         servicesSelect = {servicesSelect}   
                         routeIDsByRow={routeIDsByRow}
@@ -201,7 +285,9 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                         isInitialLoad={isInitialLoad}
                         setIsInitialLoad={setIsInitialLoad}                               
                         isEditMode = {isEditMode}  
-                        requestFormData={requestFormData}                
+                        requestFormData={requestFormData} 
+                        setRequestFormData={setRequestFormData}        
+                        reset={reset}                            
                     />
                 </div>            
             )}

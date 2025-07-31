@@ -17,7 +17,9 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { DoubleConfirmationAlert } from '../../Alerts/DoubleConfirmation/doubleConfirmation';
 import { WarningAlert } from '../../Alerts/Warning/Warning';
-
+import { Dispatch } from 'react';
+import { SetStateAction } from 'react';
+import { UseFormReset } from 'react-hook-form';
 interface ServicesSelectionTableProps {
   titles: string[];
   serviceTypes: ServiceType[]|undefined;
@@ -35,6 +37,8 @@ interface ServicesSelectionTableProps {
   isInitialLoad: boolean| undefined;
   setIsInitialLoad: React.Dispatch<React.SetStateAction<boolean>>| undefined;  
   requestFormData?: RequestsFormValues;
+  setRequestFormData?: Dispatch<SetStateAction<RequestsFormValues>>; 
+  reset?:UseFormReset<RequestsFormValues>
 }
 
 export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({ 
@@ -47,42 +51,51 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   routesInformation,
   setRoutesInformation,  
   isEditMode,
-  requestFormData
+  requestFormData,
+  setRequestFormData,
+  reset
 }) => {      
   const [isLoading, setIsLoading] = useState(false);
   const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;    
-  const [selectDataMap, setSelectDataMap] = useState<Record<string, SelectOptionTypes[]>>({});
+  const [selectDataMap, setSelectDataMap] = useState<Record<string, SelectOptionTypes[]>>({});  
   
-  const deleteService = async({serviceID}:{ serviceID: string }) => {
-    
-    
+const deleteService = async ({ serviceID }: { serviceID: string }) => {
     const response = await DoubleConfirmationAlert({
       title: '¿Seguro deseas eliminar este servicio?',
       text: 'Se eliminaran todos los datos guardados incluyendo rutas, tarifas, etc',
       id: serviceID,
       type: 'deleteService'      
     });
+  if (response.success) {
+    // 1. Actualiza requestFormData
+    const updatedServicios = requestFormData?.servicios?.filter(
+      serv => serv.id_pedidoServicio !== Number(serviceID)
+    );
+    const newData = { ...requestFormData, servicios: updatedServicios };
     
-    if(response.success){
-      
-      setRows?.(prev => prev.filter(row => row.serviceTypeId !== Number(serviceID)));
-    }
+    // 2. Actualiza el estado local
+    setRequestFormData?.(newData);
+    
+    // 3. Sincroniza el formulario con los nuevos datos
+    reset?.(newData); // ✨ Clave: reset de React Hook Form
+    
+    // 4. Actualiza rows
+    setRows?.(prev => prev.filter(row => row.serviceTypeId !== Number(serviceID)));
   }
-
+};
   
-
   // Generamos las filas basadas en todos los serviceTypes  
   // Estado para controlar si es la primera carga
     let globalRowIndex = 0;
 
-
     useEffect(() => {
       
       //Al momento de editar la petición, esta función es la que se encarga de llenar los datos de la petición
-      if (isEditMode && requestFormData?.servicios?.length) {
-
-        
-        const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => {          
+      if (isEditMode && requestFormData?.servicios?.length) {       
+        console.log('requestFormData?.servicios?.length: ', requestFormData?.servicios?.length);
+        console.log('EditMode') 
+        const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => {     
+          console.log('requestFormData.servicios: ', requestFormData.servicios);
           return {
             serviceTypeId: servicio.id_pedidoServicio, // o puedes usar Date.now() si prefieres
             serviceType: servicio.servicio,
@@ -111,8 +124,7 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
             
             // Solo usar datos previos si el serviceType es el mismo (no recién creado)
             const prevRow = rows?.find(r => r.serviceTypeId === st.id && r.rowNumber === rowNumber);
-            
-            
+                        
             return {
               serviceTypeId: st.id,
               serviceType: st.selectedValue,
@@ -130,8 +142,30 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
           });
         })?? [];
         setRows?.(newRows);
+        // setRequestFormData(newRows);    
       }
-    }, [routeIDsByRow, serviceTypes, requestFormData]);
+    }, [routeIDsByRow, serviceTypes]);
+    //}, [routeIDsByRow, serviceTypes, requestFormData]); 
+
+useEffect(() => {
+  if (!isEditMode && rows) {
+    const updatedData = {
+      ...requestFormData,
+      servicios: rows.map(row => ({
+        id_servicio_datos: row.id_servicio_datos,
+        tarifa: row.tarifa,
+        entrega_vacio: row.entrega_vacio,
+        fecha_limite: row.fecha_limite,
+        servicio: row.serviceType,
+        lugar_origen: row.lugar_origen,
+        lugar_destino: row.lugar_destino,
+      }))
+    };
+    
+    setRequestFormData?.(updatedData);
+    reset?.(updatedData); // Esto actualizará RHF y triggereará watch
+  }
+}, [rows, isEditMode]);
 
 
 const getRoutesForSelect = async (serviceID?: number | string) => {
@@ -184,8 +218,7 @@ const getRoutesInformation = async (
       setRouteIDsByRow(prev => ({
         ...prev,
         [composedKey]: route.id_servicio_datos
-      }));
-      console.log('RowNumber: ', rowNumber);
+      }));    
       setValue(`servicios.${rowNumber - 1}.tarifa`, Number(flatInfo.tarifa));
     }
   } catch (error) {
@@ -207,17 +240,16 @@ const getRoutesInformation = async (
               {title}
             </th>
           ))} 
-          {rows?.some(row => row.entrega_vacio) && (
+          {/* {rows?.some(row => row.entrega_vacio) && (
             <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
               Fecha Límite
             </th>
-          )}         
+          )}          */}
         </tr>
       </thead>
       <tbody>
         {rows?.map((row, rowIndex) => {
-          const fieldName = `servicios.${rowIndex}` as const;   
-            console.log(`Row ${rowIndex}: rowNumber = ${row.rowNumber}`);
+          const fieldName = `servicios.${rowIndex}` as const;               
           return(
           <tr key={`${row.serviceType}-${rowIndex}`}>
             <td className="border border-gray-400 px-4 py-2 text-center">
@@ -227,60 +259,72 @@ const getRoutesInformation = async (
               <Controller
                 name={`${fieldName}.id_servicio_datos`}
                 control={control}
-                render={({ field }) => {
-                  
-                  // 👇 Aquí va la lógica de options y selectedOption
+                rules={{required: true}}
+                render={({ field, fieldState }) => {
                   const options = row.serviceID ? selectDataMap[row.serviceID] ?? [] : [];
                   const selectedOption =
-                    options.find(opt => Number(opt.value) === Number(field.value)) ??
-                    row.selectedOption ??
-                    (row.lugar_origen && row.lugar_destino && row.id_servicio_datos
-                      ? {
-                          value: row.id_servicio_datos,
-                          label: `${row.lugar_origen} - ${row.lugar_destino}`,
-                        }
-                      : null);
+                    options.find(opt => Number(opt.value) === Number(field.value)) ?? row.selectedOption ?? (
+                      row.lugar_origen && row.lugar_destino && row.id_servicio_datos
+                        ? { value: row.id_servicio_datos, label: `${row.lugar_origen} - ${row.lugar_destino}` }
+                        : null
+                    );
 
                   return (
-                    <Select
-                      {...field}
-                      placeholder="Seleccione una ruta"
-                      options={options}
-                      value={selectedOption}
-                      isLoading={isLoading}
-                      isDisabled={isEditMode}
-                      onChange={(selectedOption) => {
-                        if (typeof selectedOption === 'object' && selectedOption !== null) {
-                          field.onChange(selectedOption.value);
-                        } else {
-                          field.onChange(selectedOption);
-                        }
+                    isEditMode ? (
+                      <td>{row.lugar_origen} - {row.lugar_destino}</td>
+                    ) : (
+                      <div className="flex flex-col">
+                        <Select
+                          {...field}
+                          placeholder="Seleccione una ruta"
+                          options={options}
+                          value={selectedOption}
+                          isLoading={isLoading}    
+                          
+                          isDisabled={isEditMode}
+                          onChange={(selectedOption) => {
+                            const value = typeof selectedOption === 'object' && selectedOption !== null
+                            ? selectedOption.value
+                            : '';
+                                                       
+                            // Actualiza react-hook-form
+                            field.onChange(value);
 
-                        const updatedRows = [...rows];
-                        updatedRows[rowIndex] = {
-                          ...updatedRows[rowIndex],
-                          id_servicio_datos:
-                          typeof selectedOption === 'object' && selectedOption !== null
-                            ? String(selectedOption.value)
-                            : '',
-                          selectedOption: selectedOption && typeof selectedOption === 'object'
-                            ? String(selectedOption.value)
-                            : '',
-                        };
+                            // Actualiza el estado de filas
+                            const updatedRows = [...rows];
+                            updatedRows[rowIndex] = {
+                              ...updatedRows[rowIndex],
+                              id_servicio_datos: String(value), // Usa el valor directamente
+                              // Elimina selectedOption o mantenlo como string si es necesario
+                              selectedOption: String(value) // Guarda solo el valor (ej: '96')
+                            };
+                            
+                            setRows?.(updatedRows);
 
-    
-                        setRows?.(updatedRows);
-                        if (typeof selectedOption === 'object' && selectedOption !== null && 'value' in selectedOption) {
-                          getRoutesInformation(
-                            Number(selectedOption.value),
-                            row.serviceTypeId,
-                            row.rowNumber
-                          );
-                        }
+                            if (value) {
+                              getRoutesInformation(Number(value), row.serviceTypeId, row.rowNumber);
+                            }
+                          }}
+                          onMenuOpen={() => getRoutesForSelect(row.serviceID)}
+                          styles={{
+                            control: (base, state) => ({
+                              ...base,
+                              borderColor: fieldState.invalid ? '#d32f2f' : base.borderColor,
+                              '&:hover': {
+                                borderColor: fieldState.invalid ? '#d32f2f' : base.borderColor,
+                              },
+                              boxShadow: state.isFocused
+                                ? `0 0 0 1px ${fieldState.invalid ? '#d32f2f' : '#2684FF'}`
+                                : 'none',
+                            }),
+                          }}
+                        />
 
-                      }}
-                      onMenuOpen={() => getRoutesForSelect(row.serviceID)}
-                    />
+                        {fieldState.invalid && (
+                          <span className="text-red-500 text-xs mt-1">{fieldState.error?.message}</span>
+                        )}
+                      </div>
+                    )
                   );
                 }}
               />
@@ -296,12 +340,16 @@ const getRoutesInformation = async (
                 <Controller
                   name={`${fieldName}.tarifa`}
                   control={control}
+                  rules={{
+                    required:true                    
+                  }}
                   defaultValue={row.tarifa || 0} // 👈 importante para render inicial
-                  render={({ field }) => (
+                  render={({ field, fieldState:{error} }) => (
                     <input
                       type="number"
-                      value={field.value || 0}
-                      // value={row.tarifa} // usa field.value (no row.tarifa)
+                      {...field}
+                      // value={field.value || 0}
+                      value={row.tarifa} // usa field.value (no row.tarifa)
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         field.onChange(value);
@@ -315,10 +363,14 @@ const getRoutesInformation = async (
                           }
                         }));
                       }}
-                      className="w-full border border-gray-300 rounded px-2 py-1"
+                      className={`w-full border rounded px-2 py-1 ${error ? "border-red-500" : "border-gray-300"}`}
+                      
                     />
+                    
                   )}
+                  
                 />
+                
               </td>
 
               
@@ -326,28 +378,66 @@ const getRoutesInformation = async (
                 <Controller
                   name={`${fieldName}.entrega_vacio`}
                   control={control}
-                  // defaultValue={false}
-                  render={({ field }) => (
-                    <input
-                      type="checkbox"
-                      checked={field.value || false}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        
+                  render={({ field }) => {
+                    const checked = field.value || false;
 
-                        // 1. Actualiza el campo principal (entrega_vacio)
-                        field.onChange(checked);
-                        // 2. Actualiza el estado local de la fila
-                        handleEntregaVacioChange(rowIndex, checked);
-                      }}
-                    />
-                  )}
+                    return (
+                      <div className='flex items-center justify-center gap-5'>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            const newValue = e.target.checked;
+                            field.onChange(newValue);
+                            handleEntregaVacioChange(rowIndex, newValue);
+                          }}
+                        />
+                        {/* Este bloque ahora está DENTRO del mismo <td> */}
+                        {checked && (
+                          <div>
+                            <Controller
+                              name={`${fieldName}.fecha_limite`}
+                              control={control}
+                              rules={{required:'Fecha Límite requerida'}}
+                              render={({ field, fieldState }) => (
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                  <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
+                                    <DatePicker
+                                      label="Fecha Límite De Entrega"
+                                      format="DD/MM/YY"
+                                      value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
+                                      minDate={dayjs().startOf('day')}
+                                      shouldDisableDate={(date) => date.isBefore(dayjs(), 'day')}
+                                      onChange={(date) => {
+                                        const formattedDate = dayjs(date).format('YYYY-MM-DD');
+                                        field.onChange(formattedDate);
+                                      }}
+                                      className="bg-white w-full"    
+                                      
+                                      slotProps={{
+                                        textField: {
+                                          error: fieldState.invalid, // 👈 esto activa el borde rojo
+                                          fullWidth: true,              
+                                        },
+                                      }}
+                                    />
+                                  </DemoContainer>
+                                </LocalizationProvider>
+                              )}
+                              
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }}
                 />
-              </td>        
+              </td>
+     
 
 
               {/* Muestra la columna adicional solo si esta fila tiene entrega_vacio en true */}
-              {row.entrega_vacio && (
+              {/* {row.entrega_vacio && (
                 <td className="border border-gray-400 px-2 py-2 text-center">
                   
                   <Controller
@@ -360,24 +450,22 @@ const getRoutesInformation = async (
                                       label="Selecciona una fecha"
                                       format="DD/MM/YY"
                                       value={field.value ? dayjs(field.value, 'YYYY/MM/DD') : null} // Convierte el string a dayjs
+                                      minDate={dayjs().startOf('day')}
+                                      shouldDisableDate={(date) => {
+                                          return date.isBefore(dayjs(), 'day');
+                                      }}
                                       onChange={(date) => {
                                           const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Formatea a DD/MM/YY
                                           field.onChange(formattedDate); // Guarda el string (ej: "25/06/24")
                                       }}
                                       className="bg-white w-full"
-                                      // slotProps={{
-                                      //     textField: {
-                                      //     error: !!errors.fecha_salida,
-                                      //     helperText: errors.fecha_salida?.message,
-                                      //     },
-                                      // }}
                                   />
                               </DemoContainer>
                           </LocalizationProvider>
                       )}  
                   />                  
                 </td>
-              )}
+              )} */}
 
               {isEditMode ? (
                 <td className='text-center px-4'>

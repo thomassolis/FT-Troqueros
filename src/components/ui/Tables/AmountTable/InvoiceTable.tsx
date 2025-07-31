@@ -1,7 +1,7 @@
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
 interface InvoiceTableProps {
-  requestFormData: RequestsFormValues | undefined;
+  requestFormData: RequestsFormValues | undefined;  
 }
 
 interface Extra {
@@ -48,7 +48,7 @@ export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {
     <table className="border border-black w-[70%]">
       <thead className="py-3">
         <tr className="border-b-2 border-gray-400">
-          <th className="text-black py-1 text-center">Descripción</th>
+          <th className="text-black py-1 text-center w-[70%]">Descripción</th>
           <th className="text-black py-1 text-center">Costo</th>
         </tr>
       </thead>
@@ -60,7 +60,8 @@ export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {
             className="hover:bg-gray-50 cursor-pointer"
           >
             <td className="py-1 text-center">
-              {servicio.servicio || `Servicio ${index + 1}`}
+              {servicio.servicio +` (${servicio.lugar_origen} - ${servicio.lugar_destino})` || `Servicio ${index + 1}`}
+              
             </td>
             <td className="py-1 text-center">
               ${calculateTariff(index).toLocaleString()}

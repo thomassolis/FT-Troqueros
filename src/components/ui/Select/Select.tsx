@@ -27,7 +27,7 @@ export const Select = ({ statusOptions, apiRequest, id, defaultValue, module }: 
     const { vehicleType } = useContext(vehicleTypeContext)!;
     const [selectedOption, setSelectedOption] = useState<string>(defaultValue || statusOptions[0]);
     const initialRender = useRef(true);
-
+    
     useEffect(() => {
         setSelectedOption(defaultValue);
     }, [defaultValue]);

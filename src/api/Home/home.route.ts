@@ -132,7 +132,7 @@ export const DownloadRequestExcel = async({selectedOption, searchValue, selected
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'reporte.xlsx');
+        link.setAttribute('download', 'reporteTroqueros.xlsx');
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -155,5 +155,17 @@ export const getDataForCalendar = async () => {
         return response.data.data;
     }catch(error){
         console.error('Error en getDataForCalendar', error);
+    }
+}
+
+//---------------------------------------------------------AGENDA----------------------------------------------
+
+export const logoutUser = async () => {
+    try{
+        const response = await axios.post('/logout')        
+        console.log('response: ', response);
+        return response.data;
+    }catch(error){
+        console.error('Error en logoutUser',error);
     }
 }

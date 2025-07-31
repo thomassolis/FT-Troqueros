@@ -26,7 +26,11 @@ export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean)
         'profit',
         'monto',
         'cliente',
-        'proveedor'
+        'proveedor',
+        'servicio',
+        'nuevo_costo',
+        'lugar_destino',
+        'lugar_origen'
       ];
 
       // Condición especial: eliminar precio_proveedor si NO es solicitud de proveedor
@@ -45,6 +49,14 @@ export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean)
 
       // No enviar costos_extras si el array está vacío
       if (key === 'costos_extras' && Array.isArray(obj[key]) && obj[key].length === 0) {
+        return acc;
+      }
+
+      // No enviar fecha_limite si entrega_vacio es false
+      if (key === 'fecha_limite' && obj.entrega_vacio === false) {
+        return acc;
+      }
+      if (key === 'entrega_vacio' && obj.entrega_vacio === false) {
         return acc;
       }
 
