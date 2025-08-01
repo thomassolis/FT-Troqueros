@@ -24,9 +24,7 @@ export const StepperFormDrivers = () => {
       nombre: "",
       cedula: "",      
       telefono: "",
-      email: "",      
-      // fotoCedula: null,
-      // fotoLicencia: null,
+      email: "",            
     }
   });
 
@@ -67,11 +65,7 @@ export const StepperFormDrivers = () => {
         telefono: driversData.telefono ?? "",
         email: driversData.email ?? "",
         apellido: driversData.apellido ?? "",
-        tipo_licencia: driversData.tipo_licencia ?? "",        
-        // fotoCedula: Array.isArray(driversData.fotoCedula) ? driversData.fotoCedula : null,
-        // fotoLicencia: Array.isArray(driversData.fotoLicencia) ? driversData.fotoLicencia : null,
-        // pazSalvo: Array.isArray(driversData.pazSalvo) ? driversData.pazSalvo : null,
-        // recordPolicivo: Array.isArray(driversData.recordPolicivo) ? driversData.recordPolicivo : null,
+        tipo_licencia: driversData.tipo_licencia ?? "",                
       });
     }
   }, [driversData]);
@@ -91,17 +85,24 @@ export const StepperFormDrivers = () => {
   };
 
   const onSubmit = async (data: DriversFormValues) => {
-    setIsLoading(true);
+    try{
+      setIsLoading(true);
 
-    const response = procedure === "create"
-      ? await SendDataForNewDriver({ data })
-      : await sendDataForUpdateDrivers({ data, driverID });
+      const response = procedure === "create"
+        ? await SendDataForNewDriver({ data })
+        : await sendDataForUpdateDrivers({ data, driverID });
 
-    if (response.success) {
-      navigate("/home/Drivers");
+      if (response.success) {
+        navigate("/home/Drivers");
+      }
+
+      setIsLoading(false);
+    }catch(error){
+      console.error('error en onSubmit de drivers', error);
     }
-
-    setIsLoading(false);
+    finally{
+      setIsLoading(false);
+    }
   };
 
   return (

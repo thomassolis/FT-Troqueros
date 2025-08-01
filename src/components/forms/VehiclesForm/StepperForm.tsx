@@ -111,17 +111,23 @@ export const StepperForm = ({ selectedOption }: StepperFormProps) => {
   };
 
   const onSubmit = async (data: FormValues) => {
-    setIsLoading(true);
-    const response =
-      currentAction === 'create'
-        ? await sendDataForCreation({ data, vehicleType })
-        : await sendDataForUpdate({ data, vehicleType, vehicleID });
+    try{
+      setIsLoading(true);
+      const response =
+        currentAction === 'create'
+          ? await sendDataForCreation({ data, vehicleType })
+          : await sendDataForUpdate({ data, vehicleType, vehicleID });
 
-    if (response.success) {
-      navigate('/home/Vehicles');
+      if (response.success) {
+        navigate('/home/Vehicles');
+      }
+
+      setIsLoading(false);
+    }catch(error){
+      console.error('Error en onSubmit de vehiculos: ', error);
+    }finally{
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

@@ -3,6 +3,10 @@ import { Button } from "../../ui/buttons/button";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/auth/authProvider";
 import { logoutUser } from "../../../api/Home/home.route";
+import { getJwtFromCookies } from "../../../functions/JWT/getJWTFromCookies";
+import { decodeJwt } from "../../../functions/JWT/getJWTFromCookies";
+import { useEffect } from "react";
+import { useState } from "react";
 
 interface ProfileProps {
   setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
@@ -10,7 +14,27 @@ interface ProfileProps {
 }
 
 export const Profile = ({showProfile, setShowProfile}:ProfileProps) => {
-    const {setIsAuthenticated} = useContext(AuthContext)!;    
+    const {setIsAuthenticated} = useContext(AuthContext)!;  
+     const [_userData, setUserData] = useState(); 
+      
+    const cookie = getJwtFromCookies()
+    console.log('cookie',cookie);
+
+  useEffect(() => {
+    // Verificar cookies solo en el lado del cliente
+    const cookie = getJwtFromCookies();
+    console.log('Cookie obtenida:', cookie);
+    
+    if (cookie) {
+      try {
+        const decoded = decodeJwt(cookie);
+        console.log('Datos decodificados:', decoded);
+        setUserData(decoded);
+      } catch (error) {
+        console.error('Error decodificando JWT:', error);
+      }
+    }
+  }, []);
     return(
         <div className="flex flex-col items-center">
             <div className="w-[100%] flex justify-between px-3 mt-3">

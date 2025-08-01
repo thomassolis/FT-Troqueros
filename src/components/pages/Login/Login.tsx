@@ -35,7 +35,7 @@ export const Login = () => {
 
         try {
             const response = await SendLoginCredentials(formattedData, navigate);
-            
+            console.log('SendLoginCredentials', response);
             if (response?.success) {  
                 // 🔹 Guardar los datos del usuario en el contexto
                 setUserRole(response.data.rol);

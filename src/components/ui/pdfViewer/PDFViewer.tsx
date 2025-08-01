@@ -8,7 +8,7 @@ export const FilesViewer = ({ files }: FilesViewerProps) => {
     
     if (!files || files.length === 0) {
         return <p>No hay archivos disponibles.</p>;
-    }
+    }    
 
     // Función para determinar el tipo de archivo
     const isImage = (ext: string) => /\.(jfif|jpg|jpeg|png|gif|bmp|webp)$/i.test(ext);
@@ -42,7 +42,10 @@ export const FilesViewer = ({ files }: FilesViewerProps) => {
                                         ? 'Licencia'
                                         : file.source === 'pazSalvo' 
                                         ? 'Paz Y Salvo'
-                                        : null}
+                                        : file.source === 'record_policivo'
+                                        ? 'Record Policivo'
+                                        :null
+                                        }
                                     </strong>
                                 </p>
 

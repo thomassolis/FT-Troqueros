@@ -126,7 +126,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
         <>
              <div className="flex min-w-full flex-col items-center max-h-[300px] overflow-y-auto mt-5">
                 <table className="text-sm text-gray-500 w-full min-w-full">
-                    <thead className="text-xs uppercase dark:bg-white w-full sticky top-0 shadow-2xl z-30">
+                    <thead className="text-xs uppercase dark:bg-white w-full sticky top-0 shadow-2xl z-30 bg-white">
                         <tr className="w-full">
                             {headerTable.map((header, index) => (
                                 <th key={index} className="px-6 py-3">{header}</th>

@@ -11,6 +11,10 @@ interface AuthContextType {
   setIsAuthenticated: (auth: boolean) => void;
   loading: boolean;
   logout: () => void; // Nueva función de logout
+  setUserRole: (role: string | null) => void;
+  setUserName: (name: string | null) => void;
+  setUserLastName: (lastName: string | null) => void;
+  setUserEmail: (email: string | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -23,6 +27,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(()=>{
+    console.log('userName', userName);
+  }, [userName]);
 
   const logout = () => {
     // Limpiar todos los estados de usuario
@@ -66,11 +74,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         userName,
         userLastName,
         banTime,
+        setUserName,
         userEmail,
         isAuthenticated,
         setIsAuthenticated,
+        setUserRole,
+        setUserEmail,
+        setUserLastName,
         loading,
         logout // Añadir función de logout
+
       }}
     >
       {children}
