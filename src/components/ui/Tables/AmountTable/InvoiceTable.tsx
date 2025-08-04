@@ -10,6 +10,7 @@ interface Extra {
 }
 
 export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {
+  console.log('requestFormDataInvoiceTable: ', requestFormData);
   const servicios = requestFormData?.servicios || [];  
   const normalizeExtras = (extras: any): Extra[] => {
     if (!extras) return [];

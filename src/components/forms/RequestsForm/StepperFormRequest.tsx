@@ -191,7 +191,7 @@ const onSubmit = async (data: any) => {
         <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center">
           <StepperLine step={activeStep} />
 
-          <div className="w-[85%]">            
+          <div className="w-[95%]">            
             <div hidden={activeStep !== 0}>
               <Step1/>
             </div>

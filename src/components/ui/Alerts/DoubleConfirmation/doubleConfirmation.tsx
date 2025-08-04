@@ -33,7 +33,7 @@ export const DoubleConfirmationAlert = async ({
 
     try {
         let response;
-
+        console.log('requestIDNuevo: ', id);
         switch (type) {
             case 'deleteService':
                 if (!id) throw new Error("ID faltante");
@@ -41,10 +41,10 @@ export const DoubleConfirmationAlert = async ({
                 break;
                 
             case 'deleteRequest':
-                if (!requestID) throw new Error("requestID faltante");
+                if (!id) throw new Error("requestID faltante");
                 response = await UpdateRequestStatus({ 
                     status: 'Cancelado', 
-                    id: requestID // Pasamos directamente el string
+                    id: id // Pasamos directamente el string
                 });
                 break;
                 

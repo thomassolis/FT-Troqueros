@@ -47,33 +47,33 @@ export const AmountTable = ({
     const nuevos_costos_extras = watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];         
 console.log('RequestFormData AmountTable:', requestFormData);
 console.log('filteredServiceData AmountTable:', filteredServiceData);
-const handleSaveExtra = () => {
-  const descripcion = watch?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`);
-  const precio = watch?.(`servicios.${selectedIndex}.nuevo_costo.precio`);
+    const handleSaveExtra = () => {
+    const descripcion = watch?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`);
+    const precio = watch?.(`servicios.${selectedIndex}.nuevo_costo.precio`);
 
-  if (!descripcion || precio == null || isNaN(Number(precio))) return;
+    if (!descripcion || precio == null || isNaN(Number(precio))) return;
 
-  const nuevoCostoExtra: NuevoCostoExtra = {
-    descripcion,
-    precio: Number(precio),
-  };
+    const nuevoCostoExtra: NuevoCostoExtra = {
+        descripcion,
+        precio: Number(precio),
+    };
 
-  const arrayPath = isEditMode
-    ? `servicios.${selectedIndex}.nuevos_costos_extras`
-    : `servicios.${selectedIndex}.costos_extras`;
+    const arrayPath = isEditMode
+        ? `servicios.${selectedIndex}.nuevos_costos_extras`
+        : `servicios.${selectedIndex}.costos_extras`;
 
-  const currentExtras = watch?.(arrayPath as any) || [];
+    const currentExtras = watch?.(arrayPath as any) || [];
 
-  const safeExtras = Array.isArray(currentExtras) ? currentExtras : [];
+    const safeExtras = Array.isArray(currentExtras) ? currentExtras : [];
 
-  setValue?.(arrayPath as any, [...safeExtras, nuevoCostoExtra]);
+    setValue?.(arrayPath as any, [...safeExtras, nuevoCostoExtra]);
 
-  // Limpiar inputs temporales
-  setValue?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`, '');
-  setValue?.(`servicios.${selectedIndex}.nuevo_costo.precio`, null);
+    // Limpiar inputs temporales
+    setValue?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`, '');
+    setValue?.(`servicios.${selectedIndex}.nuevo_costo.precio`, null);
 
-  setAddExtraPrice(false);
-};
+    setAddExtraPrice(false);
+    };
 
 
 

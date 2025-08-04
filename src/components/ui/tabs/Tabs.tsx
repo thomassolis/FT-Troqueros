@@ -33,7 +33,8 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
-
+    const requestEdit = pathSegments[pathSegments.length - 2];    
+    
     const tabHeaders: Record<string, string[]> = {
         "Chasises": ["PLACA", "STATUS", "ACCIONES"],
         "Cabezales": ["PLACA", "STATUS", "ACCIONES"],
@@ -50,7 +51,20 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
     if (module != "Vehicles" && rows?.length) {        
         console.log('rows module :', rows)
         console.log('selectedTab :', selectedTab)
-      const newRows = rows?.filter((row) => row.rowIndex === selectedTab);      
+        console.log('Filter requestFormData:', requestFormData)
+        
+        let newRows;
+        if(requestEdit==='edit'){
+            // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
+            newRows = rows.filter((row) => row.rowIndex === selectedTab);
+            // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
+        }else{
+            console.log('rows2',rows);
+            console.log('selectedTab',selectedTab);
+            // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
+            newRows = rows.filter((row) => row.rowIndex === selectedTab);
+        }      
+    //   const newRows = rows.filter((row) => row.rowIndex === selectedTab);
       setFilteredRows(newRows);      
     }
   }, [module, rows, selectedTab]); 

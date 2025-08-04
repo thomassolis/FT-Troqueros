@@ -123,13 +123,14 @@ const tableCellStyles = {
   boxSizing: 'border-box',
 };
 
-  const disableRequest = async (requestID:string) => {               
+  const disableRequest = async (requestID:string) => {
+    console.log('RequestID', requestID);
     const response = await DoubleConfirmationAlert({
       title:'¿Estás seguro que deseas deshabilitar esta petición?',
       text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',
       id: requestID,
       type: 'deleteRequest',
-      // onConfirm: () => onDelete?.(row.id)
+      // onConfirm: () => onDelete?.(requestID)
     });
     if(response.success){
       onStatusChange?.(requestID, 'Cancelado');
@@ -245,6 +246,14 @@ const tableCellStyles = {
 
         {procedure === 'completeRequestHistory' && (
           <>
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.sh ? '' : 'text-red-500'}>{row.sh || 'No asignado'}</p>
+            </TableCell>
+
+            <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
+              <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.numero_contenedor ? '' : 'text-red-500'}>{row.numero_contenedor || 'No asignado'}</p>
+            </TableCell>
+
             <TableCell align="center" sx={{...tableCellStyles, width: '12%', maxWidth: '12%'}}> 
               <p style={{ margin: 0, wordBreak: 'break-word' }} className={row.monto ? '' : 'text-red-500'}>{row.monto || 'No asignado'}</p>
             </TableCell>

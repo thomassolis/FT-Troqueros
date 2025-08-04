@@ -93,18 +93,31 @@ useEffect(() => {
   return () => document.removeEventListener("mousedown", handleClickOutside);
 }, []);
 
-
+  let options;
+  if(lastSegment==='completeRequestHistory'){
+    console.log('lastSegment', lastSegment);
+    options=[
+      {value: 'id', label: 'ID'}, 
+      {value: 'nameService', label: 'Servicio'}, 
+      {value: 'nameDriver', label: 'Conductor'}, 
+      {value: 'nameCustomer', label: 'Cliente'},                 
+      {value: 'sh', label: 'SH'},                 
+      {value: 'num_contenedor', label: 'Contenedor'},                 
+    ] 
+  }else{
+    options=[
+      {value: 'id', label: 'ID'}, 
+      {value: 'nameService', label: 'Servicio'}, 
+      {value: 'nameDriver', label: 'Conductor'}, 
+      {value: 'nameCustomer', label: 'Cliente'},                 
+    ]  
+  }
 
   return(
     <div className="flex bg-red-">
       {lastSegment === 'home' ? (
         <Select
-            options={[
-                {value: 'id', label: 'ID'}, 
-                {value: 'nameService', label: 'Servicio'}, 
-                {value: 'nameDriver', label: 'Conductor'}, 
-                {value: 'nameCustomer', label: 'Cliente'}
-            ]}  
+            options={options}  
             className="text-black max-w-[35%] min-w-[20%]"        
             value={selectedOption}
             onChange={(optionselected) => {setSelectedOption?.(optionselected)}}                                                            
@@ -151,39 +164,34 @@ useEffect(() => {
             </div>   
 
             <div className="w-full ">
-                          <Select
-            options={[
-              {value: 'id', label: 'ID'}, 
-              {value: 'nameService', label: 'Servicio'}, 
-              {value: 'nameDriver', label: 'Conductor'}, 
-              {value: 'nameCustomer', label: 'Cliente'}
-            ]}  
-            className="text-black w-full min-w-[20%]"        
-            value={selectedOption}
-            onChange={(optionselected) => {setSelectedOption?.(optionselected)}}                                       
-            styles={{
-              control: (base) => ({                                
-                ...base,
-                borderRadius: 0,
-                borderColor: 'gray',
-                padding: '2px',
-                color: 'black'
-              }),
-              singleValue: (base) => ({
-                ...base,
-                color: 'black'
-              }),
-              menu: (base) => ({
-                ...base,
-                zIndex: 9999,
-                marginTop: '2px'
-              }),
-              menuPortal: (base) => ({
-                ...base,
-                zIndex: 9999
-              })
-            }}
-          />                        
+              <Select
+                options={options}  
+                className="text-black w-full min-w-[20%]"        
+                value={selectedOption}
+                onChange={(optionselected) => {setSelectedOption?.(optionselected)}}                                       
+                styles={{
+                  control: (base) => ({                                
+                    ...base,
+                    borderRadius: 0,
+                    borderColor: 'gray',
+                    padding: '2px',
+                    color: 'black'
+                  }),
+                  singleValue: (base) => ({
+                    ...base,
+                    color: 'black'
+                  }),
+                  menu: (base) => ({
+                    ...base,
+                    zIndex: 9999,
+                    marginTop: '2px'
+                  }),
+                  menuPortal: (base) => ({
+                    ...base,
+                    zIndex: 9999
+                  })
+                }}
+              />                        
             </div>                 
         </div>
       ) : (

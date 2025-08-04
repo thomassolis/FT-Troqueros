@@ -31,6 +31,7 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
     const fetchCalendarData = async () => {
       try {
         const response = await getDataForCalendar();
+        console.log('Response Calendar: ', response);
         const formatted = response.map((event: any) => ({
           ...event,
           start: new Date(event.start),
@@ -95,7 +96,7 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
       className={`bg-white text-gray-800 p-6 shadow-xl rounded-xl w-[90%] transition-all duration-300 ${
         sidebarState ? "" : "ml-6"
       }`}
-      style={{ height: "75vh" }}
+      style={{ height: "85vh" }}
     >
       <Calendar
         localizer={localizer}
@@ -145,9 +146,16 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
         {selectedEvent && (
           <div className="space-y-4">
             <div className="flex justify-between items-start">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {selectedEvent.title}
-              </h2>
+              {selectedEvent?.type === 'Vacio' ? (
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Contenedor: {selectedEvent.details?.numero_contenedor || "No especificada"}
+                </h2>
+                ):
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Petición: {selectedEvent.details?.peticion || "No especificada"}
+                </h2>
+              }
+
               <button
                 onClick={closeModal}
                 className="text-gray-500 hover:text-gray-700"
@@ -186,18 +194,8 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
                   <span className="text-sm font-medium text-gray-500">
                     Petición:
                   </span>
-                </div>
-                <span className="text-sm text-gray-700">
-                  {selectedEvent.details?.peticion || "No especificada"}
-                </span>
-              </div>
+                </div>                
 
-              <div className="flex items-start">
-                <div className="w-24 flex-shrink-0">
-                  <span className="text-sm font-medium text-gray-500">
-                    Tipo:
-                  </span>
-                </div>
                 <span
                   onClick={()=>{
                     navigate(`/home/Request/edit/${selectedEvent.details?.peticion}`)
@@ -210,9 +208,62 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
                       : "bg-blue-100 text-blue-800"
                   }`}
                 >
+                  {selectedEvent.details?.peticion || "No especificada"}
+                </span>
+              </div>
+
+              {selectedEvent?.type === 'Vacio' && (
+                <>
+                  <div className="flex items-start">
+                    <div className="w-24 flex-shrink-0">
+                      <span className="text-sm font-medium text-gray-500">
+                        SH:
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-700">
+                      {selectedEvent.details?.sh || "No especificado"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-start">
+                    <div className="w-24 flex-shrink-0">
+                      <span className="text-sm font-medium text-gray-500">
+                        Contenedor:
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-700">
+                      {selectedEvent.details?.numero_contenedor || "No especificado"}
+                    </span>
+                  </div>
+                </>
+              )}
+
+
+              <div className="flex items-start">
+                <div className="w-24 flex-shrink-0">
+                  <span className="text-sm font-medium text-gray-500">
+                    Tipo:
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-gray-500">
                   {selectedEvent.type}
                 </span>
               </div>
+
+              {selectedEvent?.type === 'Proveedor' && (
+                <div className="flex items-start">
+                  <div className="w-24 flex-shrink-0">
+                    <span className="text-sm font-medium text-gray-500">
+                      Proveedor:
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-500">
+                    {selectedEvent.details.nombre_proveedor}
+                  </span>
+                </div>
+              )
+
+              }
 
               <div className="flex items-start">
                 <div className="w-24 flex-shrink-0">

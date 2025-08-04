@@ -51,12 +51,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
           {/* Sidebar Content */}
           <ul className="pt-6 flex flex-col gap-8  h-full ">
             <div>
-                <li>
                 <MenuItem
                         icon={<Icon icon="iconamoon:menu-burger-horizontal-bold" width="28" height="28" />}
                         onClick={() => setOpenSideBar((prev) => !prev)}
                 >
                         {openSideBar && "Menú"}
+                </MenuItem>
+            </div>
+
+            <div>
+                <li>
+                <MenuItem
+                        icon={<Icon icon="ic:round-home" width="28" height="28" />}
+                        onClick={()=> navigate('/home')}
+                >
+                        {openSideBar && "Home"}
                 </MenuItem>
                 </li>
             </div>            

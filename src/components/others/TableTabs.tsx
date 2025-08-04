@@ -51,6 +51,8 @@ export interface TableRowVariables {
   customerId: string;
   date: string;
   fecha_finalizacion?: string;
+  numero_contenedor?:string;
+  sh?:string;
   services: ServiceItem[];
 }
 
@@ -103,6 +105,7 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
         
         try {
             setIsLoading(true);
+            console.log('selectedOption', selectedOption);
             const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                                   
 
             const transformedData = transformTableData(response.data);
@@ -116,8 +119,7 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
         }finally{
             setIsLoading(false);
         }
-    };
-    
+    };    
 
     return (
         <div className="w-[90%] overflow-hidden flex justify-end">

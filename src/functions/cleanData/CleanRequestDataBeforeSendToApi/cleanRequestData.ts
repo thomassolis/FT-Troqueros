@@ -30,7 +30,8 @@ export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean)
         'servicio',
         'nuevo_costo',
         'lugar_destino',
-        'lugar_origen'
+        'lugar_origen',
+        'rowIndex'
       ];
 
       // Condición especial: eliminar precio_proveedor si NO es solicitud de proveedor

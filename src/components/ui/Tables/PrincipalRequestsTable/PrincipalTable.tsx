@@ -63,7 +63,9 @@ useEffect(() => {
       fecha_creacion: item?.fecha_creacion,
       fecha_salida: item?.fecha_salida,
       hora_salida: item?.fecha_salida,
-      status: item?.status || 'Sin Status',
+      status: item?.status || '-',
+      sh:item?.sh||'-',
+      numero_contenedor:item?.numero_contenedor||'-',
       services: item?.services || [],
     })));
     
@@ -89,7 +91,7 @@ useEffect(() => {
                 <TableCell align="center">Conductor</TableCell>
                 <TableCell align="center">Chasis</TableCell>
                 <TableCell align="center">Cabezal</TableCell>
-                <TableCell align="center">Furgón</TableCell>                      
+                <TableCell align="center">Furgón</TableCell>                        
                 {procedure === 'home'?(
                   <>
                     <TableCell align="center">Status</TableCell>  
@@ -97,6 +99,8 @@ useEffect(() => {
                   </>
                 ):(
                   <>
+                    <TableCell align="center">SH</TableCell>  
+                    <TableCell align="center">Contenedor</TableCell>                    
                     <TableCell align="center">Monto Total</TableCell>    
                     <TableCell align="center">Precio Proveedor</TableCell> 
                     <TableCell align="center">Profit</TableCell> 

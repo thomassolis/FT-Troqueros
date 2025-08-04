@@ -20,7 +20,7 @@ interface RequestParams {
 interface UpdateRequestStatusParams {
     // selectedOptions: {[key: number]: string}
     status:string,
-    id: string | undefined
+    id: string | number
 }
 
 //---------------------------------------------------------TABLA----------------------------------------------
@@ -28,7 +28,9 @@ const optionToApiParam = {
   id: 'idPeticion',
   nameService: 'nameService',
   nameDriver: 'nameDriver',
-  nameCustomer: 'nameCustomer'
+  nameCustomer: 'nameCustomer',
+  sh: 'sh',
+  num_contenedor: 'num_contenedor'
 } as const;
 
 type ApiParam = keyof typeof optionToApiParam;
@@ -74,6 +76,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
 export const UpdateRequestStatus = async (
   { status, id }: UpdateRequestStatusParams
 ): Promise<{ success: boolean; message: string }> => {
+    console.log('id_peticion: ', id)
   try {
     const response = await axios.patch('/requests/update_status_request', {
       id_peticion: id,

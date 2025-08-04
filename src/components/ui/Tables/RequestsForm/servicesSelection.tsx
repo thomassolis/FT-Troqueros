@@ -20,6 +20,8 @@ import { WarningAlert } from '../../Alerts/Warning/Warning';
 import { Dispatch } from 'react';
 import { SetStateAction } from 'react';
 import { UseFormReset } from 'react-hook-form';
+import { ContainerSizeData } from '../../../others/Data/ContainerSize';
+
 interface ServicesSelectionTableProps {
   titles: string[];
   serviceTypes: ServiceType[]|undefined;
@@ -53,6 +55,7 @@ export const ServicesSelectionTable: React.FC<ServicesSelectionTableProps> = ({
   isEditMode,
   requestFormData,
   setRequestFormData,
+  register,
   reset
 }) => {      
   const [isLoading, setIsLoading] = useState(false);
@@ -83,6 +86,10 @@ const deleteService = async ({ serviceID }: { serviceID: string }) => {
     setRows?.(prev => prev.filter(row => row.serviceTypeId !== Number(serviceID)));
   }
 };
+
+useEffect(()=>{
+  console.log('Rows en servicesSelection', rows);
+},[rows])
   
   // Generamos las filas basadas en todos los serviceTypes  
   // Estado para controlar si es la primera carga
@@ -147,26 +154,26 @@ const deleteService = async ({ serviceID }: { serviceID: string }) => {
     }, [routeIDsByRow, serviceTypes]);
     //}, [routeIDsByRow, serviceTypes, requestFormData]); 
 
-useEffect(() => {
-  if (!isEditMode && rows) {
-    const updatedData = {
-      ...requestFormData,
-      servicios: rows.map(row => ({
-        id_servicio_datos: row.id_servicio_datos,
-        tarifa: row.tarifa,
-        entrega_vacio: row.entrega_vacio,
-        fecha_limite: row.fecha_limite,
-        servicio: row.serviceType,
-        lugar_origen: row.lugar_origen,
-        lugar_destino: row.lugar_destino,
-      }))
-    };
-    
-    setRequestFormData?.(updatedData);
-    reset?.(updatedData); // Esto actualizará RHF y triggereará watch
-  }
-}, [rows, isEditMode]);
-
+    useEffect(() => {
+      if (!isEditMode && rows) {
+        const updatedData = {
+          ...requestFormData,
+          servicios: rows.map(row => ({
+            id_servicio_datos: row.id_servicio_datos,
+            tarifa: row.tarifa,
+            entrega_vacio: row.entrega_vacio,
+            fecha_limite: row.fecha_limite,
+            servicio: row.serviceType,
+            lugar_origen: row.lugar_origen,
+            lugar_destino: row.lugar_destino,
+            rowIndex:row.rowIndex // nueva inclusión
+          }))
+        };
+        
+        setRequestFormData?.(updatedData);
+        reset?.(updatedData); // Esto actualizará RHF y triggereará watch
+      }
+    }, [rows, isEditMode]);
 
 const getRoutesForSelect = async (serviceID?: number | string) => {
   if (!serviceID) return;
@@ -239,12 +246,7 @@ const getRoutesInformation = async (
             <th key={index} className="border border-gray-300 px-4 py-2 font-semibold text-center ">
               {title}
             </th>
-          ))} 
-          {/* {rows?.some(row => row.entrega_vacio) && (
-            <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
-              Fecha Límite
-            </th>
-          )}          */}
+          ))}       
         </tr>
       </thead>
       <tbody>
@@ -255,88 +257,90 @@ const getRoutesInformation = async (
             <td className="border border-gray-400 px-4 py-2 text-center">
               {row.serviceType}
             </td>
-            <td className="border border-gray-400 px-4 py-2 text-center">
-              <Controller
-                name={`${fieldName}.id_servicio_datos`}
-                control={control}
-                rules={{required: true}}
-                render={({ field, fieldState }) => {
-                  const options = row.serviceID ? selectDataMap[row.serviceID] ?? [] : [];
-                  const selectedOption =
-                    options.find(opt => Number(opt.value) === Number(field.value)) ?? row.selectedOption ?? (
-                      row.lugar_origen && row.lugar_destino && row.id_servicio_datos
-                        ? { value: row.id_servicio_datos, label: `${row.lugar_origen} - ${row.lugar_destino}` }
-                        : null
-                    );
+            {!isEditMode &&
+              <td className="border border-gray-400 px-4 py-2 text-center">
+                <Controller
+                  name={`${fieldName}.id_servicio_datos`}
+                  control={control}
+                  rules={{required: true}}
+                  render={({ field, fieldState }) => {
+                    const options = row.serviceID ? selectDataMap[row.serviceID] ?? [] : [];
+                    const selectedOption =
+                      options.find(opt => Number(opt.value) === Number(field.value)) ?? row.selectedOption ?? (
+                        row.lugar_origen && row.lugar_destino && row.id_servicio_datos
+                          ? { value: row.id_servicio_datos, label: `${row.lugar_origen} - ${row.lugar_destino}` }
+                          : null
+                      );
 
-                  return (
-                    isEditMode ? (
-                      <td>{row.lugar_origen} - {row.lugar_destino}</td>
-                    ) : (
-                      <div className="flex flex-col">
-                        <Select
-                          {...field}
-                          placeholder="Seleccione una ruta"
-                          options={options}
-                          value={selectedOption}
-                          isLoading={isLoading}    
-                          
-                          isDisabled={isEditMode}
-                          onChange={(selectedOption) => {
-                            const value = typeof selectedOption === 'object' && selectedOption !== null
-                            ? selectedOption.value
-                            : '';
-                                                       
-                            // Actualiza react-hook-form
-                            field.onChange(value);
-
-                            // Actualiza el estado de filas
-                            const updatedRows = [...rows];
-                            updatedRows[rowIndex] = {
-                              ...updatedRows[rowIndex],
-                              id_servicio_datos: String(value), // Usa el valor directamente
-                              // Elimina selectedOption o mantenlo como string si es necesario
-                              selectedOption: String(value) // Guarda solo el valor (ej: '96')
-                            };
+                    return (
+                      isEditMode ? (
+                        <td>{row.lugar_origen} - {row.lugar_destino}</td>
+                      ) : (
+                        <div className="flex flex-col">
+                          <Select
+                            {...field}
+                            placeholder="Seleccione una ruta"
+                            options={options}
+                            value={selectedOption}
+                            isLoading={isLoading}    
                             
-                            setRows?.(updatedRows);
+                            isDisabled={isEditMode}
+                            onChange={(selectedOption) => {
+                              const value = typeof selectedOption === 'object' && selectedOption !== null
+                              ? selectedOption.value
+                              : '';
+                                                        
+                              // Actualiza react-hook-form
+                              field.onChange(value);
 
-                            if (value) {
-                              getRoutesInformation(Number(value), row.serviceTypeId, row.rowNumber);
-                            }
-                          }}
-                          onMenuOpen={() => getRoutesForSelect(row.serviceID)}
-                          styles={{
-                            control: (base, state) => ({
-                              ...base,
-                              borderColor: fieldState.invalid ? '#d32f2f' : base.borderColor,
-                              '&:hover': {
+                              // Actualiza el estado de filas
+                              const updatedRows = [...rows];
+                              updatedRows[rowIndex] = {
+                                ...updatedRows[rowIndex],
+                                id_servicio_datos: String(value), // Usa el valor directamente
+                                // Elimina selectedOption o mantenlo como string si es necesario
+                                selectedOption: String(value) // Guarda solo el valor (ej: '96')
+                              };
+                              
+                              setRows?.(updatedRows);
+
+                              if (value) {
+                                getRoutesInformation(Number(value), row.serviceTypeId, row.rowNumber);
+                              }
+                            }}
+                            onMenuOpen={() => getRoutesForSelect(row.serviceID)}
+                            styles={{
+                              control: (base, state) => ({
+                                ...base,
                                 borderColor: fieldState.invalid ? '#d32f2f' : base.borderColor,
-                              },
-                              boxShadow: state.isFocused
-                                ? `0 0 0 1px ${fieldState.invalid ? '#d32f2f' : '#2684FF'}`
-                                : 'none',
-                            }),
-                          }}
-                        />
+                                '&:hover': {
+                                  borderColor: fieldState.invalid ? '#d32f2f' : base.borderColor,
+                                },
+                                boxShadow: state.isFocused
+                                  ? `0 0 0 1px ${fieldState.invalid ? '#d32f2f' : '#2684FF'}`
+                                  : 'none',
+                              }),
+                            }}
+                          />
 
-                        {fieldState.invalid && (
-                          <span className="text-red-500 text-xs mt-1">{fieldState.error?.message}</span>
-                        )}
-                      </div>
-                    )
-                  );
-                }}
-              />
-            </td>
-            <td className="border border-gray-400 px-4 py-2 text-center">
+                          {fieldState.invalid && (
+                            <span className="text-red-500 text-xs mt-1">{fieldState.error?.message}</span>
+                          )}
+                        </div>
+                      )
+                    );
+                  }}
+                />
+              </td>
+            }
+            <td className="border border-gray-400 px-1 py-2 text-center w-[6%]">
               {row.lugar_origen}
             </td>
-            <td className="border border-gray-400 px-4 py-2 text-center">
+            <td className="border border-gray-400 px-1 py-2 text-center w-[6%]">
               {row.lugar_destino}
             </td>
 
-              <td className="border border-gray-400 px-4 py-2 text-center w-[10%]">
+              <td className="border border-gray-400 px-1 py-2 text-center w-[8%]">
                 <Controller
                   name={`${fieldName}.tarifa`}
                   control={control}
@@ -348,11 +352,19 @@ const getRoutesInformation = async (
                     <input
                       type="number"
                       {...field}
-                      // value={field.value || 0}
-                      value={row.tarifa} // usa field.value (no row.tarifa)
+                      value={field.value || 0}
+                      // value={row.tarifa} // usa field.value (no row.tarifa)
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         field.onChange(value);
+
+                          // 2. Actualiza rows
+                          const updatedRows = [...(rows ?? [])];
+                          updatedRows[rowIndex] = {
+                            ...updatedRows[rowIndex],
+                            tarifa: value,
+                          };
+                          setRows?.(updatedRows);
 
                         const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
                         setRoutesInformation(prev => ({
@@ -363,7 +375,7 @@ const getRoutesInformation = async (
                           }
                         }));
                       }}
-                      className={`w-full border rounded px-2 py-1 ${error ? "border-red-500" : "border-gray-300"}`}
+                      className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}
                       
                     />
                     
@@ -373,8 +385,49 @@ const getRoutesInformation = async (
                 
               </td>
 
-              
-              <td className="border border-gray-400 px-4 py-2 text-center">
+              {/* Nuevos Campos */}
+              <td className='border border-gray-400 px-1 py-2 text-center w-[10%]'>                
+                <input 
+                  type="text" 
+                  className='h-[20%] rounded-md py-2 w-[95%]'
+                  {...register(`${fieldName}.sh`)}
+                />
+              </td>  
+              <td className='border border-gray-400 px-1 py-2 text-center w-[10%]'>                
+                <input 
+                  type="text" 
+                  className='h-[20%] rounded-md py-2 w-[95%]'
+                  {...register(`${fieldName}.numero_contenedor`)}
+                />
+              </td>              
+
+              <td className='border border-gray-400 px-4 py-2 text-center w-[10%]'>
+                <Controller
+                  name={`${fieldName}.size_contenedor`}
+                  control={control}                  
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={ContainerSizeData}
+                      placeholder="Seleccionar"
+                      value={ContainerSizeData.find(option => option.value === field.value)}
+                      onChange={(selectedOption) => {
+                        field.onChange(selectedOption?.value); // Solo guarda el valor, no el objeto completo
+                      }}
+                      onBlur={field.onBlur}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          minHeight: '32px',
+                          fontSize: '0.875rem'
+                        })
+                      }}
+                    />
+                  )}
+                />
+              </td>
+
+              <td className="border border-gray-400 py-2 text-center w-[5%]">
                 <Controller
                   name={`${fieldName}.entrega_vacio`}
                   control={control}
@@ -382,7 +435,7 @@ const getRoutesInformation = async (
                     const checked = field.value || false;
 
                     return (
-                      <div className='flex items-center justify-center gap-5'>
+                      <div className='flex items-center justify-center gap-1'>
                         <input
                           type="checkbox"
                           checked={checked}
@@ -394,16 +447,16 @@ const getRoutesInformation = async (
                         />
                         {/* Este bloque ahora está DENTRO del mismo <td> */}
                         {checked && (
-                          <div>
-                            <Controller
+                          <div className='w-[80%]'>
+                            {/* <Controller
                               name={`${fieldName}.fecha_limite`}
                               control={control}
-                              rules={{required:'Fecha Límite requerida'}}
+                              rules={{required:'fecha_limite'}}
                               render={({ field, fieldState }) => (
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                   <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
                                     <DatePicker
-                                      label="Fecha Límite De Entrega"
+                                      label="Fecha Límite"
                                       format="DD/MM/YY"
                                       value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
                                       minDate={dayjs().startOf('day')}
@@ -412,20 +465,61 @@ const getRoutesInformation = async (
                                         const formattedDate = dayjs(date).format('YYYY-MM-DD');
                                         field.onChange(formattedDate);
                                       }}
-                                      className="bg-white w-full"    
-                                      
+                                      className="bg-white w-full"                                          
                                       slotProps={{
                                         textField: {
-                                          error: fieldState.invalid, // 👈 esto activa el borde rojo
-                                          fullWidth: true,              
-                                        },
+                                          error: fieldState.invalid,
+                                          fullWidth: true,
+                                          InputProps: {
+                                            sx: {
+                                              // Ajusta el padding del input
+                                              '.MuiInputBase-input': {
+                                                paddingRight: '1px', // Reduce el padding derecho donde está el ícono
+                                              },
+                                              '.MuiInputAdornment-root': {
+                                                marginLeft: '1px', // Opcional: reduce el espacio del ícono
+                                              }
+                                            }
+                                          }
+                                        }
                                       }}
+
                                     />
                                   </DemoContainer>
                                 </LocalizationProvider>
                               )}
                               
+                            /> */}
+                            <Controller
+                              name={`${fieldName}.fecha_limite`}
+                              control={control}
+                              rules={{ required: 'fecha_limite' }}
+                              render={({ field, fieldState }) => (
+                            <input
+                              type="date"
+                              value={field.value || ''}
+                              onChange={(e) => {
+                                const formattedDate = dayjs(e.target.value).format('YYYY-MM-DD');
+                                field.onChange(formattedDate);
+                              }}
+                              min={dayjs().format('YYYY-MM-DD')}
+                              className={`
+                                w-full px-4 py-3 rounded-lg border
+                                focus:outline-none focus:ring-2 focus:border-transparent
+                                transition-all duration-200
+                                ${
+                                  fieldState.invalid
+                                    ? 'border-red-500 focus:ring-red-200 bg-red-50'
+                                    : 'border-gray-300 focus:ring-blue-200 hover:border-gray-400'
+                                }
+                                shadow-sm
+                                text-gray-700
+                                font-medium
+                              `}
                             />
+                              )}
+                            />
+
                           </div>
                         )}
                       </div>
@@ -433,39 +527,21 @@ const getRoutesInformation = async (
                   }}
                 />
               </td>
-     
 
-
-              {/* Muestra la columna adicional solo si esta fila tiene entrega_vacio en true */}
-              {/* {row.entrega_vacio && (
-                <td className="border border-gray-400 px-2 py-2 text-center">
-                  
-                  <Controller
-                      name={`${fieldName}.fecha_limite`}
-                      control={control}
-                      render={({ field }) => (
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DemoContainer components={["DatePicker"]} sx={{width:'100%'}}>
-                                  <DatePicker
-                                      label="Selecciona una fecha"
-                                      format="DD/MM/YY"
-                                      value={field.value ? dayjs(field.value, 'YYYY/MM/DD') : null} // Convierte el string a dayjs
-                                      minDate={dayjs().startOf('day')}
-                                      shouldDisableDate={(date) => {
-                                          return date.isBefore(dayjs(), 'day');
-                                      }}
-                                      onChange={(date) => {
-                                          const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Formatea a DD/MM/YY
-                                          field.onChange(formattedDate); // Guarda el string (ej: "25/06/24")
-                                      }}
-                                      className="bg-white w-full"
-                                  />
-                              </DemoContainer>
-                          </LocalizationProvider>
-                      )}  
-                  />                  
-                </td>
-              )} */}
+              <td className='border border-gray-400 px-4 py-2 text-center w-[10%]'>
+                <Controller
+                  name={`${fieldName}.comentario`}
+                  control={control}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm min-h-[80px]"
+                      rows={3}
+                      placeholder="Escribe un comentario..."
+                    />
+                  )}
+                />
+              </td>
 
               {isEditMode ? (
                 <td className='text-center px-4'>

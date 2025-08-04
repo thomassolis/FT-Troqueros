@@ -219,10 +219,16 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     setRows?.(prev => prev.filter(row => row.serviceTypeId !== id));
     };        
     return (
-        <section className="w-full ">                        
+        <section className="w-full">              
+        {!isEditMode?
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">
                 Complete el siguiente formulario para crear una nueva petición
             </h1>
+            :
+            <h1 className="text-black mt-10 ml-6 text-lg font-semibold">
+                Complete la edición de servicios
+            </h1>
+        }                      
 
             
                 <div className="flex flex-col items-center justify-center gap-5 w-full">    
@@ -267,9 +273,9 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                     {!isEditMode && 
                         <h1 className="text-black mt-10">Favor seleccione las rutas que le desea asignar a cada servicio</h1>
                     }                                                         
-                    <ServicesSelectionTable                    
-                        titles={
-                            ['Tipo de Servicio', 'Rutas', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Vacío']                        
+                    <ServicesSelectionTable     
+
+                        titles={isEditMode? ['Tipo de Servicio', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'SH','Número De Contenedor', 'Tamaño de Contenedor', 'Vacío', 'Comentario']:['Tipo de Servicio', 'Rutas', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'SH','Número De Contenedor', 'Tamaño de Contenedor', 'Vacío', 'Comentario']                        
                         }                    
                         serviceTypes={serviceTypes}
                         servicesSelect = {servicesSelect}   
