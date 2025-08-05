@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { StepsRequestsProps } from "../../../types/forms/RequestsForm/requestsForm";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { ServicesSelectionTable } from "../../../ui/Tables/RequestsForm/servicesSelection";
 import { DynamicRequestsType } from "../../../../functions/DynamicSections/Requests/DynamicRequestsType";
 import { SelectOptionTypes } from "../../../types/Select/select";
 import { ServiceType } from "../../../../context/Requests/DynamicRequestsOptions";
 import { useLocation } from "react-router-dom";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
+import { ServicesSelectionTeam } from "../../../ui/Tables/RequestsForm/ServicesSelection/ServicesSelectionTeam";
 // import isEqual from "date-fns/isEqual";
 // import { useRef } from "react";
 
@@ -273,7 +273,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
                     {!isEditMode && 
                         <h1 className="text-black mt-10">Favor seleccione las rutas que le desea asignar a cada servicio</h1>
                     }                                                         
-                    <ServicesSelectionTable     
+                    <ServicesSelectionTeam     
 
                         titles={isEditMode? ['Tipo de Servicio', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'SH','Número De Contenedor', 'Tamaño de Contenedor', 'Vacío', 'Comentario']:['Tipo de Servicio', 'Rutas', 'Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'SH','Número De Contenedor', 'Tamaño de Contenedor', 'Vacío', 'Comentario']                        
                         }                    

@@ -26,7 +26,8 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida, req
             response = await axios.get(`requests/get_request_services`)            
             return response?.data.data;
         }else if(type === 'routes'){
-            response = await axios.get(`requests/get_request_ruta_services/${serviceID}`)            
+            response = await axios.get(`requests/get_request_ruta_services/${serviceID}`)  
+            console.log('Response: ', response)          ;
             return response?.data.data;
         }else if(type==='routesInfo'){
             response = await axios.get(`requests/get_request_data_services_id/${serviceID}`)

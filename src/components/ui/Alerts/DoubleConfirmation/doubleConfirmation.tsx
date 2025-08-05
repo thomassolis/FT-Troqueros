@@ -14,8 +14,7 @@ interface DoubleConfirmationAlertProps {
 export const DoubleConfirmationAlert = async ({
     title,
     text,
-    id,
-    requestID,
+    id,    
     type
 }: DoubleConfirmationAlertProps) => {
     const result = await Swal.fire({
