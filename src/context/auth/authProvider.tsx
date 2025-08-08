@@ -21,16 +21,34 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userLastName, setUserLastName] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(
+    sessionStorage.getItem("userName") || null
+  );
+  const [userLastName, setUserLastName] = useState<string | null>(
+    sessionStorage.getItem("userLastName") || null
+  );
   const [banTime, setBanTime] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(()=>{
-    console.log('userName', userName);
+
+  // Guardar en sessionStorage cuando cambie
+  useEffect(() => {
+    if (userName !== null) {
+      sessionStorage.setItem("userName", userName);
+    } else {
+      sessionStorage.removeItem("userName");
+    }
   }, [userName]);
+
+  useEffect(() => {
+    if (userLastName !== null) {
+      sessionStorage.setItem("userLastName", userLastName);
+    } else {
+      sessionStorage.removeItem("userLastName");
+    }
+  }, [userLastName]);
 
   const logout = () => {
     // Limpiar todos los estados de usuario
@@ -40,6 +58,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUserLastName(null);
     setBanTime(null);
     setUserEmail(null);
+
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("userLastName");
     
     // Limpiar cookies/tokens si es necesario
     // (Aunque no tengas endpoint /auth/logout)

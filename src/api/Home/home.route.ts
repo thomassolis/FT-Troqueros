@@ -58,6 +58,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
         }
                 
         const response = await axios.get('/requests/see_requests', { params });          
+        console.log('Response Real: ', response);
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data   

@@ -146,7 +146,7 @@ console.log('filteredServiceData AmountTable:', filteredServiceData);
 
                         <td className={`py-2 px-4 text-black border-r border-gray-400 text-center ${useProvider ? 'text-green-600' : 'text-black'}`}>
                         {useProvider && typeof row.tarifa === 'number' && typeof requestFormData?.precio_proveedor === 'number' ? (
-                            row.tarifa - requestFormData.precio_proveedor
+                            `$${row.tarifa - requestFormData.precio_proveedor}`
                         ) : null}
                         </td>
 
@@ -298,7 +298,7 @@ console.log('filteredServiceData AmountTable:', filteredServiceData);
 
                 {/* Fila de TOTAL */}
                 {!useProvider &&
-                                <tr className="font-bold">
+                <tr className="font-bold">
                     <td className="py-2 px-4 text-right border border-gray-400 text-black" colSpan={2}>
                         TOTAL 
                     </td>

@@ -125,9 +125,9 @@ const getStatusTextColor = (statusValue:string) => {
 };
 
   return (
-    <div className="overflow-x-auto max-w-[1200px] mx-auto rounded-lg border border-gray-200">
+    <div className="overflow-x-auto max-w-[1260px] mx-auto rounded-lg border border-gray-200">
       <div className="overflow-y-auto max-h-96"> 
-        <table className="min-w-full divide-y divide-gray-200 min-h-7">
+        <table className="min-w-full divide-y divide-gray-200 min-h-7 ">
           <thead className="bg-gray-50 z-50">
             <tr>
                    <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%]" align="center"></th>

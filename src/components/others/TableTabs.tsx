@@ -89,7 +89,7 @@ export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setP
                     <div className="flex justify-between w-full items-end">
                         {/* Botón de expansión */}
                         {procedure === 'home' && (
-                            <div className="rounded-t-lg text-black flex w-[23%] justify-between items-center pr-2 pl-2 bg-slate-100 shadow-2xl cursor-pointer" onClick={()=>{navigate('/home/completeRequestHistory')}}>
+                            <div className="rounded-t-lg text-black flex w-[23%] justify-between items-center pr-2 pl-2 bg-slate-100 shadow-2xl cursor-pointer bg-red-" onClick={()=>{navigate('/home/completeRequestHistory')}}>
                                 <p className="text-red-600 font-semibold">Ver tabla completa</p>
                                 <Icon icon="lucide:expand" width="15" height="15"  />
                             </div>
@@ -108,14 +108,7 @@ export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setP
 
                 {/* TabPanels dinámicos */}
                 {[0, 1, 2, 3, 4].map((index) => (
-                    <TabPanel key={index}>
-                        {/* <RequestsTable 
-                            tableData={tableData} 
-                            sidebarState={sidebarState} 
-                            isLoading={isLoading} 
-                            selectedTab = {selectedTab}
-                            procedure = {procedure}
-                        /> */}
+                    <TabPanel key={index}>                        
                         <RequestCollapsibleTable
                             tableData={tableData} 
                             setTableData={setTableData} 

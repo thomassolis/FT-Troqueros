@@ -14,7 +14,7 @@ interface ProfileProps {
 }
 
 export const Profile = ({showProfile, setShowProfile}:ProfileProps) => {
-    const {setIsAuthenticated} = useContext(AuthContext)!;  
+    const {setIsAuthenticated,userLastName, userName} = useContext(AuthContext)!;  
      const [_userData, setUserData] = useState(); 
       
     const cookie = getJwtFromCookies()
@@ -43,7 +43,7 @@ export const Profile = ({showProfile, setShowProfile}:ProfileProps) => {
             </div>
 
             <div className="flex flex-col gap-5 w-full items-center mt-2">
-                <h1 className="text-black font-bold">Thomas</h1>
+                <h1 className="text-black font-bold">{userName} {userLastName}</h1>
                 <div className="w-[50%]">
                     <Button 
                         type="button"
