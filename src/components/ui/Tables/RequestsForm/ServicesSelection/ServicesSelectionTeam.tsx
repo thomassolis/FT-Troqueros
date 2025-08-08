@@ -57,7 +57,7 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
   const [selectDataMap, setSelectDataMap] = useState<Record<string, SelectOptionTypes[]>>({});  
   const [selectedOption, setSelectedOption] = useState<'option1' | 'option2'>('option1');
 
-const deleteService = async ({ serviceID }: { serviceID: string }) => {
+  const deleteService = async ({ serviceID }: { serviceID: string }) => {
     const response = await DoubleConfirmationAlert({
       title: '¿Seguro deseas eliminar este servicio?',
       text: 'Se eliminaran todos los datos guardados incluyendo rutas, tarifas, etc',
@@ -80,7 +80,7 @@ const deleteService = async ({ serviceID }: { serviceID: string }) => {
     // 4. Actualiza rows
     setRows?.(prev => prev.filter(row => row.serviceTypeId !== Number(serviceID)));
   }
-};
+  };
 
 useEffect(()=>{
   console.log('Rows en servicesSelection', rows);
@@ -239,24 +239,24 @@ const getRoutesInformation = async (
         <div className='w-full h-9 flex gap-6 justify-center'>
         <div className='flex items-center gap-4'>
             <input
-            type="radio"
-            id="option1"
-            name="serviceOption"
-            value="option1"
-            checked={selectedOption === 'option1'}
-            onChange={() => setSelectedOption('option1')}
+              type="radio"
+              id="option1"
+              name="serviceOption"
+              value="option1"
+              checked={selectedOption === 'option1'}
+              onChange={() => setSelectedOption('option1')}
             />
             <label htmlFor="option1" className='text-black'>Opción 1</label>
         </div>        
 
         <div className='flex items-center gap-4'>
             <input
-            type="radio"
-            id="option2"
-            name="serviceOption"
-            value="option2"
-            checked={selectedOption === 'option2'}
-            onChange={() => setSelectedOption('option2')}
+              type="radio"
+              id="option2"
+              name="serviceOption"
+              value="option2"
+              checked={selectedOption === 'option2'}
+              onChange={() => setSelectedOption('option2')}
             />
             <label htmlFor="option2" className='text-black'>Opción 2</label>
         </div>     

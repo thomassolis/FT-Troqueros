@@ -76,7 +76,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
 export const UpdateRequestStatus = async (
   { status, id }: UpdateRequestStatusParams
 ): Promise<{ success: boolean; message: string }> => {
-    console.log('id_peticion: ', id)
+    console.log('id_peticion: ', id, status)
   try {
     const response = await axios.patch('/requests/update_status_request', {
       id_peticion: id,
@@ -161,7 +161,17 @@ export const getDataForCalendar = async () => {
     }
 }
 
-//---------------------------------------------------------AGENDA----------------------------------------------
+export const vacioEntregadoStatus = async (value:boolean, id:number) => {
+    try{
+        const response = await axios.post('/agenda/isEmptyDelivered',{value:value, idPedidoServicio:id })        
+        console.log(response);
+        return response.data;
+    }catch(error){
+        console.error('Error en getDataForCalendar', error);
+    }
+}
+
+//---------------------------------------------------------LOGOUT----------------------------------------------
 
 export const logoutUser = async () => {
     try{

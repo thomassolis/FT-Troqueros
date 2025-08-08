@@ -110,14 +110,14 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                     />                
                     <div className="flex gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-purple-300 rounded-sm border border-gray-400">
+                            <div className="w-3 h-3 bg-red-100 rounded-sm border border-gray-400">
 
                             </div>
                             <p className="text-black">Proveedor</p>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-blue-200 rounded-sm border border-gray-400">
+                            <div className="w-3 h-3 bg-blue-100 rounded-sm border border-gray-400">
 
                             </div>
                             <p className="text-black">Varios Servicios</p>

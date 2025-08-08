@@ -1,60 +1,14 @@
 import { useEffect, useState } from "react";
 import { DataForRequestTable } from "../../api/Home/home.route";
-import { RequestsTable } from "../ui/Tables/PrincipalRequestsTable/PrincipalTable";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { Button } from "../ui/buttons/button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useContext } from "react";
 import { searchValueContext } from "../../context/searchValueForFilter/searchValue";
+import { TableRowVariables } from "../ui/Tables/RequestTable/PrincipalRequestTable";
 import { useNavigate } from "react-router-dom";
-
+import { RequestCollapsibleTable } from "../ui/Tables/RequestTable/PrincipalRequestTable";
 // Definir primero la interfaz para los servicios
-// En un archivo de tipos compartidos (ej. types/requests.ts)
-export interface ServiceItem {
-  conductor: string;
-  id_peticion: string;
-  cliente: string;
-  monto: number;
-  servicio: string;
-  cabezal: string;
-  chasis: string;
-  hora_salida: string;
-  fecha_creacion: string;
-  fecha_salida: string;
-  furgon: string;
-  customerId: string;
-  precio_proveedor: number;
-  profit: number;
-  date: string;
-}
-
-export interface TableRowVariables {
-  // Campos principales
-  id: string;
-  id_peticion: string;
-  nombreCliente: string;
-  cliente: string;
-  servicio: string;
-  conductor: string;
-  chasis: string;
-  cabezal: string;
-  furgon: string;
-  id_proveedor: string;
-  proveedor: string;
-  monto: number;
-  precio_proveedor: number;
-  profit: number;
-  fecha_creacion: string;
-  fecha_salida: string;
-  hora_salida: string;
-  status: string;
-  customerId: string;
-  date: string;
-  fecha_finalizacion?: string;
-  numero_contenedor?:string;
-  sh?:string;
-  services: ServiceItem[];
-}
 
 interface SidebarProps {
     sidebarState: boolean;
@@ -77,9 +31,9 @@ interface SidebarProps {
 }
 
 
-export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates }: SidebarProps) => {
+export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates }: SidebarProps) => {
     const [tableData, setTableData] = useState<TableRowVariables[]>([]);    
-    const [isLoading, setIsLoading] = useState(false);
+    const [_isLoading, setIsLoading] = useState(false);
     const {searchValue} = useContext(searchValueContext)!;       
     
     const navigate = useNavigate();
@@ -107,7 +61,7 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
             setIsLoading(true);
             console.log('selectedOption', selectedOption);
             const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                                   
-
+            console.log('response: ', response);
             const transformedData = transformTableData(response.data);
             setTableData(transformedData);
             setTotalRecords(response.totalRegistros); 
@@ -155,11 +109,16 @@ export const TableTabs = ({ sidebarState, selectedOption, setCurrentPage, setTot
                 {/* TabPanels dinámicos */}
                 {[0, 1, 2, 3, 4].map((index) => (
                     <TabPanel key={index}>
-                        <RequestsTable 
+                        {/* <RequestsTable 
                             tableData={tableData} 
                             sidebarState={sidebarState} 
                             isLoading={isLoading} 
                             selectedTab = {selectedTab}
+                            procedure = {procedure}
+                        /> */}
+                        <RequestCollapsibleTable
+                            tableData={tableData} 
+                            setTableData={setTableData} 
                             procedure = {procedure}
                         />
                     </TabPanel>

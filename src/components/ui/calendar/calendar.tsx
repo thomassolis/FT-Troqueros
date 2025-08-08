@@ -7,6 +7,26 @@ import { getDataForCalendar } from "../../../api/Home/home.route";
 import { useNavigate } from "react-router-dom";
 import { EventPropGetter } from 'react-big-calendar';
 import { CSSProperties } from 'react';
+import { vacioEntregadoStatus } from "../../../api/Home/home.route";
+
+interface EventDetails {
+  id_Pedido_Servicio: number;
+  vacio_entregado: boolean | null;
+  cliente: string;
+  numero_contenedor: string | null;
+  peticion: string;
+  sh: string | null;
+  size_contenedor: string | null;
+}
+
+interface CalendarEvent {
+  allDay: boolean;
+  details: EventDetails;
+  end: Date;
+  start: Date;
+  title: string;
+  type: string;
+}
 
 // Configuración de moment para español (opcional)
 moment.locale('es', {
@@ -24,9 +44,33 @@ interface SidebarStatus {
 }
 
 const MyCalendar = ({ sidebarState }: SidebarStatus) => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const navigate = useNavigate()
+useEffect(()=>{
+  console.log('events: ', events);
+},[events])
+    const changeVacioEntregado = async(value:boolean, id:number) => {      
+      try{
+        const response = await vacioEntregadoStatus(value, id);
+            // Actualiza el estado local inmediatamente
+            console.log('Acttualicación');
+            if(response.success){
+              setEvents(prevEvents => 
+                prevEvents.map(event => ({
+                  ...event,
+                  details: event.details ? {
+                    ...event.details,
+                    vacio_entregado: event.details.id_Pedido_Servicio === id ? value : event.details.vacio_entregado
+                  } : event.details
+                }))
+              );        
+            }
+      }catch(error){
+        console.error('error en changeVacioEntregado', error);
+      }
+    }    
+
   useEffect(() => {
     const fetchCalendarData = async () => {
       try {
@@ -265,27 +309,72 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
 
               }
 
-              <div className="flex items-start">
-                <div className="w-24 flex-shrink-0">
-                  <span className="text-sm font-medium text-gray-500">
-                    Inicio:
-                  </span>
-                </div>
-                <span className="text-sm text-gray-700">
-                  {moment(selectedEvent.start).format("DD/MM/YYYY HH:mm")}
-                </span>
-              </div>
+              {selectedEvent.type==='Vacio'?(
+                <>
+                  <div className="flex items-center ">
+                    <div className="w-24 flex-shrink-0 ">
+                      <span className="text-sm font-medium text-gray-500">
+                        Fecha Límite de entrega:
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-700">
+                      {moment(selectedEvent.start).format("DD/MM/YYYY")}
+                    </span>
+                  </div>
 
-              <div className="flex items-start">
-                <div className="w-24 flex-shrink-0">
-                  <span className="text-sm font-medium text-gray-500">
-                    Fin:
-                  </span>
-                </div>
-                <span className="text-sm text-gray-700">
-                  {moment(selectedEvent.end).format("DD/MM/YYYY HH:mm")}
-                </span>
-              </div>
+                  <div className="flex gap-5">
+                    <div className="w-24 flex-shrink-0 ">
+                      <label className="text-sm font-medium text-gray-500" htmlFor="vacio_entregado">
+                        Entregado
+                      </label>
+                    </div>
+                      <input 
+                        name="vacio_entregado"
+                        type="checkbox" 
+                        checked={selectedEvent?.details?.vacio_entregado || false}
+                        onChange={(e) => {
+                          // Actualización optimista: cambia el estado ANTES de la llamada API
+                          setSelectedEvent((prev:any) => ({
+                            ...prev,
+                            details: {
+                              ...prev.details,
+                              vacio_entregado: e.target.checked
+                            }
+                          }));
+                          
+                          // Luego llama a la API
+                          changeVacioEntregado(e.target.checked, selectedEvent.details.id_Pedido_Servicio);
+                        }}
+                      />              
+                  </div>
+                </>
+              ):(
+                <>
+                  <div className="flex items-start ">
+                    <div className="w-24 flex-shrink-0 ">
+                      <span className="text-sm font-medium text-gray-500">
+                        Inicio:
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-700">
+                      {moment(selectedEvent.start).format("DD/MM/YYYY HH:mm")}
+                    </span>
+                  </div>
+
+                  <div className="flex items-start">
+                    <div className="w-24 flex-shrink-0">
+                      <span className="text-sm font-medium text-gray-500">
+                        Fin:
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-700">
+                      {moment(selectedEvent.end).format("DD/MM/YYYY HH:mm")}
+                    </span>
+                  </div>
+                </>
+              )
+
+              } 
             </div>
 
             <div className="pt-4 flex justify-end">

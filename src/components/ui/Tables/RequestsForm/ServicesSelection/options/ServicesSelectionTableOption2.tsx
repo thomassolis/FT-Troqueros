@@ -10,6 +10,9 @@ import { Dispatch } from 'react';
 import { SetStateAction } from 'react';
 import { UseFormReset } from 'react-hook-form';
 import { ContainerSizeData } from '../../../../../others/Data/ContainerSize';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { WarningAlert } from '../../../../Alerts/Warning/Warning';
+
 interface DeleteServiceParams {
   serviceID: string;
 }
@@ -61,16 +64,25 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
   getRoutesInformation,
   getRoutesForSelect,  
   selectDataMap,
-  isLoading
+  isLoading,
+  deleteService
 }) => {      
   return (
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm text-center bg-white shadow-md rounded-lg text-black">
+        <table className="w-full border-collapse text-sm text-center bg-troquerosGray shadow-md rounded-lg text-black">
           <thead>
           <tr className="bg-orange-300">
-            {['Tipo de Servicio', 'Rutas', 'Origen-Destino', 'Tarifa', 'Sh-Vacío', 'Contenedor', 'Comentario'].map((opt)=>(
-              <th className="p-3 font-medium border border-gray-600">{opt}</th>
-            ))}
+            {isEditMode?(
+              ['Tipo de Servicio', 'Origen-Destino', 'Tarifa', 'Sh-Vacío', 'Contenedor', 'Comentario'].map((opt)=>(
+                <th className="p-3 font-medium border border-gray-600">{opt}</th>
+              ))
+              
+            ):(
+              ['Tipo de Servicio', 'Rutas', 'Origen-Destino', 'Tarifa', 'Sh-Vacío', 'Contenedor', 'Comentario'].map((opt)=>(
+                <th className="p-3 font-medium border border-gray-600">{opt}</th>
+              ))
+            )}
+            
           </tr>
           </thead>
           <tbody className='bg-white'>
@@ -200,6 +212,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                         )}                      
                       />
                     </td>
+                    
                     <td className="p-3 border border-gray-300 text-black">
                       <input 
                         type="text" 
@@ -228,6 +241,25 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                         )}
                       />
                     </td>
+                    
+                    {isEditMode && (
+                      <td className="p-3 border border-gray-300 text-black bg-troquerosGray" rowSpan={2}>
+                        <Icon
+                          icon="line-md:trash"                    
+                          width="22"
+                          height="22"
+                          className="text-red-600 cursor-pointer hover:text-red-400"
+                          onClick={
+                            rows.length>1 ? (
+                              () => deleteService({ serviceID: String(row.serviceTypeId) })
+                            ) : (
+                              ()=>WarningAlert({title: 'Oops', text: 'No podrás eliminar este servicio ya que no puede existir una petición sin servicios. Debes eliminar la petición completa desde la tabla principal.'})
+                            )                     
+                          }
+                        />
+                      </td>
+                    )}
+
                   </tr>
                   <tr >
                     <td className="p-3 border border-gray-300 text-black">{row.lugar_destino}</td>
@@ -356,6 +388,8 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                         )}
                       />
                     </td>
+
+                    
                   
                   </tr>
                 </>
