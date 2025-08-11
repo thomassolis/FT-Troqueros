@@ -17,58 +17,6 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     const [routesInformation, setRoutesInformation] = useState<Record<string, any>>({});
     const [routeIDsByRow, setRouteIDsByRow] = useState<Record<string, string>>({}); 
     const { control, setValue, register } = useFormContext<RequestsFormValues>();
-    // const serviciosSyncDone = useRef(false);
-// useEffect(() => {
-//   if (!Array.isArray(rows)) {
-//     console.log("Rows no es un array, saliendo...");
-//     return;
-//   }
-
-//   // Debug: Verificar contenido de rows y requestFormData
-//   console.log("IDs en rows:", rows.map(r => r.id_servicio_datos || r.serviceID)); // Soporta campos alternativos
-//   console.log("IDs en requestFormData.servicios:", requestFormData?.servicios?.map(s => s.id_servicio_datos));
-
-//   // 1. Extraer IDs de rows (con manejo de campos alternativos)
-//   const rowsIds = new Set(
-//     rows.map(r => r.id_servicio_datos || r.serviceID || r.id) // Ajusta según tu estructura real
-//   );
-//   console.log("IDs únicos en rows (Set):", [...rowsIds]);
-
-//   // 2. Filtrar servicios
-//   const cleanedServicios = (requestFormData?.servicios ?? []).filter(s => 
-//     rowsIds.has(s.id_servicio_datos.toString()) // Asegurar comparación como string
-//   );
-//   console.log("Servicios filtrados:", cleanedServicios);
-
-//   // 3. Obtener servicios actuales del formulario
-//   const currentServicios = getValues('servicios') || [];
-//   console.log("Servicios actuales en formulario:", currentServicios);
-
-//   // 4. Comparar y actualizar si hay cambios (comparación profunda o por IDs)
-//   const currentIds = new Set(currentServicios.map(s => s.id_servicio_datos?.toString()));
-//   const newIds = new Set(cleanedServicios.map(s => s.id_servicio_datos?.toString()));
-
-//   if (!isEqual([...currentIds], [...newIds])) {
-//     console.log("Actualizando servicios...", {
-//       old: currentServicios,
-//       new: cleanedServicios
-//     });
-
-//     setValue('servicios', cleanedServicios, { shouldValidate: true });
-
-//     if (setRequestFormData) {
-//       setRequestFormData(prev => ({
-//         ...prev,
-//         servicios: cleanedServicios,
-//       }));
-//     }
-
-//     serviciosSyncDone.current = true;
-//     console.log("Sincronización completada.");
-//   } else {
-//     console.log("No hay cambios en los servicios.");
-//   }
-// }, [rows?.length]); // Dependencia ajustada
 
     const location = useLocation();
     const isEditMode = location.pathname.includes('edit')    
@@ -170,15 +118,6 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
     };    
 
     let totalRows;
-    // useEffect(()=>{
-    //     console.log('serviceTypesUseEffect: ',serviceTypes)
-    // },[serviceTypes])
-    // useEffect(()=>{
-    //     console.log('routesInformationUseEffect: ',routesInformation)
-    // },[routesInformation])
-    // useEffect(()=>{
-    //     console.log('routeIDsByRowUseEffect', routeIDsByRow);
-    // },[routeIDsByRow])
     if (isEditMode){
         //Al momento de editar totalRows dependerá de requestFormData
         totalRows = Array.isArray(requestFormData?.servicios) ? requestFormData.servicios.length : 0;        
@@ -187,16 +126,11 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
         totalRows = serviceTypes?.reduce((acc, st) => acc + st.quantity, 0);
     }
     // const totalRows = serviceTypes.reduce((acc, st) => acc + st.quantity, 0);            
-    const deleteServiceType = (id: number) => {
-        console.log('id rECIBIDO:',id);        
-    // 1. Eliminar de serviceTypes
+    const deleteServiceType = (id: number) => {                 
+    
+    setServiceTypes?.(prev => prev.filter(st => st.id !== id));    
 
-    console.log('serviceTypes: ', serviceTypes);
-    setServiceTypes?.(prev => prev.filter(st => st.id !== id));
-    console.log('serviceTypes2: ', serviceTypes);
-
-    // 2. Eliminar de routesInformation (usando el mismo ID)
-    console.log('routesInformation:',routesInformation);
+    // 2. Eliminar de routesInformation (usando el mismo ID)    
     setRoutesInformation(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {
@@ -205,8 +139,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({useProvider, rows, setRows,
         return updated;
     });
 
-    // 3. Eliminar de routeIDsByRow (usando el mismo ID)
-    console.log('routeIDsByRow:',routeIDsByRow);
+    // 3. Eliminar de routeIDsByRow (usando el mismo ID)    
     setRouteIDsByRow(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(key => {

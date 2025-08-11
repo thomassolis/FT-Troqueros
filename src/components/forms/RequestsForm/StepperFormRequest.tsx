@@ -81,19 +81,14 @@ export const StepperFormRequests = () => {
   
   useEffect(() => {
     const subscription = watch((value) => {
-      // console.log("📋 Formulario actualizado:", value);    
-      console.log('Value: ', value);
+
       setRequestFormData(value as RequestsFormValues);
     });
     return () => subscription.unsubscribe();
   }, [watch, requestFormData]);
 
-  useEffect(()=>{
-    console.log('requestFormDataa', requestFormData);
-  }, [requestFormData])
 
-  useEffect(()=>{
-    console.log('rows', rows);
+  useEffect(()=>{    
 
     if(!Array.isArray(rows)) return;
       
@@ -135,8 +130,7 @@ export const StepperFormRequests = () => {
   };
 
 
-const onSubmit = async (data: any) => { 
-  console.log('onSubmit');
+const onSubmit = async (data: any) => {   
   try {
     setIsLoading(true);
     const {isProviderRequest, ...payload} = data; // Elimina el campo isProviderRequest
@@ -258,8 +252,7 @@ const onSubmit = async (data: any) => {
                 <Button
                   onClick={async () => {
                     const isStepValid = await trigger();
-                    if (isStepValid) {
-                      console.log('nextStep()');
+                    if (isStepValid) {                      
                       nextStep();
                     } else {
                       // // Depuración mejorada

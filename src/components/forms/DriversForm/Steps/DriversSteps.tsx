@@ -142,8 +142,7 @@ export const Step2: React.FC<StepsDriversProps> = ({register}) => {
 }
 
 export const Step3: React.FC<StepsDriversProps> = ({control, driversData}:any) => {
-    const procedure = GetProcedureFromURL();      
-    console.log('driversData', driversData);
+    const procedure = GetProcedureFromURL();          
     return (
         <section className="w-full">                    
             <h1 className="text-black mt-10 ml-6 text-lg font-semibold">Adjunte los siguientes documentos para crear un nuevo conductor</h1>

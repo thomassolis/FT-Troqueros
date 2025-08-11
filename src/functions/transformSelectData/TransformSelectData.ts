@@ -20,8 +20,7 @@ interface TransformSelectDataProps {
 }
 
 //Cambia los datos recibidos por value/label que son requeridos para el Select
-export const TransformSelectData = ({type, data, IdPeticion}:TransformSelectDataProps) => {
-console.log('IdPeticion', IdPeticion);
+export const TransformSelectData = ({type, data}:TransformSelectDataProps) => {
     let transformedData
     if (type === 'service'){
         transformedData = data.map(item => ({

@@ -21,12 +21,8 @@ interface SelectionTeamTableProps {
 
 }
 export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setValue}: SelectionTeamTableProps) => {      
-  const [fecha, setFecha] = useState(requestFormData?.fecha_salida??'');
-  const [hora, setHora] = useState(requestFormData?.hora_salida??'');
-  
-  console.log('requestFormData en SelectionTeamTable', requestFormData);
-  console.log('Fecha', fecha);
-  console.log('Hora', hora);
+  const [_fecha, setFecha] = useState(requestFormData?.fecha_salida??'');
+  const [_hora, setHora] = useState(requestFormData?.hora_salida??'');        
 
     // Sincronización cuando requestFormData cambie
   useEffect(() => {
@@ -65,12 +61,10 @@ export const SelectionTeamTable = ({title, control,  useProvider, rows, requestF
     //Esto se activará al entrar al componente para cargar los datos del select, ya que normalmente se cargan al presionar el select
 useEffect(() => {
   if (!requestFormData || !requestFormData.fecha_salida || !requestFormData.hora_salida) return;
-
-  console.log('Efecto ejecutado con datos válidos');
+  
   
   const loadAllOptions = async () => {
-    const { fecha_salida: fecha, hora_salida: hora } = requestFormData;
-    console.log('fecha-hora actualizados:', fecha, hora);
+    const { fecha_salida: fecha, hora_salida: hora } = requestFormData;    
 
     try {
       await Promise.all([        
@@ -94,15 +88,13 @@ useEffect(() => {
   loadAllOptions();
 }, [requestFormData?.fecha_salida, requestFormData?.hora_salida, requestID, setValue]);
 
-    const getRoutesForSelect = async(type:"service" | "routes" | "customers" | "providers" | "drivers" | "chasis" | 'cabezal' | 'furgon', IdPeticion?:string|undefined, fecha?:string|undefined, hora?:string|undefined) => {                        
-        console.log('getRoutesForSelect - Fecha y Hora:', fecha, hora);
+    const getRoutesForSelect = async(type:"service" | "routes" | "customers" | "providers" | "drivers" | "chasis" | 'cabezal' | 'furgon', IdPeticion?:string|undefined, fecha?:string|undefined, hora?:string|undefined) => {                                
   
         if (!fecha || !hora) {
           console.error('Fecha u hora no definidas:', {fecha, hora});
           return;
         }
-        try{
-          console.log('Pasé')
+        try{          
             setIsLoading(true);
             const response = await SelectData({type, fecha_salida:fecha, hora_salida: hora, requestID: requestID});
 

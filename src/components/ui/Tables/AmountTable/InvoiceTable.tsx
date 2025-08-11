@@ -9,8 +9,7 @@ interface Extra {
   precio: number;
 }
 
-export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {
-  console.log('requestFormDataInvoiceTable: ', requestFormData);
+export const InvoiceTable = ({ requestFormData }: InvoiceTableProps) => {  
   const servicios = requestFormData?.servicios || [];  
   const normalizeExtras = (extras: any): Extra[] => {
     if (!extras) return [];

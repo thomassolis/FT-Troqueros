@@ -28,8 +28,7 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<string>(tabContent?.[0] ?? '');
     const [_selectedIndex, setSelectedIndex] = useState<number>(0);
-    const [filteredRows, setFilteredRows] = useState<RouteRow[]>([]);
-    console.log('Rows en Amount', rows);
+    const [filteredRows, setFilteredRows] = useState<RouteRow[]>([]);    
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
@@ -48,19 +47,14 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
         
     // Filtra los rows que coincidan con el índice seleccionado (por grupo)
   useEffect(() => {
-    if (module != "Vehicles" && rows?.length) {        
-        console.log('rows module :', rows)
-        console.log('selectedTab :', selectedTab)
-        console.log('Filter requestFormData:', requestFormData)
+    if (module != "Vehicles" && rows?.length) {                                
         
         let newRows;
         if(requestEdit==='edit'){
             // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
             newRows = rows.filter((row) => row.rowIndex === selectedTab);
             // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
-        }else{
-            console.log('rows2',rows);
-            console.log('selectedTab',selectedTab);
+        }else{                        
             // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
             newRows = rows.filter((row) => row.rowIndex === selectedTab);
         }      

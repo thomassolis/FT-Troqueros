@@ -14,10 +14,8 @@ export const SubmitTableForm = async(
   reset:any, 
   isAdding:boolean, 
   setIsAdding:any) => {
-  console.log('data',data);
   if (editingRouteId !== null) {
     const routeId = localHistory[editingRouteId].id_servicio_datos;
-    console.log('editRoute');
     const response = await editRoute(routeId, {
       lugarOrigen: data.lugarOrigen,
       lugarDestino: data.lugarDestino,

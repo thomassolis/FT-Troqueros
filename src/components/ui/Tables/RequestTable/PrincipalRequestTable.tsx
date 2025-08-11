@@ -66,13 +66,11 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure }: 
   const [_selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});        
   const navigate = useNavigate();
 
-  console.log('expandedd', expandedRows)  
     const statusOptions = [
       { value: 'en espera', label: 'En Espera' },
       { value: 'en proceso', label: 'En Proceso' },
       { value: 'Completado', label: 'Completado' },
     ];
-    console.log('TableData', tableData)
   const toggleRow = (index: number) => {
     setExpandedRows((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
@@ -80,12 +78,10 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure }: 
   };
 
     const onStatusChange = (rowID: string) => {
-        console.log('rowID', rowID);
         setTableData(prev => prev.filter(r => r.id !== rowID)); // elimina de la tabla  
     };
 
     const disableRequest = async (requestID:string) => {
-      console.log('RequestID', requestID);
       const response = await DoubleConfirmationAlert({
         title:'¿Estás seguro que deseas deshabilitar esta petición?',
         text:'No aparecerán los tiempos de entrega y todo el equipo se encontrará disponible.',
@@ -99,7 +95,6 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure }: 
     }
 
     const changeRequestStatus = async ({ optionselected, id }: { optionselected: { value: string, label: string }, id: string }) => {
-      console.log('changeRequestStatus: ', optionselected, id);
       try {
         const response = await UpdateRequestStatus({ status: optionselected.value, id: id });      
         if(response.success){
@@ -148,7 +143,8 @@ const getStatusTextColor = (statusValue:string) => {
           </thead>
 
           <tbody className="bg-white divide-y divide-gray-200">
-            {tableData.map((item, index) => (
+            {tableData.length>0? (
+            tableData.map((item, index) => (
               <React.Fragment key={`${item.id_peticion}-${index}`}>
                 {/* Fila principal */}
                 <tr
@@ -247,7 +243,6 @@ const getStatusTextColor = (statusValue:string) => {
                             opt => opt.value.toLowerCase() === item.status?.toLowerCase()
                           ) || null}
                           onChange={(optionselected) => {
-                              console.log('optionSelected', optionselected);
                               setSelectedStatus(optionselected);
                               if (optionselected) {
                               changeRequestStatus({
@@ -354,7 +349,21 @@ const getStatusTextColor = (statusValue:string) => {
                   </tr>
                 ))}
               </React.Fragment>
-            ))}
+            ))):(             
+                  <tr>
+                    <td 
+                      colSpan={
+                        procedure === 'completeRequestHistory' ? 
+                        20 : // Número total de columnas cuando procedure es 'completeRequestHistory'
+                        10   // Número total de columnas en otros casos
+                      } 
+                      className="text-center py-4 text-black"
+                    >
+                      No hay datos disponibles
+                    </td>
+                  </tr>
+              )
+          }
           </tbody>
         </table>
       </div>

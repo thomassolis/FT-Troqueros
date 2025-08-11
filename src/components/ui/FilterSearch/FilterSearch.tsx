@@ -94,8 +94,7 @@ useEffect(() => {
 }, []);
 
   let options;
-  if(lastSegment==='completeRequestHistory'){
-    console.log('lastSegment', lastSegment);
+  if(lastSegment==='completeRequestHistory'){    
     options=[
       {value: 'id', label: 'ID'}, 
       {value: 'nameService', label: 'Servicio'}, 

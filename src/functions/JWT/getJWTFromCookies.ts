@@ -7,7 +7,6 @@ export function getJwtFromCookies(cookieName = 'Troquero-Token'): string | null 
   }
 
   // Debug: Mostrar todas las cookies disponibles
-  console.log('Cookies disponibles:', document.cookie);
 
   try {
     const cookies = document.cookie.split('; ');

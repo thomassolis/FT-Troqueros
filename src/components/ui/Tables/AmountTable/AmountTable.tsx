@@ -45,8 +45,6 @@ export const AmountTable = ({
     // Observamos los valores del formulario        
     const costosExtras = watch?.(`servicios.${selectedIndex}.costos_extras`) || [];
     const nuevos_costos_extras = watch?.(`servicios.${selectedIndex}.nuevos_costos_extras`) || [];         
-console.log('RequestFormData AmountTable:', requestFormData);
-console.log('filteredServiceData AmountTable:', filteredServiceData);
     const handleSaveExtra = () => {
     const descripcion = watch?.(`servicios.${selectedIndex}.nuevo_costo.descripcion`);
     const precio = watch?.(`servicios.${selectedIndex}.nuevo_costo.precio`);

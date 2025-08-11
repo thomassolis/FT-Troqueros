@@ -82,9 +82,6 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
   }
   };
 
-useEffect(()=>{
-  console.log('Rows en servicesSelection', rows);
-},[rows])
   
   // Generamos las filas basadas en todos los serviceTypes  
   // Estado para controlar si es la primera carga

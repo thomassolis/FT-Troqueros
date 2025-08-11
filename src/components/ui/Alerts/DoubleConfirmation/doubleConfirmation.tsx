@@ -31,8 +31,7 @@ export const DoubleConfirmationAlert = async ({
     if (!result.isConfirmed) return { success: false };
 
     try {
-        let response;
-        console.log('requestIDNuevo: ', id);
+        let response;        
         switch (type) {
             case 'deleteService':
                 if (!id) throw new Error("ID faltante");

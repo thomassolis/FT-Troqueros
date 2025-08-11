@@ -11,23 +11,19 @@ interface SelectDataProps {
 }
 
 //Extrae toda la data para los select al momento de crear una petición
-export const SelectData = async({type, serviceID, fecha_salida, hora_salida, requestID}: SelectDataProps) => {    
-    console.log('fecha_salidaSelectData',fecha_salida)
-    console.log('hora_salidaSelectData',hora_salida)
+export const SelectData = async({type, serviceID, fecha_salida, hora_salida, requestID}: SelectDataProps) => {            
     const params = {
         fecha_salida: fecha_salida,
         hora_salida: hora_salida,
         IdPeticion: requestID
-    }
-    console.log('params', params);
+    }    
     try{
         let response;
         if(type==='services'){
             response = await axios.get(`requests/get_request_services`)            
             return response?.data.data;
         }else if(type === 'routes'){
-            response = await axios.get(`requests/get_request_ruta_services/${serviceID}`)  
-            console.log('Response: ', response)          ;
+            response = await axios.get(`requests/get_request_ruta_services/${serviceID}`)              
             return response?.data.data;
         }else if(type==='routesInfo'){
             response = await axios.get(`requests/get_request_data_services_id/${serviceID}`)

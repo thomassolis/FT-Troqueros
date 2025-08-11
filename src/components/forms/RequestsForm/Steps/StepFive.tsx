@@ -10,9 +10,7 @@ export const Step5: React.FC<StepsRequestsProps> = ({useProvider, requestFormDat
     const services = rows?.map((row, index) => ({
         serviceType: row.serviceType,
         rowIndex: index,
-    }));
-    
-// console.log('Paso 5')
+    }));    
 
     return (
         <div className="flex flex-col mt-10 gap-10">

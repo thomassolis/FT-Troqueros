@@ -43,8 +43,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   useProvider
 }) => {    
     const [isLoading, setIsLoading] = useState(false);
-    useEffect(() => {
-        console.log('useEffect1')
+    useEffect(() => {        
         const getSelectData = async () => {
             try {
                 setIsLoading(true);

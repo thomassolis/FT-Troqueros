@@ -9,6 +9,7 @@ import { TableRowVariables } from "../ui/Tables/RequestTable/PrincipalRequestTab
 import { useNavigate } from "react-router-dom";
 import { RequestCollapsibleTable } from "../ui/Tables/RequestTable/PrincipalRequestTable";
 // Definir primero la interfaz para los servicios
+import { useRef } from "react";
 
 interface SidebarProps {
     sidebarState: boolean;
@@ -35,14 +36,12 @@ export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setP
     const [tableData, setTableData] = useState<TableRowVariables[]>([]);    
     const [_isLoading, setIsLoading] = useState(false);
     const {searchValue} = useContext(searchValueContext)!;       
-    
+      const reqIdRef = useRef(0);           // 👈 marcador de request “vigente”
+
     const navigate = useNavigate();
 
-    useEffect(() => {
-        RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
-    }, [selectedTab, selectedOption, searchValue, currentPage, formattedDates]);
-
-    const transformTableData = (data: any[]): TableRowVariables[] => {
+    
+    const transformTableData = (data: any[]): TableRowVariables[] => {        
     return data.map(item => ({
         ...item,
         // Mapeo de campos con nombres diferentes
@@ -54,26 +53,40 @@ export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setP
     }));
     };
 
-    const RequestDataForHomeTable = async (index: number): Promise<void> => {
-        const tableSections: string[] = ["","En Espera", "En Proceso", "Completado", 'Cancelado'];
-        
-        try {
-            setIsLoading(true);
-            console.log('selectedOption', selectedOption);
-            const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                                   
-            console.log('response: ', response);
-            const transformedData = transformTableData(response.data);
-            setTableData(transformedData);
-            setTotalRecords(response.totalRegistros); 
-            setPageSize(response.limite);
-            setCurrentPage(Number(response.paginaActual) || 1);
+useEffect(() => {
+    const RequestDataForHomeTable = async () => {
+      const myReqId = ++reqIdRef.current;   // 👈 id para esta llamada
 
-        } catch (e) {
-            console.error("Error en RequestDataForHomeTable", e);
-        }finally{
-            setIsLoading(false);
-        }
-    };    
+      setIsLoading(true);
+      setTableData([]);                     // 👈 limpia la tabla al cambiar tab/filtros
+
+      try {
+        const tableSections = ['Todos','En Espera','En Proceso','Completado','Cancelado'];
+        const status = tableSections[selectedTab];
+        const response: any = await DataForRequestTable({
+          tableSection: status === 'Todos' ? undefined : status,
+          selectedOption, searchValue, currentPage, formattedDates
+        });
+
+        if (myReqId !== reqIdRef.current) return; // 👈 llegó tarde: ignora
+
+        const transformedData = transformTableData(Array.isArray(response?.data) ? response.data : []);
+        setTableData(transformedData);
+        setTotalRecords(response?.totalRegistros ?? 0);
+        setPageSize(response?.limite ?? 10);
+        setCurrentPage(Number(response?.paginaActual) || 1);
+      } catch (e) {
+        if (myReqId !== reqIdRef.current) return; // 👈 ignora si ya cambiaste
+        console.error(e);
+        setTableData([]);
+        setTotalRecords(0);
+      } finally {
+        if (myReqId === reqIdRef.current) setIsLoading(false);
+      }
+    };
+
+    RequestDataForHomeTable();
+  }, [selectedTab, selectedOption, searchValue, currentPage, formattedDates]);    
 
     return (
         <div className="w-[90%] overflow-hidden flex justify-end">
@@ -120,3 +133,43 @@ export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setP
         </div>
     );
 };
+
+
+
+//
+
+    // useEffect(() => {
+    //     RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
+    // }, [selectedTab, selectedOption, searchValue, currentPage, formattedDates]);
+
+    // const transformTableData = (data: any[]): TableRowVariables[] => {
+    // return data.map(item => ({
+    //     ...item,
+    //     // Mapeo de campos con nombres diferentes
+    //     id: item.id_peticion || item.id || '',
+    //     nombreCliente: item.cliente || item.nombreCliente || '',
+    //     id_proveedor: item.proveedor || item.id_proveedor || '',
+    //     // Asegurar que services sea un array
+    //     services: item.services || []
+    // }));
+    // };
+
+    // const RequestDataForHomeTable = async (index: number): Promise<void> => {
+    //     const tableSections: string[] = ["","En Espera", "En Proceso", "Completado", 'Cancelado'];
+        
+    //     try {
+    //         setIsLoading(true);
+    //         const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                                   
+    //         const transformedData = transformTableData(response.data);
+    //         setTableData(transformedData);
+            
+    //         setTotalRecords(response.totalRegistros); 
+    //         setPageSize(response.limite);
+    //         setCurrentPage(Number(response.paginaActual) || 1);
+
+    //     } catch (e) {
+    //         console.error("Error en RequestDataForHomeTable", e);
+    //     }finally{
+    //         setIsLoading(false);
+    //     }
+    // };  

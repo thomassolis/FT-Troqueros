@@ -2,7 +2,7 @@ import axios from '../axios.ts'
 import toast from 'react-hot-toast';
 
 interface RequestParams {
-    tableSection: string    
+    tableSection: string  | undefined  
     selectedOption: null | {
         value: string;
         label: string
@@ -40,7 +40,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
     const page = Number(currentPage)    
     try {
         // Crear objeto de parámetros dinámicamente
-        const params: Record<string, string | number> = { 
+        const params: Record<string, string | number | undefined> = { 
             page: page, 
             status: tableSection 
         };
@@ -57,8 +57,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
             params.endDate = formattedDates.end;     // "2025-07-19"
         }
                 
-        const response = await axios.get('/requests/see_requests', { params });          
-        console.log('Response Real: ', response);
+        const response = await axios.get('/requests/see_requests', { params });                  
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data   
@@ -76,8 +75,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
 //Envío de id de petición y el status cada vez que se cambia en la interfaz para que se actualize en la bd
 export const UpdateRequestStatus = async (
   { status, id }: UpdateRequestStatusParams
-): Promise<{ success: boolean; message: string }> => {
-    console.log('id_peticion: ', id, status)
+): Promise<{ success: boolean; message: string }> => {    
   try {
     const response = await axios.patch('/requests/update_status_request', {
       id_peticion: id,
@@ -164,8 +162,7 @@ export const getDataForCalendar = async () => {
 
 export const vacioEntregadoStatus = async (value:boolean, id:number) => {
     try{
-        const response = await axios.post('/agenda/isEmptyDelivered',{value:value, idPedidoServicio:id })        
-        console.log(response);
+        const response = await axios.post('/agenda/isEmptyDelivered',{value:value, idPedidoServicio:id })                
         return response.data;
     }catch(error){
         console.error('Error en getDataForCalendar', error);
@@ -176,8 +173,7 @@ export const vacioEntregadoStatus = async (value:boolean, id:number) => {
 
 export const logoutUser = async () => {
     try{
-        const response = await axios.post('/logout')        
-        console.log('response: ', response);
+        const response = await axios.post('/logout')                
         return response.data;
     }catch(error){
         console.error('Error en logoutUser',error);

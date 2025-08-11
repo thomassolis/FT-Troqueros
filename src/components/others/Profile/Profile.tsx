@@ -17,18 +17,15 @@ export const Profile = ({showProfile, setShowProfile}:ProfileProps) => {
     const {setIsAuthenticated,userLastName, userName} = useContext(AuthContext)!;  
      const [_userData, setUserData] = useState(); 
       
-    const cookie = getJwtFromCookies()
-    console.log('cookie',cookie);
+    // const cookie = getJwtFromCookies()    
 
   useEffect(() => {
     // Verificar cookies solo en el lado del cliente
-    const cookie = getJwtFromCookies();
-    console.log('Cookie obtenida:', cookie);
+    const cookie = getJwtFromCookies();    
     
     if (cookie) {
       try {
-        const decoded = decodeJwt(cookie);
-        console.log('Datos decodificados:', decoded);
+        const decoded = decodeJwt(cookie);        
         setUserData(decoded);
       } catch (error) {
         console.error('Error decodificando JWT:', error);

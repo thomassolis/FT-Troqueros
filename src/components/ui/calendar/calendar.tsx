@@ -47,14 +47,12 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const navigate = useNavigate()
-useEffect(()=>{
-  console.log('events: ', events);
+useEffect(()=>{  
 },[events])
     const changeVacioEntregado = async(value:boolean, id:number) => {      
       try{
         const response = await vacioEntregadoStatus(value, id);
-            // Actualiza el estado local inmediatamente
-            console.log('Acttualicación');
+            // Actualiza el estado local inmediatamente            
             if(response.success){
               setEvents(prevEvents => 
                 prevEvents.map(event => ({
@@ -74,8 +72,7 @@ useEffect(()=>{
   useEffect(() => {
     const fetchCalendarData = async () => {
       try {
-        const response = await getDataForCalendar();
-        console.log('Response Calendar: ', response);
+        const response = await getDataForCalendar();        
         const formatted = response.map((event: any) => ({
           ...event,
           start: new Date(event.start),

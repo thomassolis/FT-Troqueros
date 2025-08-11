@@ -35,8 +35,7 @@ export const ProtectRoute = async () => {
             headers: {
             'Content-Type': 'application/json',
             },
-        });
-        console.log('ProtectRoute',response.data);
+        });        
         return response.data        
     }catch(error){
         console.error('Error en ProtectRoute');
