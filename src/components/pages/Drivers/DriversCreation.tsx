@@ -11,7 +11,7 @@ export const DriversCreation = () =>{
     const module = GetModuleFromURL();
     const procedure = GetProcedureFromURL();
     const location = useLocation();
-    const isEditMode = location.pathname.includes('edit') 
+    const isEditMode = location.pathname.includes('edit')     
     return(
         <section>
             {module === 'Drivers' ? (

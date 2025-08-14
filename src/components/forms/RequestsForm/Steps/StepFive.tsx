@@ -4,6 +4,7 @@ import { StepsRequestsProps } from "../../../types/forms/RequestsForm/requestsFo
 import { PrevisualizationTab } from "../../../ui/tabs/Tabs";
 import { InvoiceTable } from "../../../ui/Tables/AmountTable/InvoiceTable";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
+import { BillTable } from "../../../ui/Tables/AmountTable/BillTable";
 
 export const Step5: React.FC<StepsRequestsProps> = ({useProvider, requestFormData, rows, getValues}) => {    
     const { setValue, register, formState: { errors }, watch } = useFormContext<RequestsFormValues>();    
@@ -17,7 +18,7 @@ export const Step5: React.FC<StepsRequestsProps> = ({useProvider, requestFormDat
             <h1 className="text-black">Visualización y modificación de tarifa</h1>
             <PrevisualizationTab
                 tabContent={services?.map(s => s.serviceType)}
-                onTabChange={(selectedOption:any) => console.log('Opción seleccionada2:', selectedOption)}                
+                onTabChange={(selectedOption:any) => console.log('', selectedOption)}                
                 rows={rows}
                 register={register}
                 watch={watch}
@@ -33,6 +34,11 @@ export const Step5: React.FC<StepsRequestsProps> = ({useProvider, requestFormDat
                 <InvoiceTable                                        
                     requestFormData = {requestFormData}                    
                 />
+            </div>
+
+            <h1 className="text-black">Factura total de servicios</h1>
+            <div className="flex justify-center">
+                <BillTable/>
             </div>
         </div>
     )

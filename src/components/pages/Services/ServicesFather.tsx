@@ -18,7 +18,7 @@ export const ServicesTableManagement = ({module}: ServicesTableManagement) =>{
       const getServicesData = async() =>{
           try{
             const response = await GetServices({
-                search: searchValue ?? '',
+                search: searchValue != null ? String(searchValue) : '',
                 page: currentPage ?? ''
             });            
             setServicesData(response.data.data);

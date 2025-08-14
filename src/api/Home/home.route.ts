@@ -30,14 +30,15 @@ const optionToApiParam = {
   nameDriver: 'nameDriver',
   nameCustomer: 'nameCustomer',
   sh: 'sh',
-  num_contenedor: 'num_contenedor'
+  num_contenedor: 'num_contenedor',
+  numero_factura: 'numero_factura'
 } as const;
 
 type ApiParam = keyof typeof optionToApiParam;
 
 //Data que requiere la tabla del home para mostrar los datos
 export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage, formattedDates}: RequestParams): Promise<Record<string, string>[]> => {            
-    const page = Number(currentPage)    
+    const page = Number(currentPage)        
     try {
         // Crear objeto de parámetros dinámicamente
         const params: Record<string, string | number | undefined> = { 
@@ -57,7 +58,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
             params.endDate = formattedDates.end;     // "2025-07-19"
         }
                 
-        const response = await axios.get('/requests/see_requests', { params });                  
+        const response = await axios.get('/requests/see_requests', { params });                   
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data   
@@ -146,6 +147,17 @@ export const DownloadRequestExcel = async({selectedOption, searchValue, selected
     }
 }
 
+export const ChangeBilledStatus = async (status:boolean, id:string) => {    
+    const data = {
+        status: status,
+        idPeticion: id
+    }
+    try{
+        await axios.post('/requests/update_billed_status_request', data)        
+    }catch(error){
+        console.error('Error en ChangeBilledStatus: ', error);
+    }
+}
 
 
 

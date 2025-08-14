@@ -189,7 +189,7 @@ export const StepThree: React.FC<StepOneCustomerProps> = ({register, control}) =
                         <Input 
                             type="string" 
                             className2={'py-5'} 
-                            placeholder="Ejm. Danger Man"               
+                            placeholder="Ejm. David Peña"               
                             {...register('nombreCuenta')}
                         />
 

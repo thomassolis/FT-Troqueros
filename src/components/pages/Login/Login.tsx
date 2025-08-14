@@ -5,13 +5,26 @@ import { SendLoginCredentials } from "../../../api/Login/login.route";
 import { useState, useContext } from "react";
 import { AuthContext } from "../../../context/auth/authProvider";
 import { useNavigate } from "react-router-dom";
-
+import { useEffect } from "react";
 export const Login = () => {    
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-    
+    const [userName, setUserName]= useState('');
+    const [userLastName, setUserLastName]= useState('');
     const auth = useContext(AuthContext);
+
+    useEffect(()=>{
+        if (userName !== null) {
+            sessionStorage.setItem("userName", userName);
+        }
+    },[userName])
+
+    useEffect(()=>{
+        if (userLastName !== null) {
+            sessionStorage.setItem("userLastName", userLastName);
+        }
+    },[userLastName])
 
     // 🔹 Si `AuthContext` no está disponible, evitar errores
     if (!auth) {
@@ -20,7 +33,7 @@ export const Login = () => {
 
     // Extraer setters del contexto para actualizar la información del usuario
     const { 
-        setUserRole, setUserName, setUserLastName, 
+        setUserRole, 
         setUserEmail, setIsAuthenticated 
     } = auth;
 
@@ -34,7 +47,7 @@ export const Login = () => {
         };
 
         try {
-            const response = await SendLoginCredentials(formattedData, navigate);            
+            const response = await SendLoginCredentials(formattedData, navigate);              
             if (response?.success) {  
                 // 🔹 Guardar los datos del usuario en el contexto
                 setUserRole(response.data.rol);

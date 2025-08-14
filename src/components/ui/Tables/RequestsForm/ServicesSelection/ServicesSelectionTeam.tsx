@@ -91,10 +91,7 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
       
       //Al momento de editar la petición, esta función es la que se encarga de llenar los datos de la petición
       if (isEditMode && requestFormData?.servicios?.length) {       
-        console.log('requestFormData?.servicios?.length: ', requestFormData?.servicios?.length);
-        console.log('EditMode') 
         const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => {     
-          console.log('requestFormData.servicios: ', requestFormData.servicios);
           return {
             serviceTypeId: servicio.id_pedidoServicio, // o puedes usar Date.now() si prefieres
             serviceType: servicio.servicio,
@@ -168,8 +165,7 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
     }, [rows, isEditMode]);
 
 const getRoutesForSelect = async (serviceID?: number | string) => {
-  if (!serviceID) return;
-  console.log('getRoutesForSelect', serviceID);
+  if (!serviceID) return;  
   try {
     setIsLoading(true);
     const response = await SelectData({ type: 'routes', serviceID });
@@ -228,8 +224,8 @@ const getRoutesInformation = async (
 
   const handleEntregaVacioChange = (rowIndex: number, value: boolean) => {      
     const updatedRows = [...(rows ?? [])];
-    updatedRows[rowIndex].entrega_vacio = value;
-    setRows?.(updatedRows); // Actualiza el estado de filas
+    updatedRows[rowIndex].entrega_vacio = value;    
+    // setRows?.(updatedRows); // Actualiza el estado de filas
   };
   return (
     <div className='flex flex-col'>    

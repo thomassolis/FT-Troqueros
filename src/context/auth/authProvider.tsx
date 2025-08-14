@@ -3,8 +3,8 @@ import axios from "axios";
 
 interface AuthContextType {
   userRole: string | null;
-  userName: string | null;
-  userLastName: string | null;
+  userName: string | null | undefined;
+  userLastName: string | null | undefined;
   banTime: string | null;
   userEmail: string | null;
   isAuthenticated: boolean;
@@ -21,34 +21,12 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(
-    sessionStorage.getItem("userName") || null
-  );
-  const [userLastName, setUserLastName] = useState<string | null>(
-    sessionStorage.getItem("userLastName") || null
-  );
+  const [userName, setUserName] = useState<string | null>();
+  const [userLastName, setUserLastName] = useState<string | null>();
   const [banTime, setBanTime] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-
-
-  // Guardar en sessionStorage cuando cambie
-  useEffect(() => {
-    if (userName !== null) {
-      sessionStorage.setItem("userName", userName);
-    } else {
-      sessionStorage.removeItem("userName");
-    }
-  }, [userName]);
-
-  useEffect(() => {
-    if (userLastName !== null) {
-      sessionStorage.setItem("userLastName", userLastName);
-    } else {
-      sessionStorage.removeItem("userLastName");
-    }
-  }, [userLastName]);
 
   const logout = () => {
     // Limpiar todos los estados de usuario

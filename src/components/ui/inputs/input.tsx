@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 interface InputProps {
     type: string;
     placeholder?: string;    
+    id?: string;    
     className2?: string | null;
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     name?:string    
@@ -14,9 +15,10 @@ interface InputProps {
 }
 
 export const Input = forwardRef <HTMLInputElement, InputProps>(
-    ({type, min, maxLength, max, value, defaultValue, placeholder, className2, onChange, ...rest}, ref) =>{
+    ({type, min, maxLength, max, value, defaultValue, placeholder, className2, id, onChange, ...rest}, ref) =>{
         return(
             <input 
+                id={id}
                 type={type} 
                 placeholder={placeholder} 
                 ref={ref}

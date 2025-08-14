@@ -19,10 +19,10 @@ interface MyComponentProps {
 export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {        
     const navigate = useNavigate()    
     const procedure = GetProcedureFromURL()   
-    const {searchValue} = useContext(searchValueContext)!;     
+    const {searchValue, selectedOption, setSelectedOption} = useContext(searchValueContext)!;     
     const [selectedTab, setSelectedTab] = useState<number>(0); 
     //ESTADO QUE MANEJARÁ EL VALOR SELECCIONADO DENTRO DEL FILTRADOR DE LA TABLA DE PETICIONES
-    const [selectedOption, setSelectedOption] = useState<{value: string, label: string} | null>({value: 'id', label: 'ID'});    
+    // const [selectedOption, setSelectedOption] = useState<{value: string, label: string} | null>({value: 'id', label: 'ID'});    
 
     //Paginación
     const [totalRecords, setTotalRecords] = useState(0);
@@ -45,7 +45,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
 
     const downloadExcel = async() => {
         try{
-            await DownloadRequestExcel({selectedOption:selectedOption, searchValue:searchValue, selectedTab:selectedTab, tableSections:tableSections, formattedDates:formattedDates});
+            await DownloadRequestExcel({selectedOption:selectedOption,  searchValue: searchValue != null ? String(searchValue) : null, selectedTab:selectedTab, tableSections:tableSections, formattedDates:formattedDates});
         }catch(error){
             console.error('Error en downloadExcel: ', error);
         }

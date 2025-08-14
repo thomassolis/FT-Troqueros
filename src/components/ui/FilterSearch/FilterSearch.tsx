@@ -40,7 +40,7 @@ export const FilterSearch = ({vehicleType, selectedOption, setSelectedOption, se
   const location = useLocation();
   const pathSegments = location.pathname.split('/').filter(Boolean); 
   const lastSegment = pathSegments[pathSegments.length - 1];    
-  const {setSearchValue} = useContext(searchValueContext)!;
+  const {setSearchValue, searchValue} = useContext(searchValueContext)!;
 
   // Filtro de fecha
   const [showPicker, setShowPicker] = useState(false);
@@ -102,6 +102,7 @@ useEffect(() => {
       {value: 'nameCustomer', label: 'Cliente'},                 
       {value: 'sh', label: 'SH'},                 
       {value: 'num_contenedor', label: 'Contenedor'},                 
+      {value: 'numero_factura', label: '# Factura'},          
     ] 
   }else{
     options=[
@@ -116,6 +117,7 @@ useEffect(() => {
     <div className="flex bg-red-">
       {lastSegment === 'home' ? (
         <Select
+            defaultValue={selectedOption}
             options={options}  
             className="text-black max-w-[35%] min-w-[20%]"        
             value={selectedOption}
@@ -226,7 +228,8 @@ useEffect(() => {
             ): lastSegment === 'Providers' ? (
                 `Buscar Proveedor por Nombre`
             ): ''
-          }                                
+          }   
+          value={searchValue}                             
           className2={"py-5 rounded-none border border-gray-400"}
           onChange={handleInputChange}                                
         />

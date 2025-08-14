@@ -51,7 +51,8 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                         tabSelected: tabSelected ?? '',
                         page: currentPage, 
                         limit: pageSize,
-                        search: searchValue ?? ''
+                        search: searchValue != null ? String(searchValue) : '',
+
                     });                                        
                     //Cambiar a vehiculos
                     setTableData(response.vehiculos.data || []);             
@@ -61,7 +62,8 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     const response = await GetDataForPrevisualizationTableCustomers({
                         page: currentPage, 
                         limit: pageSize,
-                        search: searchValue ?? ''
+                        search: searchValue != null ? String(searchValue) : '',
+
                     });                
         
                     if (!response) {
@@ -78,7 +80,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     const response = await GetFullDriversDataForTable({
                         page: currentPage, 
                         limit: pageSize,
-                        search: searchValue ?? ''
+                        search: searchValue != null ? String(searchValue) : '',
                     });                                     
 
                     setTableData(response.data.data || []);  
@@ -88,7 +90,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     const response = await GetProviders({
                         page: currentPage, 
                         limit: pageSize,
-                        search: searchValue ?? ''
+                        search: searchValue != null ? String(searchValue) : '',
                     });
                     setTableData(response.data.data || []); 
                     setTotalRecords(response.data.totalRegistros);                    

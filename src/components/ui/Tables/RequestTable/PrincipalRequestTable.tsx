@@ -4,6 +4,7 @@ import Select from 'react-select';
 import { DoubleConfirmationAlert } from "../../Alerts/DoubleConfirmation/doubleConfirmation";
 import { UpdateRequestStatus } from "../../../../api/Home/home.route";
 import { useNavigate } from "react-router-dom";
+import { FadeLoader } from "react-spinners";
 
 interface Service {
   id: string;
@@ -21,7 +22,7 @@ interface Service {
   precio_proveedor: string;
   profit: string;
   id_peticion: string;
-  cliente: string;
+  nombre_cliente:string;
   servicio:string;
   conductor:string;
   chasis: string;
@@ -29,15 +30,17 @@ interface Service {
   furgon: string;
   comentario: string;
   size_contenedor:string;
+  lugar_origen:string;
+  lugar_destino:string;
 }
 
 export interface TableRowVariables {
   id_peticion: string;
-  nombreCliente: string;
+  nombre_cliente: string;
   servicio: string;
   sh: string;
   numero_contenedor: string;
-  monto: number;
+  tarifa: number;
   fecha_creacion: string;
   fecha_salida: string;
   proveedor: string;
@@ -48,10 +51,13 @@ export interface TableRowVariables {
   cabezal:string;
   furgon:string;
   id:string
-  id_proveedor:string;
+  proveedor_id:string;
   comentario:string;
   size_contenedor:string;
   status:string;  
+  lugar_origen:string;
+  lugar_destino:string;
+  numero_factura:string;
   services: Service[];  
 }
 
@@ -59,13 +65,13 @@ interface RequesCollapsibleTableProps {
   tableData: TableRowVariables[];
   setTableData: React.Dispatch<React.SetStateAction<TableRowVariables[]>>;
   procedure: string;
+  _isLoading: boolean;
 }
 
-export const RequestCollapsibleTable = ({ tableData, setTableData, procedure }: RequesCollapsibleTableProps) => {
+export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _isLoading }: RequesCollapsibleTableProps) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [_selectedStatus, setSelectedStatus] = useState<{value: string, label: string} | null>({value: '', label: ''});        
-  const navigate = useNavigate();
-
+  const navigate = useNavigate();    
     const statusOptions = [
       { value: 'en espera', label: 'En Espera' },
       { value: 'en proceso', label: 'En Proceso' },
@@ -105,19 +111,20 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure }: 
       }
     };
 
-      //Cambio de color en las opciones del select
-const getStatusTextColor = (statusValue:string) => {  
-  switch (statusValue) {
-    case 'en espera':
-      return '#ffc109'; // Amarillo (texto)
-    case 'en proceso':
-      return '#0d6efd'; // Azul (texto)
-    case 'Completado':
-      return '#198754'; // Verde (texto)
-    default:
-      return '#6c757d'; // Gris por defecto
-  }
-};
+    //Cambio de color en las opciones del select
+    const getStatusTextColor = (statusValue:string) => {  
+      switch (statusValue) {
+        case 'en espera':
+          return '#ffc109'; // Amarillo (texto)
+        case 'en proceso':
+          return '#0d6efd'; // Azul (texto)
+        case 'Completado':
+          return '#198754'; // Verde (texto)
+        default:
+          return '#6c757d'; // Gris por defecto
+      }
+    };
+
 
   return (
     <div className="overflow-x-auto max-w-[1260px] mx-auto rounded-lg border border-gray-200">
@@ -128,7 +135,7 @@ const getStatusTextColor = (statusValue:string) => {
                    <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%]" align="center"></th>
 
                   {procedure==='completeRequestHistory' ? (
-                    ['ID','Cliente', 'Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón', 'SH', 'Contenedor','Tamaño Contenedor','Monto Total','Creación de Petición','Comienzo de Petición','Proveedor','Costo Proveedor','Profit','Comentario'].map((title)=>(
+                    ['ID','Cliente', 'Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón', 'SH', 'Contenedor','Tamaño Contenedor','Monto Total','Creación de Petición','Comienzo de Petición','Proveedor','Costo Proveedor','Profit','Comentario','Facturar', '# Facturación'].map((title)=>(
                         <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%] z-40" align="center">{title}</th>
                     ))
                   ):(
@@ -137,8 +144,8 @@ const getStatusTextColor = (statusValue:string) => {
                     ))
                   )}
 
-                  <th className={`sticky top-0 bg-gray-50 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%] ${procedure==='completeRequestHistory'?'px-16':'px-10'}`} align="center">Status</th>
-                  <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%]" align="center"></th>
+                  <th className={`sticky top-0 bg-gray-50 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%] ${procedure==='completeRequestHistory'?'px-16':'px-10'}`} align="center">Status</th>                  
+                  <th className="sticky top-0 bg-gray-50 py-3 text-xs font-medium text-black uppercase tracking-wider w-[1%]" align="center"></th>
             </tr>
           </thead>
 
@@ -152,7 +159,7 @@ const getStatusTextColor = (statusValue:string) => {
                   className={
                     `cursor-pointer transition-colors 
                     ${item.services.length>0?'bg-blue-200':''} 
-                    ${item.id_proveedor?'bg-red-100':''}
+                    ${item.proveedor_id?'bg-red-100':''}
                     ${
                     expandedRows.includes(index)
                       ? "border-blue-800"
@@ -173,10 +180,10 @@ const getStatusTextColor = (statusValue:string) => {
                     {item.id_peticion}
                   </td>
                   <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal " align="center">
-                      {item.nombreCliente}
+                      {item.nombre_cliente}
                   </td>
                   <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
-                    {item.servicio}
+                    {item.servicio}({item.lugar_origen}-{item.lugar_destino})
                   </td>
                   <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
                       {item.conductor||'No Asignado'}
@@ -205,8 +212,8 @@ const getStatusTextColor = (statusValue:string) => {
                         {item.size_contenedor||'-'}
                       </td>
 
-                      <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.monto?'':'text-red-500'}`} align="center">
-                        {item.monto||'-'}
+                      <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.tarifa?'':'text-red-500'}`} align="center">
+                        {item.tarifa||'-'}
                       </td>
 
                       <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.fecha_creacion?'':'text-red-500'}`} align="center">
@@ -232,6 +239,22 @@ const getStatusTextColor = (statusValue:string) => {
                       <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.comentario?'':'text-red-500'}`} align="center">
                         {item.comentario || '-'}
                       </td>
+
+                    <td className="py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center" onClick={(e)=>{e.stopPropagation()}}>
+                      <Icon icon="rivet-icons:money" width="16" height="16" className="text-black hover:text-gray-400" 
+                        onClick={(e)=>{
+                          e.stopPropagation();                          
+                          navigate(`/home/Request/edit/${item.id_peticion}`,{
+                            state: { jumpToStep: 4}
+                          })
+                        }}
+                      />
+                    </td>
+
+                    <td className="py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center" onClick={(e)=>{e.stopPropagation()}}>
+                      {item.numero_factura}
+                    </td>
+
                     </>
                   ):null
                   }
@@ -273,6 +296,7 @@ const getStatusTextColor = (statusValue:string) => {
                           }}
                       />                      
                   </td>
+
                   <td className="px-1 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center" onClick={(e)=>{e.stopPropagation()}}>
                       <Icon
                           icon="line-md:trash"
@@ -292,10 +316,10 @@ const getStatusTextColor = (statusValue:string) => {
                       {service.id_peticion}
                     </td>
                     <td className="px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal" align="center">
-                      {service.cliente}
+                      {service.nombre_cliente}
                     </td>
-                    <td className="px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal" align="center">
-                      {service.servicio}
+                    <td className="px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal" align="center">                      
+                      {service.servicio}({service.lugar_origen}-{service.lugar_destino})
                     </td>
                     <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal ${service.conductor?'':'text-red-500'}`} align="center">
                       {service.conductor || 'No Asignado'}
@@ -321,8 +345,8 @@ const getStatusTextColor = (statusValue:string) => {
                         <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal ${service.size_contenedor?'':'text-red-500'}`} align="center">
                           {service.size_contenedor||'-'}
                         </td>
-                        <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal ${service.monto?'':'text-red-500'}`} align="center">
-                          {service.monto||'-'}
+                        <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal ${service.tarifa?'':'text-red-500'}`} align="center">
+                          {service.tarifa||'-'}
                         </td>
                         <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal ${service.fecha_creacion?'':'text-red-500'}`} align="center">
                           {service.fecha_creacion||'-'}
@@ -342,16 +366,18 @@ const getStatusTextColor = (statusValue:string) => {
                         <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal ${service.comentario?'':'text-red-500'}`} align="center">
                           {service.comentario || '-'}
                       </td>
+                      <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal`} align="center"></td>
+                      <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal`} align="center"></td>  
                       </>
                     )}
                     <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal`} align="center"></td>
-                    <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal`} align="center"></td>
+                    <td className={`px-2 py-1 text-sm text-gray-500 bg-blue-100 max-w-xs break-words whitespace-normal`} align="center"></td>                                        
                   </tr>
                 ))}
               </React.Fragment>
-            ))):(             
+            ))):(              
                   <tr>
-                    <td 
+                    <td
                       colSpan={
                         procedure === 'completeRequestHistory' ? 
                         20 : // Número total de columnas cuando procedure es 'completeRequestHistory'
@@ -359,7 +385,12 @@ const getStatusTextColor = (statusValue:string) => {
                       } 
                       className="text-center py-4 text-black"
                     >
-                      No hay datos disponibles
+                      {_isLoading?(
+                        <div className="flex justify-center">
+                          <FadeLoader/>
+                        </div>
+                      ):'No hay datos disponibles'
+                      }                      
                     </td>
                   </tr>
               )

@@ -41,7 +41,7 @@ export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setP
     const navigate = useNavigate();
 
     
-    const transformTableData = (data: any[]): TableRowVariables[] => {        
+    const transformTableData = (data: any[]): TableRowVariables[] => {                
     return data.map(item => ({
         ...item,
         // Mapeo de campos con nombres diferentes
@@ -53,7 +53,7 @@ export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setP
     }));
     };
 
-useEffect(() => {
+useEffect(() => {    
     const RequestDataForHomeTable = async () => {
       const myReqId = ++reqIdRef.current;   // 👈 id para esta llamada
 
@@ -61,11 +61,15 @@ useEffect(() => {
       setTableData([]);                     // 👈 limpia la tabla al cambiar tab/filtros
 
       try {
+        setIsLoading(true);
         const tableSections = ['Todos','En Espera','En Proceso','Completado','Cancelado'];
         const status = tableSections[selectedTab];
         const response: any = await DataForRequestTable({
           tableSection: status === 'Todos' ? undefined : status,
-          selectedOption, searchValue, currentPage, formattedDates
+          selectedOption, 
+           searchValue: searchValue != null ? String(searchValue) : null,
+          currentPage, 
+          formattedDates
         });
 
         if (myReqId !== reqIdRef.current) return; // 👈 llegó tarde: ignora
@@ -81,7 +85,7 @@ useEffect(() => {
         setTableData([]);
         setTotalRecords(0);
       } finally {
-        if (myReqId === reqIdRef.current) setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -126,6 +130,7 @@ useEffect(() => {
                             tableData={tableData} 
                             setTableData={setTableData} 
                             procedure = {procedure}
+                            _isLoading = {_isLoading}
                         />
                     </TabPanel>
                 ))}

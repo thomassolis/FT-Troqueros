@@ -14,7 +14,15 @@ interface ProfileProps {
 }
 
 export const Profile = ({showProfile, setShowProfile}:ProfileProps) => {
-    const {setIsAuthenticated,userLastName, userName} = useContext(AuthContext)!;  
+    const {setIsAuthenticated} = useContext(AuthContext)!;  
+
+  const [userName] = useState<string | null>(
+    sessionStorage.getItem("userName") || null
+  );
+  const [userLastName] = useState<string | null>(
+    sessionStorage.getItem("userLastName") || null
+  );
+
      const [_userData, setUserData] = useState(); 
       
     // const cookie = getJwtFromCookies()    

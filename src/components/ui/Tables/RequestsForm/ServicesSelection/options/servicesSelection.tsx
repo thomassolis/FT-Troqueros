@@ -66,7 +66,8 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
   getRoutesForSelect,
   deleteService,
   selectDataMap,
-  isLoading
+  isLoading,
+  setValue
 }) => { 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 flex flex-col">
@@ -272,19 +273,22 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                         <input
                           type="checkbox"
                           checked={checked}
-                          onChange={(e) => {
-                            const newValue = e.target.checked;
-                            field.onChange(newValue);
-                            handleEntregaVacioChange(rowIndex, newValue);
-                          }}
+onChange={(e) => {
+  const newValue = e.target.checked;
+  field.onChange(newValue);
+  handleEntregaVacioChange(rowIndex, newValue);
+  if (!newValue) setValue(`${fieldName}.fecha_limite`, undefined); // 👈 Limpia el campo
+}}
                         />
                         {/* Este bloque ahora está DENTRO del mismo <td> */}
-                        {checked && (
-                          <div className='w-[80%]'>
+                        
+                          <div className={`w-[80%] ${checked ? '' : 'hidden'}`}>
                             <Controller
                               name={`${fieldName}.fecha_limite`}
                               control={control}
-                              rules={{ required: 'fecha_limite' }}
+                              rules={{
+  required: checked ? 'Fecha límite es requerida' : false,
+}}
                               render={({ field, fieldState }) => (
                             <input
                               type="date"
@@ -312,7 +316,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                             />
 
                           </div>
-                        )}
+                        
                       </div>
                     );
                   }}

@@ -62,6 +62,7 @@ export interface RequestsFormValues {
   tipo_entregaVacio?: boolean;
   id_pedidoServicio?: string;
   proveedor?: string;
+  numero_factura?:string
   // Eliminado: costos_extras: number; // Esto estaba mal definido
 }
 

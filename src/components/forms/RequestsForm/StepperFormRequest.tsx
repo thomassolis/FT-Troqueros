@@ -16,6 +16,7 @@ import { Step2 } from "./Steps/StepTwo";
 import { Step3 } from "./Steps/StepThree";
 import { Step4 } from "./Steps/StepFour";
 import { Step5 } from "./Steps/StepFive";
+import { useLocation } from "react-router-dom";
 
 export interface ServiceType {
   id: number;
@@ -23,8 +24,13 @@ export interface ServiceType {
   quantity: number;
   serviceID?: string;
 }
+
+type NavState = { jumpToStep?: number } | null;
+
 export const StepperFormRequests = () => {
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as NavState) ?? null;
   const {requestID} = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const procedure = GetProcedureFromURL();    
@@ -43,7 +49,10 @@ export const StepperFormRequests = () => {
     // Más objetos si es necesario
   ]);
   const [rows, setRows] = useState<RouteRow[]>([]);//Filas que tienen las tablas
-  const [activeStep, setActiveStep] = useState(0);
+    const [activeStep, setActiveStep] = useState<number>(() => {
+    const s = navState?.jumpToStep;
+    return typeof s === "number" ? s : 0;   // ← se monta directo en ese paso
+  });
   
   // 1) Creamos el hook de RHF con defaultValues y shouldUnregister
   const methods = useForm<RequestsFormValues>({
@@ -76,12 +85,11 @@ export const StepperFormRequests = () => {
     reset,
     trigger,            
     watch,
-    getValues    
+    getValues
   } = methods;
   
   useEffect(() => {
-    const subscription = watch((value) => {
-
+    const subscription = watch((value) => {      
       setRequestFormData(value as RequestsFormValues);
     });
     return () => subscription.unsubscribe();
@@ -113,7 +121,6 @@ export const StepperFormRequests = () => {
     }
   }, [rows])
 
-  const navigate = useNavigate();  
 
   // Navegar al siguiente paso con validación
   const nextStep = async () => {    
@@ -165,7 +172,7 @@ const onSubmit = async (data: any) => {
   useEffect(()=>{
     const GetDataForEditRequest = async() => {
       try{
-        const response = await GetRequestDataPerID({requestID});  
+        const response = await GetRequestDataPerID({requestID});          
         if(response.id_proveedor){
           setUseProvider(true);
         }else{
@@ -251,19 +258,43 @@ const onSubmit = async (data: any) => {
               {activeStep < 4 ? (
                 <Button
                   onClick={async () => {
-                    const isStepValid = await trigger();
+                    const isStepValid = await trigger();                    
+                    
                     if (isStepValid) {                      
                       nextStep();
-                    } else {
-                      // // Depuración mejorada
-                      // console.log('Errores de validación:', {
-                      //   step: activeStep,
-                      //   errors: Object.entries(formState.errors).map(([key, error]) => ({
-                      //     campo: key,
-                      //     mensaje: error?.message,
-                      //     tipo: error?.type
-                      //   }))
-                      // });
+                     } else {
+                      // Depuración mejorada
+// console.log('Errores de validación:', {
+//   step: activeStep,
+//   errors: Object.entries(errors).flatMap(([key, value]) => {
+//     // Si es un array (como "servicios")
+//     if (Array.isArray(value)) {
+//       return value.flatMap((item, idx) =>
+//         Object.entries(item || {}).map(([subKey, subValue]) => ({
+//           campo: `${key}[${idx}].${subKey}`,
+//           mensaje: subValue?.message,
+//           tipo: subValue?.type
+//         }))
+//       );
+//     }
+
+//     // Si es un objeto simple
+//     if (typeof value === "object") {
+//       return Object.entries(value || {}).map(([subKey, subValue]) => ({
+//         campo: `${key}.${subKey}`,
+//         mensaje: subValue?.message,
+//         tipo: subValue?.type
+//       }));
+//     }
+
+//     // Si es un error simple
+//     return [{
+//       campo: key,
+//       mensaje: value?.message,
+//       tipo: value?.type
+//     }];
+//   })
+// });
                     }
                   }}
                   className2="p-2 w-full"
