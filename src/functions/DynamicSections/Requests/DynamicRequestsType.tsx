@@ -41,7 +41,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   isEditMode,
   serviceTypes,
   useProvider
-}) => {    
+}) => {        
     const [isLoading, setIsLoading] = useState(false);
     useEffect(() => {        
         const getSelectData = async () => {

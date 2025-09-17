@@ -17,6 +17,8 @@ import { Step3 } from "./Steps/StepThree";
 import { Step4 } from "./Steps/StepFour";
 import { Step5 } from "./Steps/StepFive";
 import { useLocation } from "react-router-dom";
+import { toRouteRow  } from "../../../context/Requests/DynamicRequestsOptions";
+import isEqual from "lodash/isEqual";
 
 export interface ServiceType {
   id: number;
@@ -64,6 +66,9 @@ export const StepperFormRequests = () => {
       id_proveedor: "",
       precio_proveedor:undefined,
       isProviderRequest: false, //Variable que controla el checkox (esta variable no se enviará)
+      paymentData: [
+        { descripcion: "", monto: 0, comprobante: "" }
+      ],
       servicios: [
         {
           entrega_vacio: false,
@@ -73,53 +78,69 @@ export const StepperFormRequests = () => {
           id_conductor: '',
           id_furgon: '',
           id_servicio_datos: '',
-          tarifa: 0,
+          tarifa: [
+            { 
+              descripcion: "test", 
+              costo: undefined, 
+              venta: 0,
+              profit: 0
+            }            
+          ],
+          profitT:0,
+          totalVenta:0,
+          totalCosto:0
         }
       ]
     },
-    shouldUnregister: false
+    shouldUnregister: true
   });
 
-    const {
+  const {
     handleSubmit,
     reset,
     trigger,            
     watch,
-    getValues
+    getValues,
+    setValue,
+    formState: { errors } 
   } = methods;
   
   useEffect(() => {
     const subscription = watch((value) => {      
-      setRequestFormData(value as RequestsFormValues);
+      // setRequestFormData(value as RequestsFormValues);
+      // console.log('requestFormDataPrincipal: ',value)
     });
     return () => subscription.unsubscribe();
-  }, [watch, requestFormData]);
+  }, [watch]);
+  // }, [watch, requestFormData]);
 
 
-  useEffect(()=>{    
+useEffect(() => {
+  console.log('Entrando a useEffect#1, depende de rows')
+  if (!Array.isArray(rows)) return;
 
-    if(!Array.isArray(rows)) return;
-      
-    const updatedRows = rows.map((row)=>{
-      if(/*!row.selectedOption || row.selectedOption === '' ||*/ !row.serviceID || row.serviceID === ''){
-        return {
-          ...row,
-          id_servicio_datos: '',
-          lugar_origen: '',
-          lugar_destino: '',
-          tarifa: 0,
-          entrega_vacio: false,
-          fecha_limite: '',
-        };
-      }
-      return row;
-    })
-    // Solo actualiza si hay algún cambio
-    const isDifferent = JSON.stringify(updatedRows) !== JSON.stringify(rows);
-    if (isDifferent) {
-      setRows(updatedRows);
+  const updatedRows: RouteRow[] = rows.map((r) => {
+    const row = toRouteRow(r);
+
+    if (!row.serviceID) {
+      return {
+        ...row,
+        id_servicio_datos: "",
+        lugar_origen: "",
+        lugar_destino: "",
+        tarifa: [{ descripcion: "", costo: 0, venta: 0, profit: 0 }],
+        entrega_vacio: false,
+        fecha_limite: "",
+      };
     }
-  }, [rows])
+    return row;
+  });
+
+  if (!isEqual(updatedRows, rows)) {
+    setRows(updatedRows);
+  }
+  console.log('Saliendo de useEffect#1')
+}, [rows]);
 
 
   // Navegar al siguiente paso con validación
@@ -138,14 +159,15 @@ export const StepperFormRequests = () => {
 
 
 const onSubmit = async (data: any) => {   
+  
   try {
     setIsLoading(true);
     const {isProviderRequest, ...payload} = data; // Elimina el campo isProviderRequest
 
-    // Función mejorada de limpieza
+    // Función mejorada de limpieza    
     const cleanData = CleanRequestDataBeforeSend(payload, isProviderRequest);
     
-    if (procedure === 'create') {
+    if (procedure === 'create') {      
       const response = await CreateNewRequest({ data: cleanData });
       if (response.success) {          
         setRows([]);                    
@@ -156,7 +178,7 @@ const onSubmit = async (data: any) => {
         data: cleanData,
         requestID: requestID,
         id_pedidoServicio: requestFormData?.id_pedidoServicio
-      });
+      });      
 
       if(response.success){
         navigate('/home');
@@ -172,13 +194,15 @@ const onSubmit = async (data: any) => {
   useEffect(()=>{
     const GetDataForEditRequest = async() => {
       try{
-        const response = await GetRequestDataPerID({requestID});          
+        const response = await GetRequestDataPerID({requestID});  
         if(response.id_proveedor){
           setUseProvider(true);
+          setValue('isProviderRequest', true);
         }else{
           setUseProvider(false);
         }        
         reset(response);         
+        setRequestFormData(response);
       }catch(error){
         console.error('Error en GetDataForEditRequest', error);
       }
@@ -238,7 +262,8 @@ const onSubmit = async (data: any) => {
                 requestFormData={requestFormData}
                 rows={rows}  
                 getValues={getValues} 
-                // setValue={setValue}             
+                setRequestFormData={setRequestFormData} 
+                activeStep={activeStep}           
               />
             </div>
           </div>
@@ -264,37 +289,37 @@ const onSubmit = async (data: any) => {
                       nextStep();
                      } else {
                       // Depuración mejorada
-// console.log('Errores de validación:', {
-//   step: activeStep,
-//   errors: Object.entries(errors).flatMap(([key, value]) => {
-//     // Si es un array (como "servicios")
-//     if (Array.isArray(value)) {
-//       return value.flatMap((item, idx) =>
-//         Object.entries(item || {}).map(([subKey, subValue]) => ({
-//           campo: `${key}[${idx}].${subKey}`,
-//           mensaje: subValue?.message,
-//           tipo: subValue?.type
-//         }))
-//       );
-//     }
+                      console.log('Errores de validación:', {
+                        step: activeStep,
+                        errors: Object.entries(errors).flatMap(([key, value]) => {
+                          // Si es un array (como "servicios")
+                          if (Array.isArray(value)) {
+                            return value.flatMap((item, idx) =>
+                              Object.entries(item || {}).map(([subKey]) => ({
+                                campo: `${key}[${idx}].${subKey}`,
+                                mensaje: (value as any).message,
+                                tipo: (value as any).type
+                              }))
+                            );
+                          }
 
-//     // Si es un objeto simple
-//     if (typeof value === "object") {
-//       return Object.entries(value || {}).map(([subKey, subValue]) => ({
-//         campo: `${key}.${subKey}`,
-//         mensaje: subValue?.message,
-//         tipo: subValue?.type
-//       }));
-//     }
+                          // Si es un objeto simple
+                          if (typeof value === "object") {
+                            return Object.entries(value || {}).map(([subKey, subValue]) => ({
+                              campo: `${key}.${subKey}`,
+                              mensaje: subValue?.message,
+                              tipo: subValue?.type
+                            }));
+                          }
 
-//     // Si es un error simple
-//     return [{
-//       campo: key,
-//       mensaje: value?.message,
-//       tipo: value?.type
-//     }];
-//   })
-// });
+                          // Si es un error simple
+                          return [{
+                            campo: key,
+                            mensaje: (value as any).message,
+                            tipo: (value as any).type
+                          }];
+                        })
+                      });
                     }
                   }}
                   className2="p-2 w-full"

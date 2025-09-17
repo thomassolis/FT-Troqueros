@@ -21,6 +21,10 @@ export const stepConfig: Record<string, string[]> = {
   export const stepConfigRequests: Record<string, string[]> = {
     Request: ['Información General', 'Información de Proveedor', 'Selección de Servicio', 'Selección de Equipo', 'Tarifa']
   }
+
+  export const stepConfigVehicles: Record<string, string[]> = {
+    Vehicles: ['Datos Generales', 'Información Básica', 'Documentos']
+  }
   
   // 📌 Mapeo de los componentes de cada paso
   export const formSteps: Record<string, any[]> = {

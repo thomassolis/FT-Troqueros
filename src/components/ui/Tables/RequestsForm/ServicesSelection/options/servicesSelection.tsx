@@ -12,6 +12,8 @@ import { Dispatch } from 'react';
 import { SetStateAction } from 'react';
 import { UseFormReset } from 'react-hook-form';
 import { ContainerSizeData } from '../../../../../others/Data/ContainerSize';
+import { useEffect } from 'react';
+
 interface DeleteServiceParams {
   serviceID: string;
 }
@@ -53,6 +55,7 @@ interface ServicesSelectionTableProps {
   selectDataMap: Record<string, SelectOptionTypes[]>;
 }
 
+
 export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps> = ({ 
   titles,    
   control,    
@@ -69,6 +72,9 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
   isLoading,
   setValue
 }) => { 
+  
+
+
   return (
     <div className="w-full max-w-7xl mx-auto p-4 flex flex-col">
       <div >
@@ -123,7 +129,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                               const value = typeof selectedOption === 'object' && selectedOption !== null
                               ? selectedOption.value
                               : '';
-                                                        
+                              
                               // Actualiza react-hook-form
                               field.onChange(value);
 
@@ -176,18 +182,17 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
 
               <td className="border border-gray-300 px-1 py-2 text-center w-[8%]">
                 <Controller
-                  name={`${fieldName}.tarifa`}
+                  name={`${fieldName}.tarifa.${rowIndex}.venta`}
                   control={control}
-                  rules={{
-                    required:true                    
-                  }}
-                  defaultValue={row.tarifa || 0} // 👈 importante para render inicial
+                  // rules={{
+                  //   required:true                    
+                  // }}
+                  defaultValue={(row.tarifa?.[0]?.venta ?? 0) as any}
                   render={({ field, fieldState:{error} }) => (
                     <input
                       type="number"
                       {...field}
-                      value={field.value || 0}
-                      // value={row.tarifa} // usa field.value (no row.tarifa)
+                      value={row.tarifa?.[0]?.venta || 0}
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         field.onChange(value);
@@ -196,7 +201,14 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                           const updatedRows = [...(rows ?? [])];
                           updatedRows[rowIndex] = {
                             ...updatedRows[rowIndex],
-                            tarifa: value,
+                            tarifa: [
+                              {
+                                venta: value,
+                                descripcion: '',
+                                costo: 0,                                
+                                profit: 0
+                              }
+                            ],
                           };
                           setRows?.(updatedRows);
 
@@ -205,12 +217,16 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                           ...prev,
                           [composedKey]: {
                             ...prev[composedKey],
-                            tarifa: value
+                            tarifa: [
+                              {
+                                venta: value,
+                                descripcion: 'test'
+                              }
+                            ],
                           }
                         }));
                       }}
-                      className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}
-                      
+                      className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}                      
                     />
                     
                   )}
@@ -273,12 +289,12 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                         <input
                           type="checkbox"
                           checked={checked}
-onChange={(e) => {
-  const newValue = e.target.checked;
-  field.onChange(newValue);
-  handleEntregaVacioChange(rowIndex, newValue);
-  if (!newValue) setValue(`${fieldName}.fecha_limite`, undefined); // 👈 Limpia el campo
-}}
+                          onChange={(e) => {
+                            const newValue = e.target.checked;
+                            field.onChange(newValue);
+                            handleEntregaVacioChange(rowIndex, newValue);
+                            if (!newValue) setValue(`${fieldName}.fecha_limite`, undefined); // 👈 Limpia el campo
+                          }}
                         />
                         {/* Este bloque ahora está DENTRO del mismo <td> */}
                         
@@ -287,8 +303,8 @@ onChange={(e) => {
                               name={`${fieldName}.fecha_limite`}
                               control={control}
                               rules={{
-  required: checked ? 'Fecha límite es requerida' : false,
-}}
+                                required: checked ? 'Fecha límite es requerida' : false,
+                              }}
                               render={({ field, fieldState }) => (
                             <input
                               type="date"

@@ -33,8 +33,15 @@ export interface CostoTemporal {
 export interface Servicio {
   id_conductor?: string;
   id_servicio_datos: string;
-  tarifa?: number | string;
-  entrega_vacio?: boolean;
+  tarifa?: [
+    { 
+      descripcion: string, 
+      costo: number, 
+      venta: number,
+      profit: number
+    }            
+  ];
+  entrega_vacio?: boolean;  
   lugar_origen?: string;
   lugar_destino?: string;
   costos_extras?: CostoExtraExistente[];
@@ -45,6 +52,13 @@ export interface Servicio {
 
 export interface RequestsData {
   id_servicio?: string;
+}
+
+export interface PaymentData {
+  descripcion:string, 
+  monto?:number, 
+  comprobante:string, 
+  costo?:number
 }
 
 export interface RequestsFormValues {
@@ -58,6 +72,8 @@ export interface RequestsFormValues {
   precio_proveedor?: number | null;
   fecha_limite?: string;
   servicios?: Servicio[];
+  paymentFiles?: []
+  paymentData?: PaymentData[]
   requestsData?: RequestsData;
   tipo_entregaVacio?: boolean;
   id_pedidoServicio?: string;
@@ -99,4 +115,5 @@ export interface StepsRequestsProps {
 
   // Extras si los necesitas
   customProp?: string;
+  activeStep?:number
 }

@@ -175,6 +175,11 @@ export const getDataForCalendar = async () => {
 export const vacioEntregadoStatus = async (value:boolean, id:number) => {
     try{
         const response = await axios.post('/agenda/isEmptyDelivered',{value:value, idPedidoServicio:id })                
+        if (response.data.success){
+            toast.success('¡Actualizado correctamente!')
+        }else {
+            toast.error('Error al actualizar el status, favor intentar de nuevo')
+        }
         return response.data;
     }catch(error){
         console.error('Error en getDataForCalendar', error);

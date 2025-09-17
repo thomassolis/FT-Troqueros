@@ -3,6 +3,7 @@ import { stepConfigCustomers } from "./Stepper";
 import { stepConfigDrivers } from "./Stepper";
 import { stepConfigProviders } from "./Stepper";
 import { stepConfigRequests } from "./Stepper";
+import { stepConfigVehicles } from "./Stepper";
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -16,8 +17,7 @@ interface StepperLineProps {
 }
 
 export const StepperLine = ({ selectedOption, step }: StepperLineProps) => {
-  const module = GetModuleFromURL();
-  
+  const module = GetModuleFromURL();  
   const [steps, setSteps] = useState<string[]>([]);
 
   useEffect(() => {
@@ -29,6 +29,8 @@ export const StepperLine = ({ selectedOption, step }: StepperLineProps) => {
       setSteps(stepConfigProviders['Providers']);
     }else if (module === 'Request'){
       setSteps(stepConfigRequests['Request']);
+    }else if(module ==='Chasises'||module ==='Cabezales'||module === 'Furgones'){
+      setSteps(stepConfigVehicles['Vehicles']);
     }
     else {
       if (selectedOption && stepConfig[selectedOption]) {
@@ -44,11 +46,11 @@ export const StepperLine = ({ selectedOption, step }: StepperLineProps) => {
   return (
       <Box sx={{ width: '100%' }}>
         <Stepper activeStep={step} alternativeLabel>
-          {steps.map((label, index) => (
-            <Step key={index}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
+    {(steps || []).map((label, index) => (
+      <Step key={index}>
+        <StepLabel>{label}</StepLabel>
+      </Step>
+    ))}
         </Stepper>
       </Box>
 

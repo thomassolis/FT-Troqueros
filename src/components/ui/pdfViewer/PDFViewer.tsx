@@ -7,7 +7,7 @@ export const FilesViewer = ({ files }: FilesViewerProps) => {
     // Verificar si existen archivos en el objeto recibido    
     
     if (!files || files.length === 0) {
-        return <p>No hay archivos disponibles.</p>;
+        return <p className='text-black'>No hay archivos disponibles.</p>;
     }    
 
     // Función para determinar el tipo de archivo

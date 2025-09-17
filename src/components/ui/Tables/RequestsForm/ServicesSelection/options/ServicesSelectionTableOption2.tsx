@@ -60,25 +60,25 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
   setRoutesInformation,  
   isEditMode,    
   register,  
-    handleEntregaVacioChange,
+  handleEntregaVacioChange,
   getRoutesInformation,
   getRoutesForSelect,  
   selectDataMap,
   isLoading,
   deleteService
 }) => {      
+
   return (
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm text-center bg-troquerosGray shadow-md rounded-lg text-black">
           <thead>
           <tr className="bg-orange-300">
             {isEditMode?(
-              ['Tipo de Servicio', 'Origen-Destino', 'Tarifa', 'Sh-Vacío', 'Contenedor', 'Comentario'].map((opt)=>(
+              ['Tipo de Servicio', 'Origen-Destino', 'Tarifa', 'Sh-Retención', 'Contenedor', 'Comentario'].map((opt)=>(
                 <th className="p-3 font-medium border border-gray-600">{opt}</th>
-              ))
-              
+              ))              
             ):(
-              ['Tipo de Servicio', 'Rutas', 'Origen-Destino', 'Tarifa', 'Sh-Vacío', 'Contenedor', 'Comentario'].map((opt)=>(
+              ['Tipo de Servicio', 'Rutas', 'Origen-Destino', 'Tarifa', 'Sh-Retención', 'Contenedor', 'Comentario'].map((opt)=>(
                 <th className="p-3 font-medium border border-gray-600">{opt}</th>
               ))
             )}
@@ -99,7 +99,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                         name={`${fieldName}.id_servicio_datos`}
                         control={control}
                         rules={{required: true}}
-                        render={({ field, fieldState }) => {
+                        render={({ field, fieldState }) => {                                                                                                      
                           const options = row.serviceID ? selectDataMap[row.serviceID] ?? [] : [];
                           const selectedOption =
                             options.find(opt => Number(opt.value) === Number(field.value)) ?? row.selectedOption ?? (
@@ -112,7 +112,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                             isEditMode ? (
                               <td>{row.lugar_origen} - {row.lugar_destino}</td>
                             ) : (
-                              <div className="flex flex-col">
+                              <div className="flex flex-col">                                
                                 <Select
                                   {...field}
                                   placeholder="Seleccione una ruta"
@@ -121,14 +121,14 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                                   isLoading={isLoading}    
                                   
                                   isDisabled={isEditMode}
-                                  onChange={(selectedOption) => {
+                                  onChange={(selectedOption) => {                                    
                                     const value = typeof selectedOption === 'object' && selectedOption !== null
                                     ? selectedOption.value
                                     : '';
                                                               
                                     // Actualiza react-hook-form
                                     field.onChange(value);
-
+              
                                     // Actualiza el estado de filas
                                     const updatedRows = [...rows];
                                     updatedRows[rowIndex] = {
@@ -172,17 +172,14 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                     <td className="p-3 border-b border-gray-300 text-black">{row.lugar_origen}</td>
                     <td className="p-3 border border-gray-300 align-middle text-black" rowSpan={2}>
                       <Controller
-                        name={`${fieldName}.tarifa`}
-                        control={control}
-                        rules={{
-                          required:true                    
-                        }}
-                        defaultValue={row.tarifa || 0} // 👈 importante para render inicial
+                        name={`${fieldName}.tarifa.${rowIndex}.venta`}
+                        control={control}                                       
+                        defaultValue={(row.tarifa?.[0]?.venta ?? 0) as any}
                         render={({ field, fieldState:{error} }) => (
                           <input
                             type="number"
-                            {...field}
-                            value={field.value || 0}
+                            {...field}                          
+                            value={row.tarifa?.[0]?.venta || 0}
                             // value={row.tarifa} // usa field.value (no row.tarifa)
                             onChange={(e) => {
                               const value = Number(e.target.value);
@@ -192,7 +189,15 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                                 const updatedRows = [...(rows ?? [])];
                                 updatedRows[rowIndex] = {
                                   ...updatedRows[rowIndex],
-                                  tarifa: value,
+
+                              tarifa: [
+                                {
+                                  venta: value,
+                                  descripcion: '',
+                                  costo: 0,                                
+                                  profit: 0
+                                }
+                              ],
                                 };
                                 setRows?.(updatedRows);
 
@@ -201,7 +206,12 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                                 ...prev,
                                 [composedKey]: {
                                   ...prev[composedKey],
-                                  tarifa: value
+                                  tarifa: [
+                                    {
+                                      venta: value,
+                                      descripcion: 'test'
+                                    }
+                                  ],
                                 }
                               }));
                             }}

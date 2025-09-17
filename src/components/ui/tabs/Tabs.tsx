@@ -1,11 +1,12 @@
 import {Tab, Tabs, TabList, TabPanel} from "react-tabs";
 import { useState, useEffect } from "react";
 import { PrevisualizationTable } from "../Tables/previsualizationTable";    
-import { AmountTable } from "../Tables/AmountTable/AmountTable";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
+import { AmountTable2 } from "../Tables/AmountTable/AmountTable2";
+
 
 interface TabsProps {
     tabContent: string[] | undefined;
@@ -21,10 +22,11 @@ interface TabsProps {
     setValue?: UseFormSetValue<RequestsFormValues>;
     requestFormData?: RequestsFormValues;
     errors?: any;
-    getValues?: any
+    getValues?: any;
+    activeStep?:number;
 }
 
-export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, register, watch, setValue, useProvider, requestFormData, errors }: TabsProps) => {
+export const PrevisualizationTab = ({ tabContent, onTabChange, rows, requestFormData, activeStep }: TabsProps) => {
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<string>(tabContent?.[0] ?? '');
     const [_selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -62,7 +64,6 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
       setFilteredRows(newRows);      
     }
   }, [module, rows, selectedTab]); 
-    
 
     return (
         <Tabs
@@ -101,8 +102,8 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
                 </TabPanel>
             ))
             ): (
-                <div className="flex flex-col gap-12 w-full items-center">
-                    <AmountTable              
+                <div className="flex flex-col gap-12 w-full items-center">                    
+                    {/* <AmountTable              
                         selectedIndex={selectedTab}      
                         services={services}
                         filteredServiceData={filteredRows}
@@ -113,7 +114,17 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, services, rows, r
                         useProvider={useProvider}
                         requestFormData={requestFormData}
                         errors={errors}                                              
+                    /> */}
+
+                    <AmountTable2
+                        key={`svc-${selectedTab}`}   // 👈 remount limpio por tab
+                        requestFormData={requestFormData}
+                        filteredServiceData={filteredRows as any}
+                        serviceIndex={selectedTab}
+                        activeStep = {activeStep}  
                     />
+
+
 
                 </div>
             )}

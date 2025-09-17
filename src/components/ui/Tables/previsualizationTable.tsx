@@ -64,7 +64,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                         limit: pageSize,
                         search: searchValue != null ? String(searchValue) : '',
 
-                    });                
+                    });                                  
         
                     if (!response) {
                         console.error("Error: La API no devolvió datos válidos.");

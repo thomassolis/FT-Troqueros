@@ -20,7 +20,7 @@ export const Step1: React.FC<StepsRequestsProps> = () => {
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
     // const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
     const { control, formState: { errors } } = useFormContext<RequestsFormValues>();
-
+    
     useEffect(() => {
         const getSelectData = async () => {
             try {
@@ -34,7 +34,6 @@ export const Step1: React.FC<StepsRequestsProps> = () => {
 
         getSelectData();
     }, []);
-
 
     return (
         <section className="w-full ">                        

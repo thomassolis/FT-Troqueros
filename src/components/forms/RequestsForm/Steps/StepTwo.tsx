@@ -11,6 +11,10 @@ import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsFo
 export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, requestFormData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
     const { control, setValue, register, formState: { errors } } = useFormContext<RequestsFormValues>();        
+
+    console.log('requestFormData Step#2',requestFormData);
+
+
     useEffect(()=>{
         if(useProvider===false){
             setValue('id_proveedor', null);
@@ -80,22 +84,22 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                     className="accent-blue-500"
                     disabled={isDisabled}
                     onChange={(e) => {                        
-                          if (setUseProvider) {
-                                setUseProvider(e.target.checked);
-                            }
+                        if (setUseProvider) {
+                            setUseProvider(e.target.checked);
+                        }
                     }}
                 />
 
                 {/* Solo intercepta clics cuando está deshabilitado */}
                 {isDisabled && (
-                <div
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[18px] h-[18px] cursor-not-allowed z-10"
-                    onClick={(e) => {
-                    e.preventDefault(); // evita cambio de estado
-                    const reason = getDisableReason();
-                    if (reason) alert(reason);
-                    }}
-                />
+                    <div
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[18px] h-[18px] cursor-not-allowed z-10"
+                        onClick={(e) => {
+                        e.preventDefault(); 
+                        const reason = getDisableReason();
+                        if (reason) alert(reason);
+                        }}
+                    />
                 )}
 
                 <label className="text-black" htmlFor="providerCheck">

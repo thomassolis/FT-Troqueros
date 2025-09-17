@@ -206,6 +206,26 @@ export const Step3: React.FC<StepsDriversProps> = ({control, driversData}:any) =
                             />
                         </div>  
 
+                        <div className="flex items-center w-[90%]">
+                            <SmallLabel text="Pasaporte"/>
+                            <Controller
+                                name="pasaporte"
+                                control={control}
+                                render={({ field }) => (
+                                    <InsertFiles
+                                        files={
+                                            procedure === 'modify' 
+                                                ? (Array.isArray(driversData.pasaporte) ? driversData.pasaporte: []) 
+                                                : []
+                                        }
+                                        procedure={procedure}
+                                        onFileReady={(file) => field.onChange(file)}
+                                        fileName={field.name}
+                                    />
+                                )}
+                            />
+                        </div>  
+
                     </div>
                 </div>            
             </div>            

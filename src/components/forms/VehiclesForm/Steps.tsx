@@ -50,199 +50,206 @@ export const StepTwo: React.FC<StepStepTwoProps> = ({register, control, errors})
         <div className="mt-1 ml-6 flex flex-col items-center">      
 
           <div className="flex w-[70%]">
-            <div className="flex flex-col gap-12 items-start w-full  mt-12 ">
-              <div className="h-10 flex items-center">
-                <SmallLabel text='Número de póliza del vehículo'/>
+            <div className="flex flex-col gap-12 items-center w-full justify-center mt-12">
+              <div className="flex gap-12 w-full justify-between">
+                <div className="h-10 flex items-center">
+                  <SmallLabel text='Número de póliza del vehículo'/>
+                </div>
+                <div className="h-10 w-[50%]">
+                <Input 
+                  type="text" 
+                  className2={'py-5'}                
+                  {...register('numPoliza')}                   
+                />
+                </div>            
               </div>
-              
-              <div className="h-10 flex items-center">
-                <SmallLabel text='Fecha de expedición de póliza'/>
-              </div>              
 
-              <div className="h-10 flex items-center">
-                <SmallLabel text='Fecha de caducidad de póliza'/>
-              </div>              
+              <div className="flex gap-12 items-center w-full justify-between">
+                <div className="h-10 flex items-center">
+                  <SmallLabel text='Fecha de expedición de póliza'/>
+                </div>    
+                <div className="w-[50%]">
+                  <Controller
+                    name="fechaExpedicion"
+                    control={control}                
+                    render={({ field }) => {
+                      // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
+                      const parsedDate = field.value
+                        ? dayjs(
+                            field.value,
+                            field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
+                          )
+                        : null;
 
-              <div className="h-10 flex items-center">
-                <SmallLabel text='Fecha de último revisado'/>
-              </div>              
+                      return (
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
+                            <DatePicker
+                              label="Selecciona una fecha"
+                              format="DD/MM/YYYY"
+                              value={parsedDate}
+                              onChange={(date) => {
+                                // 👇 Guardar siempre en formato YYYY-MM-DD
+                                const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
+                                field.onChange(formattedDate);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  error: !!errors.fechaExpedicion,
+                                  helperText: errors.fechaExpedicion?.message,
+                                  sx: { backgroundColor: 'white' },
+                                  fullWidth: true,
+                                },
+                              }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      );
+                    }}
+                  />
+                </div>
+              </div>
 
-              <div className="h-10 flex items-center">
-                <SmallLabel text='Fecha de renovación de revisado'/>
-              </div>              
-            </div>      
+              <div className="flex gap-12 items-center w-full justify-between">
+                <div className="h-10 flex items-center">
+                  <SmallLabel text='Fecha de caducidad de póliza'/>
+                </div>      
 
-            <div className="flex flex-col gap-12 items-center w-full justify-center mt-12 ">
-              <div className="h-10">
-              <Input 
-                type="text" 
-                className2={'py-5'}                
-                {...register('numPoliza')}                   
-              />
-              </div>            
+                <div className="w-[50%]">
+                  <Controller
+                    name="fechaCaducidad"
+                    control={control}                
+                    render={({ field }) => {
+                      // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
+                      const parsedDate = field.value
+                        ? dayjs(
+                            field.value,
+                            field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
+                          )
+                        : null;
 
-              <Controller
-                name="fechaExpedicion"
-                control={control}                
-                render={({ field }) => {
-                  // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
-                  const parsedDate = field.value
-                    ? dayjs(
-                        field.value,
-                        field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
-                      )
-                    : null;
+                      return (
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
+                            <DatePicker
+                              label="Selecciona una fecha"
+                              format="DD/MM/YYYY"
+                              value={parsedDate}
+                              onChange={(date) => {
+                                // 👇 Guardar siempre en formato YYYY-MM-DD
+                                const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
+                                field.onChange(formattedDate);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  error: !!errors.fechaExpedicion,
+                                  helperText: errors.fechaExpedicion?.message,
+                                  sx: { backgroundColor: 'white' },
+                                  fullWidth: true,
+                                },
+                              }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      );
+                    }}
+                  />
+                </div>
+              </div>
 
-                  return (
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
-                        <DatePicker
-                          label="Selecciona una fecha"
-                          format="DD/MM/YYYY"
-                          value={parsedDate}
-                          onChange={(date) => {
-                            // 👇 Guardar siempre en formato YYYY-MM-DD
-                            const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
-                            field.onChange(formattedDate);
-                          }}
-                          slotProps={{
-                            textField: {
-                              error: !!errors.fechaExpedicion,
-                              helperText: errors.fechaExpedicion?.message,
-                              sx: { backgroundColor: 'white' },
-                              fullWidth: true,
-                            },
-                          }}
-                        />
-                      </DemoContainer>
-                    </LocalizationProvider>
-                  );
-                }}
-              />
+              <div className="flex gap-12 items-center w-full justify-between">
+                <div className="h-10 flex items-center">
+                  <SmallLabel text='Fecha de último revisado'/>
+                </div> 
+                <div className="w-[50%]">
+                  <Controller
+                    name="fechaUltRevisado"
+                    control={control}                
+                    render={({ field }) => {
+                      // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
+                      const parsedDate = field.value
+                        ? dayjs(
+                            field.value,
+                            field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
+                          )
+                        : null;
 
-              <Controller
-                name="fechaCaducidad"
-                control={control}                
-                render={({ field }) => {
-                  // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
-                  const parsedDate = field.value
-                    ? dayjs(
-                        field.value,
-                        field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
-                      )
-                    : null;
+                      return (
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
+                            <DatePicker
+                              label="Selecciona una fecha"
+                              format="DD/MM/YYYY"
+                              value={parsedDate}
+                              onChange={(date) => {
+                                // 👇 Guardar siempre en formato YYYY-MM-DD
+                                const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
+                                field.onChange(formattedDate);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  error: !!errors.fechaExpedicion,
+                                  helperText: errors.fechaExpedicion?.message,
+                                  sx: { backgroundColor: 'white' },
+                                  fullWidth: true,
+                                },
+                              }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      );
+                    }}
+                  />
+                </div>
+              </div>
 
-                  return (
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
-                        <DatePicker
-                          label="Selecciona una fecha"
-                          format="DD/MM/YYYY"
-                          value={parsedDate}
-                          onChange={(date) => {
-                            // 👇 Guardar siempre en formato YYYY-MM-DD
-                            const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
-                            field.onChange(formattedDate);
-                          }}
-                          slotProps={{
-                            textField: {
-                              error: !!errors.fechaExpedicion,
-                              helperText: errors.fechaExpedicion?.message,
-                              sx: { backgroundColor: 'white' },
-                              fullWidth: true,
-                            },
-                          }}
-                        />
-                      </DemoContainer>
-                    </LocalizationProvider>
-                  );
-                }}
-              />
+              <div className="flex gap-12 items-center w-full justify-between">
+                <div className="h-10 flex items-center">
+                  <SmallLabel text='Fecha de renovación de revisado'/>
+                </div>              
+                <div className="w-[50%]">
+                  <Controller
+                    name="fechaRenovacion"
+                    control={control}                
+                    render={({ field }) => {
+                      // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
+                      const parsedDate = field.value
+                        ? dayjs(
+                            field.value,
+                            field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
+                          )
+                        : null;
 
-              <Controller
-                name="fechaUltRevisado"
-                control={control}                
-                render={({ field }) => {
-                  // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
-                  const parsedDate = field.value
-                    ? dayjs(
-                        field.value,
-                        field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
-                      )
-                    : null;
-
-                  return (
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
-                        <DatePicker
-                          label="Selecciona una fecha"
-                          format="DD/MM/YYYY"
-                          value={parsedDate}
-                          onChange={(date) => {
-                            // 👇 Guardar siempre en formato YYYY-MM-DD
-                            const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
-                            field.onChange(formattedDate);
-                          }}
-                          slotProps={{
-                            textField: {
-                              error: !!errors.fechaExpedicion,
-                              helperText: errors.fechaExpedicion?.message,
-                              sx: { backgroundColor: 'white' },
-                              fullWidth: true,
-                            },
-                          }}
-                        />
-                      </DemoContainer>
-                    </LocalizationProvider>
-                  );
-                }}
-              />
-
-              <Controller
-                name="fechaRenovacion"
-                control={control}                
-                render={({ field }) => {
-                  // 👇 Convertir el valor del formulario a un objeto `dayjs` (acepta ambos formatos)
-                  const parsedDate = field.value
-                    ? dayjs(
-                        field.value,
-                        field.value.includes('/') ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
-                      )
-                    : null;
-
-                  return (
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
-                        <DatePicker
-                          label="Selecciona una fecha"
-                          format="DD/MM/YYYY"
-                          value={parsedDate}
-                          onChange={(date) => {
-                            // 👇 Guardar siempre en formato YYYY-MM-DD
-                            const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
-                            field.onChange(formattedDate);
-                          }}
-                          slotProps={{
-                            textField: {
-                              error: !!errors.fechaExpedicion,
-                              helperText: errors.fechaExpedicion?.message,
-                              sx: { backgroundColor: 'white' },
-                              fullWidth: true,
-                            },
-                          }}
-                        />
-                      </DemoContainer>
-                    </LocalizationProvider>
-                  );
-                }}
-              />
+                      return (
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
+                            <DatePicker
+                              label="Selecciona una fecha"
+                              format="DD/MM/YYYY"
+                              value={parsedDate}
+                              onChange={(date) => {
+                                // 👇 Guardar siempre en formato YYYY-MM-DD
+                                const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : null;
+                                field.onChange(formattedDate);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  error: !!errors.fechaExpedicion,
+                                  helperText: errors.fechaExpedicion?.message,
+                                  sx: { backgroundColor: 'white' },
+                                  fullWidth: true,
+                                },
+                              }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      );
+                    }}
+                  />
+                </div>
+              </div>
 
 
-            {/* <Input 
-                type="date" 
-                className2={'py-5'}                
-                {...register('fechaRenovacion')}
-                /> */}
             </div>
           </div>      
       </div>

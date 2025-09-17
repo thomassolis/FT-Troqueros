@@ -60,22 +60,43 @@ interface CreateNewRequestProps {
 }
 
 //Crea una nueva petición
-export const CreateNewRequest = async({data}:CreateNewRequestProps) => {
-    try{        
-        const response = await axios.post('requests/add_request', data);        
+export const CreateNewRequest = async ({ data }: CreateNewRequestProps) => {
+  try {
+    const formData = new FormData();
 
-        if(response.data.success){
-            toast.success(response.data.message);
-        }else{
-            toast.error(response?.data?.message);
-        }
-
-        return response.data
-    }catch(error:any){
-        console.error('Error en CreateNewRequest:', error);
-        toast.error(error.response.data.message || 'Error al crear la petición');
+    for (const [key, value] of Object.entries(data)) {
+      if (key === "paymentFiles" && Array.isArray(value)) {
+        // 👇 Adjunta cada archivo correctamente
+        value.forEach((file: File) => {
+          formData.append("paymentFiles", file, file.name);
+        });
+      } else if (value instanceof File) {
+        formData.append(key, value, value.name);
+      } else if (typeof value === "object") {
+        formData.append(key, JSON.stringify(value));
+      } else if (value !== undefined) {
+        formData.append(key, String(value));
+      }
     }
-}
+
+    const response = await axios.post("requests/add_request", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (response.data.success) {
+      toast.success(response.data.message);
+    } else {
+      toast.error(response?.data?.message);
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error en CreateNewRequest:", error);
+    toast.error(error.response?.data?.message || "Error al crear la petición");
+  }
+};
+
+
 
 //Obtiene los datos de 1 petición
 interface GetRequestDataPerIDProps{
@@ -85,7 +106,9 @@ interface GetRequestDataPerIDProps{
 export const GetRequestDataPerID = async ({requestID}:GetRequestDataPerIDProps) => {    
     try{
         const response = await axios.get(`requests/see_request_id/${requestID}`);                
-        return response.data.data.data        
+        console.log('Recibido: ',response);
+        // return response.data.data.data        
+        return response.data.data;        
     }catch(error){
         console.error('Error en GetRequestDataPerID ', error);
     }

@@ -47,8 +47,7 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const navigate = useNavigate()
-useEffect(()=>{  
-},[events])
+
     const changeVacioEntregado = async(value:boolean, id:number) => {      
       try{
         const response = await vacioEntregadoStatus(value, id);
@@ -97,8 +96,12 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
   let borderColor = "#3174ad";
   
   if (event.type === "Vacio") {
-    backgroundColor = "#93A0F4";
     borderColor = "white";
+    if(event.details.vacio_entregado){
+      backgroundColor = "#93A0F4";
+    }else{
+      backgroundColor = "#A81F1F";
+    }        
   } else if (event.type === "Peticion" || event.type === "peticion") {
     backgroundColor = "#FFAD4E";
     borderColor = "#F57C00";
