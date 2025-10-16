@@ -9,7 +9,10 @@ import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsFo
 import { RouteRow } from "../../../../context/Requests/DynamicRequestsOptions";
 import { UseFormSetValue } from "react-hook-form";
 import { useParams } from "react-router-dom";
-
+import isEqual from "lodash.isequal";
+import { Dispatch } from "react";
+import { SetStateAction } from "react";
+import { Servicio } from "../../../types/forms/RequestsForm/requestsForm";
 interface SelectionTeamTableProps {
     title: string[];
     control: Control<RequestsFormValues>;
@@ -17,10 +20,10 @@ interface SelectionTeamTableProps {
     rows: RouteRow[] | null | undefined;    
     requestFormData: RequestsFormValues | undefined;
     setValue: UseFormSetValue<RequestsFormValues>;
-
-
+    activeStep:number|undefined;
+    setRequestFormData?: Dispatch<SetStateAction<RequestsFormValues>>;
 }
-export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setValue}: SelectionTeamTableProps) => {      
+export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setValue, setRequestFormData, activeStep}: SelectionTeamTableProps) => {      
   const [_fecha, setFecha] = useState(requestFormData?.fecha_salida??'');
   const [_hora, setHora] = useState(requestFormData?.hora_salida??'');        
 
@@ -119,15 +122,47 @@ useEffect(() => {
     }
 
 
+        useEffect(() => {
+          if(activeStep ===3){            
+            if (!requestFormData) return;
+      
+            // Filtra el array de servicios para eliminar las tarifas con undefined en 'venta'
+            const cleanedServices:Servicio[] = (requestFormData?.servicios||[]).map((service) => {
+              const cleanedTarifa =
+                (Array.isArray((service as any)?.tarifa)
+                  ? (Array.isArray((service as any).tarifa[0]) ? (service as any).tarifa[0] : (service as any).tarifa)
+                  : []
+                ).filter((item: any) => item?.venta != null);              
+      
+              return {
+                ...service,
+                tarifa: cleanedTarifa, // Actualiza la tarifa eliminando los elementos con undefined en venta
+              };
+            });            
+      
+            // Actualiza el estado de requestFormData solo si se hicieron cambios
+            if (!isEqual(cleanedServices, requestFormData?.servicios??[])) {              
+              setRequestFormData?.((prevData) => ({
+                ...prevData,
+                servicios: cleanedServices,
+              }));
+            }                  
+          }else{
+            return;
+          }          
+    
+        }, [activeStep]);  // Este useEffect se ejecuta cuando requestFormData cambia
+
+
     return (
       <div className="flex flex-col gap-10">
         <table className="w-full border border-gray-300 text-sm text-left text-black">
           <thead className="bg-gray-100">
               <tr>
               {title.map((title, index) => (
-                  <th key={index} className="border border-gray-300 px-4 py-2 font-semibold text-center">
+                <th key={index} className="border border-gray-300 px-4 py-2 font-semibold text-center">
                   {title}
-                  </th>
+                </th>
               ))}
               </tr>
           </thead>

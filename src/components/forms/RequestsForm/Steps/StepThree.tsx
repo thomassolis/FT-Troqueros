@@ -30,15 +30,13 @@ export const Step3: React.FC<StepsRequestsProps> = ({
   const { control, setValue, register } = useFormContext<RequestsFormValues>();
   const location = useLocation();
   const isEditMode = location.pathname.includes("edit");
-    
 
   /**
    * Cuando EDITAS: si viene requestFormData con servicios, derivamos serviceTypes agrupando
    * por tipo de servicio para que el UI quede consistente (solo para layout/controles).
    * Nota: En create-mode este efecto no hace nada.
    */
-  useEffect(() => {
-    console.log('Entrando a useEffect#2, depende de isEditMode, requestFormData?.servicios, setServiceTypes')
+  useEffect(() => {    
     if (!isEditMode) return;
     if (!requestFormData?.servicios?.length) return;
     if (!isInitialLoad) return;
@@ -73,8 +71,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({
       );
 
       setServiceTypes?.(transformedServiceTypes);
-    }
-    console.log('Saliendo de useEffect#2')
+    }    
   }, [isEditMode, requestFormData?.servicios, setServiceTypes]);
 
   /**

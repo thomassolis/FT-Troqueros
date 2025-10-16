@@ -61,7 +61,7 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
         const response = await axios.get('/requests/see_requests', { params });                   
         // Acceder correctamente al success
         if (response.data?.success) {
-            return response.data.data   
+            return response.data.data;   
         } else {       
             toast.error(response.data?.status?.message || '');
             return  []             

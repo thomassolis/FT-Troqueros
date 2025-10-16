@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Select from 'react-select';
 import { SelectOptionTypes } from '../../../../../types/Select/select';
 import { ServiceType } from '../../../../../../context/Requests/DynamicRequestsOptions';
@@ -12,7 +13,7 @@ import { Dispatch } from 'react';
 import { SetStateAction } from 'react';
 import { UseFormReset } from 'react-hook-form';
 import { ContainerSizeData } from '../../../../../others/Data/ContainerSize';
-import { useEffect } from 'react';
+import { useWatch } from 'react-hook-form';
 
 interface DeleteServiceParams {
   serviceID: string;
@@ -53,6 +54,8 @@ interface ServicesSelectionTableProps {
   deleteService: (params: DeleteServiceParams) => Promise<void>;
 
   selectDataMap: Record<string, SelectOptionTypes[]>;
+  costoProveedor: number;
+  setCostoProveedor: React.Dispatch<React.SetStateAction<number>>;
 }
 
 
@@ -70,11 +73,13 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
   deleteService,
   selectDataMap,
   isLoading,
-  setValue
+  setValue,
+  requestFormData,
+  setCostoProveedor,
+  costoProveedor
 }) => { 
-  
-
-
+  const servicios = useWatch({ control, name: "servicios" }) as any[] | undefined;
+  // const [costoProveedor, setCostoProveedor] = useState(0);
   return (
     <div className="w-full max-w-7xl mx-auto p-4 flex flex-col">
       <div >
@@ -92,6 +97,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
       <tbody>
         {rows?.map((row, rowIndex) => {
           const fieldName = `servicios.${rowIndex}` as const;               
+          const watchedVenta0 = servicios?.[rowIndex]?.tarifa?.[0]?.venta;
           return(
           <tr key={`${row.serviceType}-${rowIndex}`}>
             <td className="border border-gray-300 px-4 py-2 text-center">
@@ -140,7 +146,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                                 id_servicio_datos: String(value), // Usa el valor directamente
                                 // Elimina selectedOption o mantenlo como string si es necesario
                                 selectedOption: String(value) // Guarda solo el valor (ej: '96')
-                              };
+                              };                              
                               
                               setRows?.(updatedRows);
 
@@ -180,60 +186,121 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
               {row.lugar_destino}
             </td>
 
-              <td className="border border-gray-300 px-1 py-2 text-center w-[8%]">
-                <Controller
-                  name={`${fieldName}.tarifa.${rowIndex}.venta`}
-                  control={control}
-                  // rules={{
-                  //   required:true                    
-                  // }}
-                  defaultValue={(row.tarifa?.[0]?.venta ?? 0) as any}
-                  render={({ field, fieldState:{error} }) => (
-                    <input
-                      type="number"
-                      {...field}
-                      value={row.tarifa?.[0]?.venta || 0}
-                      onChange={(e) => {
-                        const value = Number(e.target.value);
-                        field.onChange(value);
+<td className="border border-gray-300 px-1 py-2 text-center w-[8%]">
+  <Controller
+    name={`${fieldName}.tarifa.0.venta`}
+    control={control}
+    // @ts-expect-error: defaultValue intencionalmente numérico
+    defaultValue={row.tarifa?.[0]?.venta ?? 0}
+    render={({ field, fieldState: { error } }) => {
+      // Obtener el costo del precio_proveedor
+      setCostoProveedor(requestFormData?.precio_proveedor ?? row.tarifa?.[0]?.costo ?? 0);
 
-                          // 2. Actualiza rows
-                          const updatedRows = [...(rows ?? [])];
-                          updatedRows[rowIndex] = {
-                            ...updatedRows[rowIndex],
-                            tarifa: [
-                              {
-                                venta: value,
-                                descripcion: '',
-                                costo: 0,                                
-                                profit: 0
-                              }
-                            ],
-                          };
-                          setRows?.(updatedRows);
+      // Efecto para sincronizar automáticamente el costo con precio_proveedor
+      useEffect(() => {        
+        
+        const updatedRows = [...(rows ?? [])];
+        const currentTarifa = updatedRows[rowIndex]?.tarifa || [{
+          descripcion: 'Movimiento',
+          costo: costoProveedor,  // ← Aquí se establece el costo
+          venta: updatedRows[rowIndex]?.tarifa?.[0]?.venta ?? field.value ?? 0,
+          profit: 0
+        }];
 
-                        const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
-                        setRoutesInformation(prev => ({
-                          ...prev,
-                          [composedKey]: {
-                            ...prev[composedKey],
-                            tarifa: [
-                              {
-                                venta: value,
-                                descripcion: 'test'
-                              }
-                            ],
-                          }
-                        }));
-                      }}
-                      className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}                      
-                    />
-                    
-                  )}
-                  
-                />
-                
-              </td>
+        // Actualizar el costo con el precio_proveedor
+        updatedRows[rowIndex] = {
+          ...updatedRows[rowIndex],
+          tarifa: currentTarifa.map((tarifaItem, index) =>
+            index === 0
+              ? { 
+                  ...tarifaItem, 
+                  costo: costoProveedor,  // ← FORZAR la actualización del costo
+                  profit: (currentTarifa[0]?.venta ?? 0) - costoProveedor  // Calcular profit
+                }
+              : tarifaItem
+          ),
+        };
+
+        setRows?.(updatedRows);
+
+        const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
+        setRoutesInformation(prev => ({
+          ...prev,
+          [composedKey]: {
+            ...prev[composedKey],
+            tarifa: currentTarifa.map((tarifaItem, index) =>
+              index === 0
+                ? { 
+                    ...tarifaItem, 
+                    costo: costoProveedor,
+                    profit: (currentTarifa[0]?.venta ?? 0) - costoProveedor
+                  }
+                : tarifaItem
+            ),
+          }
+        }));
+
+      }, [costoProveedor, rowIndex]); // Ejecutar cuando cambie el costo
+
+      return (
+        <input
+          type="number"
+          {...field}
+          value={watchedVenta0 ?? 0}    
+          onChange={(e) => {
+            const ventaValue = Number(e.target.value);
+            field.onChange(ventaValue);
+
+            // Calcular profit automáticamente
+            const profitValue = ventaValue - costoProveedor;
+
+            // Actualizar los datos de la fila
+            const updatedRows = [...(rows ?? [])];
+            const currentTarifa = updatedRows[rowIndex]?.tarifa || [{
+              descripcion: 'Movimiento',
+              costo: costoProveedor,  // ← Mantener el costo actual
+              venta: 0,
+              profit: 0
+            }];
+
+            updatedRows[rowIndex] = {
+              ...updatedRows[rowIndex],
+              tarifa: currentTarifa.map((tarifaItem, index) =>
+                index === 0
+                  ? { 
+                      ...tarifaItem, 
+                      venta: ventaValue,
+                      profit: profitValue  // ← Calcular profit automáticamente
+                    }
+                  : tarifaItem
+              ),
+            };            
+            setRows?.(updatedRows);
+
+            const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
+            setRoutesInformation(prev => ({
+              ...prev,
+              [composedKey]: {
+                ...prev[composedKey],
+                tarifa: currentTarifa.map((tarifaItem, index) =>
+                  index === 0
+                    ? { 
+                        ...tarifaItem, 
+                        venta: ventaValue,
+                        profit: profitValue
+                      }
+                    : tarifaItem
+                ),
+              }
+            }));
+          }}
+          className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}                       
+        />
+      );
+    }}
+  />
+</td>
+
 
               {/* Nuevos Campos */}
               <td className='border border-gray-300 px-1 py-2 text-center w-[10%]'>                

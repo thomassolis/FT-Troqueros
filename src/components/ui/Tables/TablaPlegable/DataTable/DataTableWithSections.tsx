@@ -249,12 +249,18 @@ const {register, handleSubmit, reset} = useForm();
 
                     <TableCell align="center">
                     <input
-                        placeholder="Tiempo Estimado2"                        
-                        type='number'
-                        style={{ padding: "4px", width: "100%" }}
-                        className='border border-gray-300 rounded'
-                        {...register('tiempo_estimado',{valueAsNumber: true})}
+                      placeholder="Tiempo Estimado2"
+                      type="number"
+                      style={{ padding: "4px", width: "100%" }}
+                      className="border border-gray-300 rounded"
+                      {...register("tiempo_estimado", {
+                        // en vacío ⇒ undefined; si no, número
+                        setValueAs: (v) => v === "" ? 1.5 : Number(v),
+                        // opcional: validaciones
+                        min: { value: 0, message: "Debe ser ≥ 0" },
+                      })}
                     />
+
                     </TableCell>
                     
                     <TableCell align="center">

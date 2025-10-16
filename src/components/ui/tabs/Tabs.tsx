@@ -1,17 +1,15 @@
 import {Tab, Tabs, TabList, TabPanel} from "react-tabs";
 import { useState, useEffect } from "react";
 import { PrevisualizationTable } from "../Tables/previsualizationTable";    
+import { AmountTable2 } from "../Tables/AmountTable/AmountTable2";
 import { RequestsFormValues } from "../../types/forms/RequestsForm/requestsForm";
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { RouteRow } from "../../../context/Requests/DynamicRequestsOptions";
-import { AmountTable2 } from "../Tables/AmountTable/AmountTable2";
-
-
 interface TabsProps {
-    tabContent: string[] | undefined;
+    tabContent: string[]|undefined;
     onTabChange: any; // Prop para enviar la opción al padre
-    useProvider?: boolean | null ;    
+    useProvider?: boolean|null;    
     services?:[{
         serviceType: string;
         rowIndex:number;
@@ -21,21 +19,18 @@ interface TabsProps {
     watch?: UseFormWatch<RequestsFormValues>;
     setValue?: UseFormSetValue<RequestsFormValues>;
     requestFormData?: RequestsFormValues;
-    errors?: any;
-    getValues?: any;
-    activeStep?:number;
+    procedure?:string;
 }
 
-export const PrevisualizationTab = ({ tabContent, onTabChange, rows, requestFormData, activeStep }: TabsProps) => {
+export const PrevisualizationTab = ({ tabContent, onTabChange, rows, requestFormData, procedure }: TabsProps) => {
     const [selectedTab, setSelectedTab] = useState<number>(0);
-    const [selectedOption, setSelectedOption] = useState<string>(tabContent?.[0] ?? '');
-    const [_selectedIndex, setSelectedIndex] = useState<number>(0);
-    const [filteredRows, setFilteredRows] = useState<RouteRow[]>([]);    
+      const [selectedOption, setSelectedOption] = useState<string | null>(() => tabContent?.[0] ?? null);
+    const [_filteredRows, setFilteredRows] = useState<RouteRow[]>([]);
+
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const module = pathSegments[pathSegments.length - 1];
-    const requestEdit = pathSegments[pathSegments.length - 2];    
-    
+
     const tabHeaders: Record<string, string[]> = {
         "Chasises": ["PLACA", "STATUS", "ACCIONES"],
         "Cabezales": ["PLACA", "STATUS", "ACCIONES"],
@@ -43,36 +38,27 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, rows, requestForm
     };
 
     // Ejecutar la función del padre cada vez que cambie la opción
-    useEffect(() => {        
+    useEffect(() => {
         onTabChange(selectedOption);
     }, [selectedOption, onTabChange]);
         
     // Filtra los rows que coincidan con el índice seleccionado (por grupo)
   useEffect(() => {
-    if (module != "Vehicles" && rows?.length) {                                
-        
-        let newRows;
-        if(requestEdit==='edit'){
-            // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
-            newRows = rows.filter((row) => row.rowIndex === selectedTab);
-            // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
-        }else{                        
-            // newRows = requestFormData?.servicios?.filter((row) => row.rowIndex === selectedTab);
-            newRows = rows.filter((row) => row.rowIndex === selectedTab);
-        }      
-    //   const newRows = rows.filter((row) => row.rowIndex === selectedTab);
+    if (module != "Vehicles" && rows?.length) {        
+      const newRows = rows.filter((row) => row.rowIndex === selectedTab);      
       setFilteredRows(newRows);      
     }
   }, [module, rows, selectedTab]); 
-
+        
     return (
         <Tabs
             className="flex items-center flex-col"
             selectedIndex={selectedTab}
             onSelect={(index) => {
                 setSelectedTab(index);
-                setSelectedOption(tabContent?.[index] ?? '');
-                setSelectedIndex(index);
+                const value = tabContent![index];                
+                if (value !== undefined) setSelectedOption(value);
+                // setSelectedIndex(index);
             }}
         >
             <TabList className="bg-troquerosOrange p-2 flex w-[70%] rounded-lg gap-2">
@@ -102,31 +88,21 @@ export const PrevisualizationTab = ({ tabContent, onTabChange, rows, requestForm
                 </TabPanel>
             ))
             ): (
-                <div className="flex flex-col gap-12 w-full items-center">                    
-                    {/* <AmountTable              
-                        selectedIndex={selectedTab}      
-                        services={services}
-                        filteredServiceData={filteredRows}
-                        setFilteredServiceData = {setFilteredRows}
-                        register ={register}
-                        watch={watch}
-                        setValue = {setValue}
-                        useProvider={useProvider}
-                        requestFormData={requestFormData}
-                        errors={errors}                                              
-                    /> */}
 
-                    <AmountTable2
-                        key={`svc-${selectedTab}`}   // 👈 remount limpio por tab
-                        requestFormData={requestFormData}
-                        filteredServiceData={filteredRows as any}
-                        serviceIndex={selectedTab}
-                        activeStep = {activeStep}  
-                    />
-
-
-
-                </div>
+                      tabContent?.map((_, i) => (
+          <TabPanel key={`svc-${i}`} className="w-full flex justify-center">
+            <div className={selectedTab === i ? "block w-full" : "hidden w-full"}>
+              <div className="flex flex-col gap-12 w-full items-center">
+                <AmountTable2
+                  requestFormData={requestFormData}
+                  filteredServiceData={(rows ?? []).filter(r => r.rowIndex === i) as any}
+                  serviceIndex={i}   
+                  procedure={procedure}                                                   
+                />
+              </div>
+            </div>
+          </TabPanel>
+        ))
             )}
         </Tabs>
     );

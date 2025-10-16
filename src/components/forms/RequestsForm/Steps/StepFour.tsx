@@ -5,7 +5,7 @@ import { SelectionTeamTable } from "../../../ui/Tables/RequestsForm/selectionTea
 import { NeonWarning } from "../../../ui/Warning/NeonWarning";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step4: React.FC<StepsRequestsProps> = ({useProvider, rows, requestFormData}) => {      
+export const Step4: React.FC<StepsRequestsProps> = ({useProvider, rows, requestFormData, setRequestFormData, activeStep}) => {      
     const { control, setValue } = useFormContext<RequestsFormValues>();           
     return(
         <div className="flex flex-col mt-10 gap-10">
@@ -17,7 +17,9 @@ export const Step4: React.FC<StepsRequestsProps> = ({useProvider, rows, requestF
                 useProvider = {useProvider}
                 rows={rows}
                 requestFormData = {requestFormData}                                
-                setValue= {setValue}                
+                setValue= {setValue}         
+                setRequestFormData={setRequestFormData}   
+                activeStep={activeStep}    
             />
             {useProvider &&
                 <NeonWarning message={'Se utilizará el equipo del proveedor designado.'}/>

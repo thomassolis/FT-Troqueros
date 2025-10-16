@@ -1,19 +1,33 @@
 export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean): any => {  
   if (obj === null || obj === undefined) {
     return undefined;
-  }
+  }  
 
   // ⚡️ Evitar limpiar archivos
   if (obj instanceof File) {
     return obj;
   }
 
-  // Si es array, limpiar cada elemento
-  if (Array.isArray(obj)) {
+if (Array.isArray(obj)) {
+  // Si es el array de servicios, aplicar filtro especial
+  if (obj.some(item => item.id_servicio_datos !== undefined)) { // Detecta si es array de servicios
     return obj
       .map((item) => CleanRequestDataBeforeSend(item, isProviderRequest))
-      .filter((item) => item !== undefined);
+      .filter(
+        (item) =>
+          item !== undefined &&
+          item.id_servicio_datos != null &&
+          item.id_servicio_datos !== '' &&
+          item.id_servicio_datos !== 0 &&
+          item.lugar_origen !== '' &&
+          item.lugar_destino !== ''
+      );
   }
+
+  return obj
+    .map((item) => CleanRequestDataBeforeSend(item, isProviderRequest))
+    .filter((item) => item !== undefined);
+}
 
   // Si es objeto (pero no array ni File), limpiar cada propiedad
   if (typeof obj === "object") {

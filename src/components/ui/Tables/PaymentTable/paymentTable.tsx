@@ -13,8 +13,8 @@ export const PaymentTable = () => {
   });
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-gray-100 rounded-xl shadow-md mt-10">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Registro de Pagos</h2>
+    <div className="p-6 max-w-4xl mx-auto bg-gray-100 rounded-xl shadow-md mt-2">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Registro de Pagos Aprobados</h2>
       
       <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
         <thead className="bg-gray-50">
@@ -40,7 +40,7 @@ export const PaymentTable = () => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 border-b border-gray-300">
                 <input
                   type="text"                  
-                  {...register(`paymentData.${index}.descripcion`)}  
+                  {...register(`paymentData.${index}.descripcionDePago`)}  
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Ingrese descripción"          
                   readOnly={userRole !== "CEO"}
@@ -49,8 +49,9 @@ export const PaymentTable = () => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 border-b border-gray-300">
                 <input
                   type="number"
-                  defaultValue={field.monto}
-                  {...register(`paymentData.${index}.monto`, {
+                  placeholder='0'
+                  defaultValue={field.montoPagado??0}
+                  {...register(`paymentData.${index}.montoPagado`, {
                       setValueAs: (v) => v === "" ? 0 : Number(v)
                   })}
                   readOnly={userRole !== "CEO"}
@@ -62,7 +63,7 @@ export const PaymentTable = () => {
                   type="text"                    
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Referencia"
-                  {...register(`paymentData.${index}.comprobante`)}   
+                  {...register(`paymentData.${index}.referenciaBancaria`)}   
                   readOnly={userRole !== "CEO"}               
                 />
               </td>
@@ -85,7 +86,7 @@ export const PaymentTable = () => {
         <div className="mt-6 flex justify-between items-center">
           <button
               onClick={() =>
-                  append({ descripcion: "", monto: 0, comprobante: "" })
+                  append({ descripcionDePago: "", montoPagado: null, referenciaBancaria: "" })
               }
               type='button'
               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

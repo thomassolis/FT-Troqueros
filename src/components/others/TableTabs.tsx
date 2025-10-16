@@ -70,7 +70,7 @@ useEffect(() => {
            searchValue: searchValue != null ? String(searchValue) : null,
           currentPage, 
           formattedDates
-        });
+        });        
 
         if (myReqId !== reqIdRef.current) return; // 👈 llegó tarde: ignora
 

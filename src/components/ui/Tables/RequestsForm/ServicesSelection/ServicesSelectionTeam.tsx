@@ -57,7 +57,7 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
   const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;    
   const [selectDataMap, setSelectDataMap] = useState<Record<string, SelectOptionTypes[]>>({});  
   const [selectedOption, setSelectedOption] = useState<'option1' | 'option2'>('option1');  
-
+  const [costoProveedor, setCostoProveedor] = useState(0);
   const deleteService = async ({ serviceID }: { serviceID: string }) => {
     const response = await DoubleConfirmationAlert({
       title: '¿Seguro deseas eliminar este servicio?',
@@ -81,12 +81,11 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
     // 4. Actualiza rows
     setRows?.(prev => prev.filter(row => row.serviceTypeId !== Number(serviceID)));
   }
-  };
+  };  
 
   
   // Generamos las filas basadas en todos los serviceTypes  
-  // Estado para controlar si es la primera carga
-    let globalRowIndex = 0;
+  // Estado para controlar si es la primera carga    
   
 const editHydratedRef = useRef(false); 
 useEffect(() => {
@@ -94,23 +93,34 @@ useEffect(() => {
   if (editHydratedRef.current) return;                   // Ya se hidrató
   if (!requestFormData?.servicios?.length) return;       // Aún no hay data
 
-  const newRows: RouteRow[] = requestFormData.servicios.map((servicio, index) => ({
-    serviceTypeId: servicio.id_pedidoServicio,
-    serviceType: servicio.servicio,
+const newRows: RouteRow[] = (requestFormData.servicios ?? []).map((servicio: any, index: number) => {
+  const tarifaArr: any[] = Array.isArray(servicio?.tarifa) ? servicio.tarifa as any[] : [];
+
+  const tarifa = tarifaArr.length
+    ? tarifaArr.map((t: any) => ({
+        descripcion: t?.descripcion ?? "",
+        costo: t?.costo ?? 0,
+        venta: t?.venta ?? 0,
+        profit: t?.profit ?? 0,
+      }))
+    : [{ descripcion: "2", costo: 0, venta: 0, profit: 0 }];
+
+  return {
+    serviceTypeId: Number(servicio?.id_pedidoServicio ?? 0),
+    serviceType: String(servicio?.servicio ?? ""),
     rowNumber: index + 1,
-    serviceID: String(servicio.id_servicio ?? ""),
+    serviceID: servicio?.id_servicio != null ? String(servicio.id_servicio) : undefined,
     rowIndex: index,
-    id_servicio_datos: String(servicio.id_servicio_datos ?? ""),
-    lugar_origen: servicio.lugar_origen ?? "",
-    lugar_destino: servicio.lugar_destino ?? "",
-    descripcion: "",
-    tarifa: Array.isArray(servicio.tarifa)
-      ? servicio.tarifa
-      : [{ descripcion: "", costo: 0, venta: 0, profit: 0 }],
-    entrega_vacio: !!servicio.entrega_vacio,
-    fecha_limite: servicio.fecha_limite ?? "",
-    selectedOption: (servicio as any)?.selectedOption ?? "",
-  }));
+    id_servicio_datos: String(servicio?.id_servicio_datos ?? ""),
+    lugar_origen: String(servicio?.lugar_origen ?? ""),
+    lugar_destino: String(servicio?.lugar_destino ?? ""),
+    tarifa, // <- ya normalizado
+    entrega_vacio: !!servicio?.entrega_vacio,
+    fecha_limite: String(servicio?.fecha_limite ?? ""),
+    selectedOption: String(servicio?.selectedOption ?? ""),
+  } as RouteRow;
+});
+
 
   // Solo setear si realmente cambió
   if (!isEqual(newRows, rows ?? [])) {
@@ -125,7 +135,6 @@ useEffect(() => {
   if (isEditMode) return; // No corras esto en editar
 
   let globalRowIndex = 0;
-  let rowNumberCounter = 1;
 
   const newRows: RouteRow[] =
     serviceTypes?.flatMap((st) =>
@@ -155,7 +164,7 @@ useEffect(() => {
           tarifa:
             routesInformation[composedKey]?.tarifa ??
             prevRow?.tarifa ??
-            [{ descripcion: "", costo: 0, venta: 0, profit: 0 }],
+            [{ descripcion: "3", costo: 0, venta: 0, profit: 0 }],
           entrega_vacio: prevRow?.entrega_vacio ?? false,
           fecha_limite: prevRow?.fecha_limite ?? "",
           selectedOption: prevRow?.selectedOption ?? "",
@@ -168,8 +177,7 @@ useEffect(() => {
   }
 }, [isEditMode, serviceTypes, routeIDsByRow, routesInformation]); 
 
-useEffect(() => {
-  console.log('Entrando a useEffect#4, depende de rows, isEditMode, setValue')
+useEffect(() => {  
   if (!isEditMode && rows) {
     
     const updatedData = {          
@@ -184,7 +192,7 @@ useEffect(() => {
         lugar_destino: row.lugar_destino,
         rowIndex: row.rowIndex
       }))
-    };
+    };    
     
     setRequestFormData?.(updatedData as any);
     
@@ -200,8 +208,7 @@ useEffect(() => {
     });
     
     // Esto triggereará el watch sin sobrescribir valores incorrectos
-  }
-  console.log('Saliendo de useEffect#4')
+  }  
 }, [rows, isEditMode, setValue]); // Agregar setValue a las dependencias
 
 const getRoutesForSelect = async (serviceID?: number | string) => {
@@ -242,10 +249,11 @@ const getRoutesInformation = async (
       lugar_destino: route?.lugar_destino ?? '',
       tarifa: [
         {
-          venta:route?.tarifa ?? '',
+          venta:route?.tarifa ?? null,
           descripcion: 'Movimiento',
-          costo: Number(route?.costo) || 0,
-          profit: 0,
+          // costo: Number(route?.costo) || null,
+          costo: costoProveedor || null,
+          profit: route?.tarifa ?? null,
 
         }
       ],
@@ -271,7 +279,7 @@ const getRoutesInformation = async (
           venta: Number(flatInfo.tarifa) || 0,
           profit: 0,
         }
-      ]);
+      ] as any );
 
     }
   } catch (error) {
@@ -285,8 +293,7 @@ const getRoutesInformation = async (
     // setRows?.(updatedRows); // Actualiza el estado de filas
   };
   return (
-    <div className='flex flex-col'>    
-    <h1>TEST</h1>
+    <div className='flex flex-col'>        
         <div className='w-full h-9 flex gap-6 justify-center'>
           <div className='flex items-center gap-4'>
               <input
@@ -338,7 +345,9 @@ const getRoutesInformation = async (
                     getRoutesForSelect={getRoutesForSelect}
                     deleteService={deleteService}
                     selectDataMap={selectDataMap}
-                    isLoading={isLoading}
+                    isLoading={isLoading}   
+                    costoProveedor={costoProveedor}
+                    setCostoProveedor={setCostoProveedor}                 
                 />   
             ):(
             <ServicesSelectionTableOption2

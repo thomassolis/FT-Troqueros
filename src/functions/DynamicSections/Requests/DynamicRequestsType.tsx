@@ -86,11 +86,11 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
                     placeholder={useProvider?"Máximo 1":"Máximo 5"}
                     value={quantity === 0 ? '' : quantity} // Mostrar cadena vacía si es 0
                     onChange={(e) => {
-                    const maxValue = useProvider?1:5;
-                    const inputValue = e.target.value === '' ? 0 : Number(e.target.value);
-                    const validatedValue = Math.min(inputValue, maxValue);
-                    
-                    onUpdate(id, 'quantity', validatedValue, 'value');
+                        const maxValue = useProvider?1:5;                        
+                        const inputValue = e.target.value === '' ? 0 : Number(e.target.value);
+                        const validatedValue = Math.min(inputValue, maxValue);
+                        
+                        onUpdate(id, 'quantity', validatedValue, 'value');
                     }}
                     max={
                         useProvider?1:5

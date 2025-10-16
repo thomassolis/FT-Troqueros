@@ -28,9 +28,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    // const [module, setModule] = useState<string>('')
-
+    const [isLoading, setIsLoading] = useState<boolean>(false);    
     const navigate = useNavigate()
     const {vehicleType} = useContext(vehicleTypeContext)!;
     const {searchValue, setSearchValue} = useContext(searchValueContext)!;
@@ -69,9 +67,7 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     if (!response) {
                         console.error("Error: La API no devolvió datos válidos.");
                         return;
-                    }                
-        
-    
+                    }                            
                     //Cambiar a vehiculos
                     setTableData(response.customers.data || []);                
                     setTotalRecords(response.customers.totalRegistros);

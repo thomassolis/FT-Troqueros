@@ -10,9 +10,7 @@ import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsFo
 
 export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, requestFormData}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
-    const { control, setValue, register, formState: { errors } } = useFormContext<RequestsFormValues>();        
-
-    console.log('requestFormData Step#2',requestFormData);
+    const { control, setValue, register, formState: { errors } } = useFormContext<RequestsFormValues>();            
 
 
     useEffect(()=>{

@@ -56,44 +56,13 @@ export const StepperFormRequests = () => {
     return typeof s === "number" ? s : 0;   // ← se monta directo en ese paso
   });
   
-  // 1) Creamos el hook de RHF con defaultValues y shouldUnregister
   const methods = useForm<RequestsFormValues>({
-    defaultValues: {
-      // **Aquí defines la forma completa**; al menos vacíos si no tienes nada aún
-      fecha_salida: "",
-      hora_salida: "",
-      id_cliente: "",
-      id_proveedor: "",
-      precio_proveedor:undefined,
-      isProviderRequest: false, //Variable que controla el checkox (esta variable no se enviará)
-      paymentData: [
-        { descripcion: "", monto: 0, comprobante: "" }
-      ],
-      servicios: [
-        {
-          entrega_vacio: false,
-          fecha_limite: '',
-          id_cabezal: '',
-          id_chasis: '',
-          id_conductor: '',
-          id_furgon: '',
-          id_servicio_datos: '',
-          tarifa: [
-            { 
-              descripcion: "test", 
-              costo: undefined, 
-              venta: 0,
-              profit: 0
-            }            
-          ],
-          profitT:0,
-          totalVenta:0,
-          totalCosto:0
-        }
-      ]
-    },
-    shouldUnregister: true
-  });
+  defaultValues: requestFormData ?? {
+    servicios: []
+  },
+  shouldUnregister:false,
+});
+
 
   const {
     handleSubmit,
@@ -107,16 +76,14 @@ export const StepperFormRequests = () => {
   
   useEffect(() => {
     const subscription = watch((value) => {      
-      // setRequestFormData(value as RequestsFormValues);
-      // console.log('requestFormDataPrincipal: ',value)
-    });
+      setRequestFormData(value as RequestsFormValues);      
+    });    
     return () => subscription.unsubscribe();
   }, [watch]);
   // }, [watch, requestFormData]);
 
 
-useEffect(() => {
-  console.log('Entrando a useEffect#1, depende de rows')
+useEffect(() => {  
   if (!Array.isArray(rows)) return;
 
   const updatedRows: RouteRow[] = rows.map((r) => {
@@ -128,9 +95,10 @@ useEffect(() => {
         id_servicio_datos: "",
         lugar_origen: "",
         lugar_destino: "",
-        tarifa: [{ descripcion: "", costo: 0, venta: 0, profit: 0 }],
+        tarifa: [{ descripcion: "4", costo: 0, venta: 0, profit: 0 }],
         entrega_vacio: false,
         fecha_limite: "",
+        costo_proveedor: requestFormData?.precio_proveedor || 9,
       };
     }
     return row;
@@ -138,8 +106,7 @@ useEffect(() => {
 
   if (!isEqual(updatedRows, rows)) {
     setRows(updatedRows);
-  }
-  console.log('Saliendo de useEffect#1')
+  }  
 }, [rows]);
 
 
@@ -167,10 +134,10 @@ const onSubmit = async (data: any) => {
     // Función mejorada de limpieza    
     const cleanData = CleanRequestDataBeforeSend(payload, isProviderRequest);
     
-    if (procedure === 'create') {      
+    if (procedure === 'create') {            
       const response = await CreateNewRequest({ data: cleanData });
       if (response.success) {          
-        setRows([]);                    
+        // setRows([]);                    
         navigate('/home');          
       }
     } else { // Modo editar
@@ -251,19 +218,22 @@ const onSubmit = async (data: any) => {
               <Step4
                 useProvider={useProvider}
                 requestFormData={requestFormData}
+                setRequestFormData={setRequestFormData}
                 rows={rows}
-                setRows={setRows}                
+                setRows={setRows}    
+                activeStep={activeStep}             
               />
             </div>
 
             <div hidden={activeStep !== 4}>
               <Step5
                 useProvider={useProvider}
-                requestFormData={requestFormData}
+                requestFormData={requestFormData}                
                 rows={rows}  
                 getValues={getValues} 
                 setRequestFormData={setRequestFormData} 
-                activeStep={activeStep}           
+                activeStep={activeStep}     
+                procedure={procedure}      
               />
             </div>
           </div>
@@ -280,10 +250,10 @@ const onSubmit = async (data: any) => {
             </div>
 
             <div className="w-[10%] flex">
-              {activeStep < 4 ? (
-                <Button
+              {activeStep < 4 ? (                
+                <Button                
                   onClick={async () => {
-                    const isStepValid = await trigger();                    
+                    const isStepValid = await trigger();                                                            
                     
                     if (isStepValid) {                      
                       nextStep();

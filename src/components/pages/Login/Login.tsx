@@ -13,6 +13,10 @@ export const Login = () => {
     const [userName, setUserName]= useState('');
     const [userLastName, setUserLastName]= useState('');
     const auth = useContext(AuthContext);
+    const { 
+        setUserRole, 
+        setUserEmail, setIsAuthenticated , userRole
+    } = auth!;
 
     useEffect(()=>{
         if (userName !== null) {
@@ -26,16 +30,18 @@ export const Login = () => {
         }
     },[userLastName])
 
+    useEffect(()=>{
+        if (userRole !== null) {
+            sessionStorage.setItem("userRole", userRole);
+        }
+    },[userRole])
+
     // 🔹 Si `AuthContext` no está disponible, evitar errores
     if (!auth) {
         return <p>Error: El contexto de autenticación no está disponible.</p>;
     }
 
     // Extraer setters del contexto para actualizar la información del usuario
-    const { 
-        setUserRole, 
-        setUserEmail, setIsAuthenticated 
-    } = auth;
 
     // 🔹 Manejo del formulario
     const onSubmit = async (data: any) => {

@@ -5,17 +5,21 @@ export interface ServiceType {
   selectedValue: string;
   quantity: number;
   serviceID?: string;
+  tarifa?: TarifaIn[] | [TarifaIn] | null;
 }
+
+type TarifaIn = {
+  descripcion?: string | null;
+  costo?: number | null;
+  venta?: number | null;
+  profit?: number | null;
+};
 
 export interface RouteRow {
   lugar_origen: string;
   lugar_destino: string;
-  tarifa: {
-    descripcion: string;
-    costo: number;
-    venta: number;
-    profit: number;
-  }[];
+  tarifa: { descripcion: string; costo: number; venta: number; profit: number; }[];
+
 
   routeID?: string;
   serviceTypeId: number;

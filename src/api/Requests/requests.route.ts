@@ -79,6 +79,7 @@ export const CreateNewRequest = async ({ data }: CreateNewRequestProps) => {
       }
     }
 
+
     const response = await axios.post("requests/add_request", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -105,10 +106,8 @@ interface GetRequestDataPerIDProps{
 
 export const GetRequestDataPerID = async ({requestID}:GetRequestDataPerIDProps) => {    
     try{
-        const response = await axios.get(`requests/see_request_id/${requestID}`);                
-        console.log('Recibido: ',response);
-        // return response.data.data.data        
-        return response.data.data;        
+        const response = await axios.get(`requests/see_request_id/${requestID}`);                           
+        return response.data.data.data;        
     }catch(error){
         console.error('Error en GetRequestDataPerID ', error);
     }
@@ -126,25 +125,55 @@ export const DeleteServiceFromRequest = async(serviceID:string|number|undefined)
 
 
 //Ruta para actualizar toda la petición seleccionada
-export const EditRequestData = async ({data, requestID}: CreateNewRequestProps) => {    
+export const EditRequestData = async ({ data, requestID }: CreateNewRequestProps) => {    
+  try {
+    const formData = new FormData();
 
-    const totalData = {
-        ...data,
-        id_peticion:requestID
-    }        
-    try{
-        const response = await axios.put('requests/update_request',totalData);
-        if(response.data.success){
-            toast.success(response.data.message);
-        }else{
-            toast.error(response.data.message);
-        }
-        return response.data;
-    }catch(error:any){
-        console.error('Error en EditRequestData ', error);
-        toast.error(error.response.data.message);
+    // Primero, agrega el ID de la petición y los datos normales
+    formData.append('id_peticion', requestID as any);
+    for (const [key, value] of Object.entries(data)) {
+            if (key === "paymentFiles" && Array.isArray(value)) {
+        // 👇 Adjunta cada archivo correctamente
+        value.forEach((file: File) => {
+          formData.append("paymentFiles", file, file.name);
+        });
+      } else if (typeof value === "object" && key !== "files") {
+        formData.append(key, JSON.stringify(value));
+      } else if (value !== undefined) {
+        formData.append(key, String(value));
+      }
     }
-}   
+
+    // Agregar los servicios (de forma similar a la función de creación)
+    if (Array.isArray(data.servicios)) {
+      data.servicios.forEach(service => {
+        formData.append('servicios[]', JSON.stringify(service)); // Enviar los servicios convertidos a JSON
+      });
+    }
+
+    // Enviar los datos con axios
+
+    const response = await axios.put('requests/update_request', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    // Manejo de la respuesta
+    if (response.data.success) {
+      toast.success(response.data.message);
+    } else {
+      toast.error(response.data.message);
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error en EditRequestData:', error);
+    toast.error(error.response?.data?.message || 'Error al actualizar la petición');
+  }
+};
+
+
 
 
 //RUTA PARA ELIMINAR LOS COSTOS EXTRAS DE LA PETICIÓN

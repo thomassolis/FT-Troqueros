@@ -5,6 +5,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* src/index.css */
+.react-tabs__tab-panel { display: none; }
+.react-tabs__tab-panel--selected { display: block; }
+
 
 .sidebar_color {
     background-color: red !important;

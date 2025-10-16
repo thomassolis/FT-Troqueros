@@ -36,11 +36,11 @@ export interface Servicio {
   tarifa?: [
     { 
       descripcion: string, 
-      costo: number, 
-      venta: number,
-      profit: number
+      costo: number | null, 
+      venta: number | null,
+      profit: number | null
     }            
-  ];
+  ][];
   entrega_vacio?: boolean;  
   lugar_origen?: string;
   lugar_destino?: string;
@@ -55,9 +55,9 @@ export interface RequestsData {
 }
 
 export interface PaymentData {
-  descripcion:string, 
-  monto?:number, 
-  comprobante:string, 
+  descripcionDePago:string, 
+  montoPagado?:number|null, 
+  referenciaBancaria:string, 
   costo?:number
 }
 
@@ -72,7 +72,8 @@ export interface RequestsFormValues {
   precio_proveedor?: number | null;
   fecha_limite?: string;
   servicios?: Servicio[];
-  paymentFiles?: []
+  paymentFiles?: [];
+  files?: []
   paymentData?: PaymentData[]
   requestsData?: RequestsData;
   tipo_entregaVacio?: boolean;
@@ -116,4 +117,6 @@ export interface StepsRequestsProps {
   // Extras si los necesitas
   customProp?: string;
   activeStep?:number
+
+  procedure?:string;
 }

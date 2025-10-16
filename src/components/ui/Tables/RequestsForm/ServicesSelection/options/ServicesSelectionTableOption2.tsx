@@ -193,7 +193,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                               tarifa: [
                                 {
                                   venta: value,
-                                  descripcion: '',
+                                  descripcion: 'mira tu quien es',
                                   costo: 0,                                
                                   profit: 0
                                 }
@@ -209,14 +209,14 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                                   tarifa: [
                                     {
                                       venta: value,
-                                      descripcion: 'test'
+                                      descripcion: 'Movimiento',
+                                      costo: null
                                     }
                                   ],
                                 }
                               }));
                             }}
-                            className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}
-                            
+                            className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}                            
                           />
                           
                         )}                      

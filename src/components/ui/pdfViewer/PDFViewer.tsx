@@ -12,7 +12,7 @@ export const FilesViewer = ({ files }: FilesViewerProps) => {
 
     // Función para determinar el tipo de archivo
     const isImage = (ext: string) => /\.(jfif|jpg|jpeg|png|gif|bmp|webp)$/i.test(ext);
-    const isPDF = (ext: string) => /\.pdf$/i.test(ext);
+    const isPDF = (ext: string) => /\.pdf$/i.test(ext);    
 
     return (
         <div className="flex items-center justify-center">
@@ -44,6 +44,8 @@ export const FilesViewer = ({ files }: FilesViewerProps) => {
                                         ? 'Paz Y Salvo'
                                         : file.source === 'record_policivo'
                                         ? 'Record Policivo'
+                                        : file.source === 'pasaporte'
+                                        ? 'Pasaporte'
                                         :null
                                         }
                                     </strong>
@@ -75,6 +77,7 @@ export const FilesViewer = ({ files }: FilesViewerProps) => {
                                     <>
                                         {/* Ícono PDF interactivo */}
                                         <a href={file.url} target="_blank" rel="noopener noreferrer" className='mt-9'>
+                                            
                                             <FaFilePdf size={100} color="#E53935" style={{ cursor: 'pointer' }} />
                                         </a>
 

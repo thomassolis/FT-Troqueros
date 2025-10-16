@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     sessionStorage.removeItem("userName");
     sessionStorage.removeItem("userLastName");
+    sessionStorage.removeItem("userRole");
     
     // Limpiar cookies/tokens si es necesario
     // (Aunque no tengas endpoint /auth/logout)
@@ -51,7 +52,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .get("/auth/validate", { withCredentials: true })
       .then((res) => {
         const { role, name, lastName, banTime, email } = res.data;
-        setUserRole(role);
+
+        setUserRole(sessionStorage.getItem("userRole") || role);
         setUserName(name);
         setUserLastName(lastName);
         setBanTime(banTime);

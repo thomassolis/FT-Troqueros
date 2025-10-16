@@ -46,7 +46,7 @@ export const VehicleParts = () =>{
             
             <PrevisualizationTab 
                 tabContent = {vehicleParts} 
-                onTabChange={setVehicleType}                
+                onTabChange={(opt: string) => setVehicleType?.(opt)}
             />
         </div>
     )

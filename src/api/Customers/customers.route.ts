@@ -42,7 +42,7 @@ interface GetCustomerDataByIDProps{
 }
 export const GetCustomerDataByID = async({clienteID}: GetCustomerDataByIDProps) =>{    
     try{
-        const response =await axios.get(`/clients/see_clients_id/${clienteID}`)                
+        const response =await axios.get(`/clients/see_clients_id/${clienteID}`)                        
         return response.data.data;
     }catch(error){
         console.error('Error en GetCustomerDataByID', error)
