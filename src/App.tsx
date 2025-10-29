@@ -14,7 +14,7 @@ import { NotFoundPage } from "./components/pages/NotFound/NotFoundPage.tsx";
 import { DriversCreation } from "./components/pages/Drivers/DriversCreation.tsx";
 import { DynamicRequestsProvider } from "./context/Requests/DynamicRequestsOptions.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute/protectedRoute.tsx";
-
+import { ReportsPage } from "./components/pages/Reports/ReportsPage.tsx";
 function App() {
 
   return (
@@ -68,6 +68,13 @@ function App() {
                       <Route path="create" element={<DriversCreation />} />
                       <Route path=":providerID/see" element={<SeeChasis />} />
                       <Route path=":providerID/modify" element={<DriversCreation />} />  
+                    </Route> 
+
+                    <Route path="Reports" >
+                      <Route index element={<ReportsPage />}/>
+                      {/* <Route path="create" element={<DriversCreation />} />
+                      <Route path=":providerID/see" element={<SeeChasis />} />
+                      <Route path=":providerID/modify" element={<DriversCreation />} />   */}
                     </Route> 
 
                     <Route path="Request/create" >

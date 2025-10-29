@@ -1,5 +1,7 @@
 import { Icon } from "@iconify/react";
 import { useState, useEffect } from "react";
+import { useContext } from "react";
+import { AuthContext } from "../../context/auth/authProvider";
 import {
   Sidebar as ProSidebar,  
   Menu,
@@ -15,6 +17,8 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
   const navigate = useNavigate();
+  const {userRole} = useContext(AuthContext)!;
+
 
   useEffect(() => {
     onSidebarChange(openSideBar);
@@ -118,6 +122,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
             </div>            
 
             <div>
+
+                {userRole === 'CEO' &&
+                  <li>
+                    <MenuItem
+                            icon={<Icon icon="fa-solid:chart-line" width="28" height="28" />}
+                            onClick={() => navigate('Reports')}
+                    >
+                            {openSideBar && "Estadísticas"}
+                    </MenuItem>
+                  </li>
+                }
+
                 <li>
                 <MenuItem
                         icon={<Icon icon="fluent:people-28-filled" width="28" height="28" />}
