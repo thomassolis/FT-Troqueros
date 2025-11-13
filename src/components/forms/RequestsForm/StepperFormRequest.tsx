@@ -41,6 +41,7 @@ export const StepperFormRequests = () => {
   const [requestFormData, setRequestFormData]= useState<RequestsFormValues>({} as RequestsFormValues);
   //Estado que maneja si una 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
     {
       id: 1,
@@ -74,12 +75,12 @@ export const StepperFormRequests = () => {
     formState: { errors } 
   } = methods;
   
-  useEffect(() => {
-    const subscription = watch((value) => {      
-      setRequestFormData(value as RequestsFormValues);      
-    });    
-    return () => subscription.unsubscribe();
-  }, [watch]);
+  // useEffect(() => {
+  //   const subscription = watch((value) => {      
+  //     setRequestFormData(value as RequestsFormValues);      
+  //   });    
+  //   return () => subscription.unsubscribe();
+  // }, [watch]);
   // }, [watch, requestFormData]);
 
 

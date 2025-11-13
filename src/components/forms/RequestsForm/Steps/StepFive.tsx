@@ -23,7 +23,7 @@ export const Step5: React.FC<StepsRequestsProps> = ({useProvider, requestFormDat
             <h1 className="text-black">Visualización y modificación de tarifa</h1>
             <PrevisualizationTab
                 tabContent={services?.map(s => s.serviceType)}
-                onTabChange={(selectedOption:any) => console.log('', selectedOption)}                
+                onTabChange={(selectedOption:any) => console.log(selectedOption)}                
                 rows={rows}
                 register={register}
                 watch={watch}
