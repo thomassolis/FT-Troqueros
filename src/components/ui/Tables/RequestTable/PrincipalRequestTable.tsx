@@ -220,7 +220,7 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                       <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
                         {item.services[0].servicio} ({item.services[0].lugar_origen}-{item.services[0].lugar_destino})
                       </td>
-                      <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
+                      <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].conductor ? '' : 'text-red-500'}`} align="center">
                         {item.services[0].conductor || 'No Asignado'}
                       </td>
                       <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].chasis ? '' : 'text-red-500'}`} align="center">

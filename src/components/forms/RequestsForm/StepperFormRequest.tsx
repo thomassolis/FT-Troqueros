@@ -75,13 +75,14 @@ export const StepperFormRequests = () => {
     formState: { errors } 
   } = methods;
   
-  // useEffect(() => {
-  //   const subscription = watch((value) => {      
-  //     setRequestFormData(value as RequestsFormValues);      
-  //   });    
-  //   return () => subscription.unsubscribe();
+  useEffect(() => {
+    const subscription = watch((value) => {      
+      setRequestFormData(value as RequestsFormValues);      
+    });    
+    // console.log('requestFormData updated:', requestFormData)
+    return () => subscription.unsubscribe();
   // }, [watch]);
-  // }, [watch, requestFormData]);
+  }, [watch, requestFormData]);
 
 
 useEffect(() => {  

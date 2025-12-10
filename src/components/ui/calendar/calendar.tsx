@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { EventPropGetter } from 'react-big-calendar';
 import { CSSProperties } from 'react';
 import { vacioEntregadoStatus } from "../../../api/Home/home.route";
+import { startsWith } from "lodash";
 
 interface EventDetails {
   id_Pedido_Servicio: number;
@@ -45,28 +46,150 @@ interface SidebarStatus {
 
 const MyCalendar = ({ sidebarState }: SidebarStatus) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [allEvents, setAllEvents] = useState<CalendarEvent[]>([]); // NUEVO: guardar todos los eventos originales
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const navigate = useNavigate()
+  const [filters, setFilters] = useState({ // MOVER filters aquí al componente principal
+    entregasVacio: true,
+    peticiones: true,
+    entregasProveedores: true
+  });
+  const navigate = useNavigate();
 
-    const changeVacioEntregado = async(value:boolean, id:number) => {      
-      try{
-        const response = await vacioEntregadoStatus(value, id);
-            // Actualiza el estado local inmediatamente            
-            if(response.success){
-              setEvents(prevEvents => 
-                prevEvents.map(event => ({
-                  ...event,
-                  details: event.details ? {
-                    ...event.details,
-                    vacio_entregado: event.details.id_Pedido_Servicio === id ? value : event.details.vacio_entregado
-                  } : event.details
-                }))
-              );        
-            }
-      }catch(error){
-        console.error('error en changeVacioEntregado', error);
+  const CustomToolbar = (toolbar: any) => {
+    const goToBack = () => toolbar.onNavigate('PREV');
+    const goToNext = () => toolbar.onNavigate('NEXT');
+    const goToToday = () => toolbar.onNavigate('TODAY');
+
+    const label = () => {
+      const date = toolbar.date;
+      return moment(date).format('MMMM YYYY');
+    };
+
+    const toggleFilter = (filterName: keyof typeof filters) => {
+      setFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }));
+    };
+
+    return (
+      <div className="mb-4">
+        {/* Toolbar principal */}
+        <div className="rbc-toolbar mb-3">
+          <span className="rbc-btn-group">
+            <button type="button" onClick={goToToday}>Today</button>
+            <button type="button" onClick={goToBack}>Back</button>
+            <button type="button" onClick={goToNext}>Next</button>
+          </span>
+
+          <span className="rbc-toolbar-label font-bold text-lg">
+            {label()}
+          </span>
+
+          <span className="rbc-btn-group">
+            {toolbar.views.map((view: string) => (
+              <button
+                key={view}
+                type="button"
+                className={toolbar.view === view ? 'rbc-active' : ''}
+                onClick={() => toolbar.onView(view)}
+              >
+                {view === 'month' ? 'Month' : view === 'week' ? 'Week' : view === 'day' ? 'Day' : 'Agenda'}
+              </button>
+            ))}
+          </span>
+        </div>
+
+        {/* Barra de filtros */}
+        <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+          <span className="text-sm font-medium text-gray-700">Filtrar eventos:</span>
+          
+          <button
+            onClick={() => toggleFilter('entregasVacio')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              filters.entregasVacio
+                ? 'bg-red-500 text-white shadow-md'
+                : 'bg-white text-red-600 border border-red-600'
+            }`}
+          >
+            <span className={`w-4 h-4 flex items-center justify-center rounded-sm ${filters.entregasVacio ? 'text-red-900 bg-white' : 'border border-red-600 text-gray-400'}`}>
+              {filters.entregasVacio && '✓'}
+            </span>
+            Entregas de Vacío
+          </button>
+
+          <button
+            onClick={() => toggleFilter('peticiones')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              filters.peticiones
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-white text-orange-600 border border-orange-600'
+            }`}
+          >
+            <span className={`w-4 h-4 flex items-center justify-center rounded-sm bg-white text-orange-700 ${filters.peticiones ? 'text-orange-900' : 'text-gray-400 border border-orange-600'}`}>
+              {filters.peticiones && '✓'}
+            </span>
+            Peticiones
+          </button>
+
+          <button
+            onClick={() => toggleFilter('entregasProveedores')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              filters.entregasProveedores
+                ? 'bg-blue-500 text-white shadow-md'
+                : 'bg-white border border-blue-600 text-blue-600'
+            }`}
+          >
+            <span className={`w-4 h-4 flex items-center justify-center bg-white rounded-sm text-blue-900 ${filters.entregasProveedores ? 'text-blue-900' : 'text-gray-400 border border-blue-600'}`}>
+              {filters.entregasProveedores && '✓'}
+            </span>
+            Entregas de Proveedores
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // NUEVO: useEffect para filtrar eventos cuando cambian los filtros
+  useEffect(() => {
+    const filteredEvents = allEvents.filter(event => {
+      // Filtrar por tipo de evento
+      if (event.type === "Vacio" && !filters.entregasVacio) {
+        return false;
       }
-    }    
+      
+      if ((event.type === "Peticion" || event.type === "peticion") && !filters.peticiones) {
+        return false;
+      }
+      
+      // Verificar si el evento es de proveedor (puede ser por title o type)
+      const isProveedorEvent = event.title?.startsWith('Entrega Proveedor:') || event.type === 'Proveedor';
+      if (isProveedorEvent && !filters.entregasProveedores) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setEvents(filteredEvents);
+  }, [filters, allEvents]);
+
+  const changeVacioEntregado = async(value:boolean, id:number) => {      
+    try{
+      const response = await vacioEntregadoStatus(value, id);
+      if(response.success){
+        // Actualizar allEvents (la fuente de verdad)
+        setAllEvents(prevEvents => 
+          prevEvents.map(event => ({
+            ...event,
+            details: event.details ? {
+              ...event.details,
+              vacio_entregado: event.details.id_Pedido_Servicio === id ? value : event.details.vacio_entregado
+            } : event.details
+          }))
+        );        
+      }
+    }catch(error){
+      console.error('error en changeVacioEntregado', error);
+    }
+  };
 
   useEffect(() => {
     const fetchCalendarData = async () => {
@@ -78,7 +201,8 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
           end: new Date(event.end),
           allDay: event.allDay || false
         }));
-        setEvents(formatted);
+        setAllEvents(formatted); // Guardar en allEvents
+        setEvents(formatted); // Inicialmente mostrar todos
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -87,48 +211,49 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
     fetchCalendarData();
   }, []);
 
+
   const openModal = (event: any) => setSelectedEvent(event);
   const closeModal = () => setSelectedEvent(null);
 
   // Estilos personalizados para los eventos según su tipo
-const eventStyleGetter: EventPropGetter<any> = (event) => {
-  let backgroundColor = "#3174ad";
-  let borderColor = "#3174ad";
-  
-  if (event.type === "Vacio") {
-    borderColor = "white";
-    if(event.details.vacio_entregado){
-      backgroundColor = "#93A0F4";
-    }else{
-      backgroundColor = "#A81F1F";
-    }        
-  } else if (event.type === "Peticion" || event.type === "peticion") {
-    backgroundColor = "#FFAD4E";
-    borderColor = "#F57C00";
-  } else if (event.type === "reunion") {
-    backgroundColor = "#9C27B0";
-    borderColor = "#7B1FA2";
-  }
+  const eventStyleGetter: EventPropGetter<any> = (event) => {
+    let backgroundColor = "#3174ad";
+    let borderColor = "#3174ad";
+    
+    if (event.type === "Vacio") {
+      borderColor = "white";
+      if(event.details.vacio_entregado){
+        backgroundColor = "#93A0F4";
+      }else{
+        backgroundColor = "#A81F1F";
+      }        
+    } else if (event.type === "Peticion" || event.type === "peticion") {
+      backgroundColor = "#FFAD4E";
+      borderColor = "#F57C00";
+    } else if (event.type === "reunion") {
+      backgroundColor = "#9C27B0";
+      borderColor = "#7B1FA2";
+    }
 
-  const style: CSSProperties = {
-    backgroundColor,
-    border: `1px solid ${borderColor}`,
-    borderRadius: "4px",
-    opacity: 0.9,
-    color: "white",
-    fontSize: "0.85rem",
-    padding: "2px 5px",
-    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center" as const, // Esta es la clave para solucionar el error
-    overflow: "hidden",
-    textOverflow: "ellipsis"
+    const style: CSSProperties = {
+      backgroundColor,
+      border: `1px solid ${borderColor}`,
+      borderRadius: "4px",
+      opacity: 0.9,
+      color: "white",
+      fontSize: "0.85rem",
+      padding: "2px 5px",
+      boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center" as const, // Esta es la clave para solucionar el error
+      overflow: "hidden",
+      textOverflow: "ellipsis"
+    };
+
+    return { style };
   };
-
-  return { style };
-};
 
   // Formateador para mostrar horas en formato 24h
   const timeGutterFormat = (date: Date) => {
@@ -140,8 +265,8 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
       className={`bg-white text-gray-800 p-6 shadow-xl rounded-xl w-[90%] transition-all duration-300 ${
         sidebarState ? "" : "ml-6"
       }`}
-      style={{ height: "85vh" }}
-    >
+      style={{ height: "95vh" }}
+    >      
       <Calendar
         localizer={localizer}
         events={events}
@@ -153,13 +278,14 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
         onSelectEvent={openModal}
         views={["month", "week", "day", "agenda"]}
         defaultView="week"
-        min={new Date(0, 0, 0, 0, 0, 0)} // Desde medianoche
-        max={new Date(0, 0, 0, 23, 59, 59)} // Hasta medianoche
-        step={30} // Intervalos de 30 minutos
-        timeslots={2} // 2 divisiones por intervalo (15 minutos)
-        showMultiDayTimes // Mostrar horas en eventos multi-día
-        dayLayoutAlgorithm="no-overlap" // Evitar superposición de eventos
+        min={new Date(0, 0, 0, 0, 0, 0)}
+        max={new Date(0, 0, 0, 23, 59, 59)}
+        step={30}
+        timeslots={2}
+        showMultiDayTimes
+        dayLayoutAlgorithm="no-overlap"
         components={{
+          toolbar: CustomToolbar,
           timeGutterHeader: () => (
             <div className="text-xs font-semibold">Hora</div>
           ),
@@ -174,11 +300,11 @@ const eventStyleGetter: EventPropGetter<any> = (event) => {
         }}
         dayPropGetter={() => ({
           style: {
-            minHeight: "100px",
+            minHeight: "150px",
             overflow: "visible",
           },
         })}
-      />
+      />      
 
       <Modal
         isOpen={!!selectedEvent}
