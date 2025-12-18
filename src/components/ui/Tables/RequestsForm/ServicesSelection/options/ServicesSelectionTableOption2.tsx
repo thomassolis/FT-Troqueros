@@ -51,6 +51,7 @@ interface ServicesSelectionTableProps {
     deleteService: (params: DeleteServiceParams) => Promise<void>;
   
     selectDataMap: Record<string, SelectOptionTypes[]>;
+    userRole: "CON" | "ADM" | "SUP" | "CEO";
 }
 
 export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps> = ({     
@@ -65,7 +66,8 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
   getRoutesForSelect,  
   selectDataMap,
   isLoading,
-  deleteService
+  deleteService,
+userRole
 }) => {      
 
   return (
@@ -119,8 +121,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                                   options={options}
                                   value={selectedOption}
                                   isLoading={isLoading}    
-                                  
-                                  isDisabled={isEditMode}
+                                  isDisabled={(isEditMode||userRole==='CON')?true:false}                                  
                                   onChange={(selectedOption) => {                                    
                                     const value = typeof selectedOption === 'object' && selectedOption !== null
                                     ? selectedOption.value
@@ -181,6 +182,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                             {...field}                          
                             value={row.tarifa?.[0]?.venta || 0}
                             // value={row.tarifa} // usa field.value (no row.tarifa)
+                            disabled={userRole==="CON"}           
                             onChange={(e) => {
                               const value = Number(e.target.value);
                               field.onChange(value);
@@ -228,6 +230,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                         type="text" 
                         className='h-[20%] rounded-md py-2 w-[95%] border-gray-300 border'
                         {...register(`${fieldName}.sh`)}
+                        disabled={userRole==="CON"}  
                       />
                     </td>
                     <td className="p-3 border-b border-gray-300">
@@ -235,6 +238,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                         type="text" 
                         className='h-[20%] rounded-md py-2 w-[95%] border-gray-300 border text-black'
                         {...register(`${fieldName}.numero_contenedor`)}
+                        disabled={userRole==="CON"}  
                       />
                     </td>
                     <td className="p-3 border border-gray-300 text-black" rowSpan={2}>
@@ -246,6 +250,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                             {...field}
                             className="w-full border border-gray-300 rounded px-2 py-1 text-sm min-h-[80px]"
                             rows={3}
+                            disabled={userRole==="CON"}  
                             placeholder="Escribe un comentario..."
                           />
                         )}
@@ -285,6 +290,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                               <input
                                 type="checkbox"
                                 checked={checked}
+                                disabled={userRole==="CON"}  
                                 onChange={(e) => {
                                   const newValue = e.target.checked;
                                   field.onChange(newValue);
@@ -293,49 +299,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                               />
                               {/* Este bloque ahora está DENTRO del mismo <td> */}
                               {checked && (
-                                <div className='w-[80%]'>
-                                  {/* <Controller
-                                    name={`${fieldName}.fecha_limite`}
-                                    control={control}
-                                    rules={{required:'fecha_limite'}}
-                                    render={({ field, fieldState }) => (
-                                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DemoContainer components={["DatePicker"]} sx={{ width: '100%' }}>
-                                          <DatePicker
-                                            label="Fecha Límite"
-                                            format="DD/MM/YY"
-                                            value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
-                                            minDate={dayjs().startOf('day')}
-                                            shouldDisableDate={(date) => date.isBefore(dayjs(), 'day')}
-                                            onChange={(date) => {
-                                              const formattedDate = dayjs(date).format('YYYY-MM-DD');
-                                              field.onChange(formattedDate);
-                                            }}
-                                            className="bg-white w-full"                                          
-                                            slotProps={{
-                                              textField: {
-                                                error: fieldState.invalid,
-                                                fullWidth: true,
-                                                InputProps: {
-                                                  sx: {
-                                                    // Ajusta el padding del input
-                                                    '.MuiInputBase-input': {
-                                                      paddingRight: '1px', // Reduce el padding derecho donde está el ícono
-                                                    },
-                                                    '.MuiInputAdornment-root': {
-                                                      marginLeft: '1px', // Opcional: reduce el espacio del ícono
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }}
-
-                                          />
-                                        </DemoContainer>
-                                      </LocalizationProvider>
-                                    )}
-                                    
-                                  /> */}
+                                <div className='w-[80%]'>                                  
                                   <Controller
                                     name={`${fieldName}.fecha_limite`}
                                     control={control}
@@ -343,6 +307,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                                     render={({ field, fieldState }) => (
                                   <input
                                     type="date"
+                                    readOnly={userRole==="CON"}  
                                     value={field.value || ''}
                                     onChange={(e) => {
                                       const formattedDate = dayjs(e.target.value).format('YYYY-MM-DD');
@@ -381,6 +346,7 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
                           <Select
                             {...field}
                             options={ContainerSizeData}
+                            isDisabled={userRole==="CON"}  
                             placeholder="Seleccionar"
                             value={ContainerSizeData.find(option => option.value === field.value)}
                             onChange={(selectedOption) => {

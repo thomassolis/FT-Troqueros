@@ -56,6 +56,7 @@ interface ServicesSelectionTableProps {
   selectDataMap: Record<string, SelectOptionTypes[]>;
   costoProveedor: number;
   setCostoProveedor: React.Dispatch<React.SetStateAction<number>>;
+  userRole: "CON" | "ADM" | "SUP" | "CEO";
 }
 
 
@@ -76,7 +77,8 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
   setValue,
   requestFormData,
   setCostoProveedor,
-  costoProveedor
+  costoProveedor,
+  userRole
 }) => { 
   const servicios = useWatch({ control, name: "servicios" }) as any[] | undefined;
   // const [costoProveedor, setCostoProveedor] = useState(0);
@@ -129,8 +131,8 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                             options={options}
                             value={selectedOption}
                             isLoading={isLoading}    
-                            
-                            isDisabled={isEditMode}
+                            // isDisabled={`${userRole==='CON'? true: false}`}                                                     
+                            isDisabled={(isEditMode||userRole==='CON')?true:false}
                             onChange={(selectedOption) => {
                               const value = typeof selectedOption === 'object' && selectedOption !== null
                               ? selectedOption.value
@@ -186,121 +188,121 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
               {row.lugar_destino}
             </td>
 
-<td className="border border-gray-300 px-1 py-2 text-center w-[8%]">
-  <Controller
-    name={`${fieldName}.tarifa.0.venta`}
-    control={control}
-    // @ts-expect-error: defaultValue intencionalmente numérico
-    defaultValue={row.tarifa?.[0]?.venta ?? 0}
-    render={({ field, fieldState: { error } }) => {
-      // Obtener el costo del precio_proveedor
-      setCostoProveedor(requestFormData?.precio_proveedor ?? row.tarifa?.[0]?.costo ?? 0);
+            <td className="border border-gray-300 px-1 py-2 text-center w-[8%]">
+              <Controller
+                name={`${fieldName}.tarifa.0.venta`}
+                control={control}
+                // @ts-expect-error: defaultValue intencionalmente numérico
+                defaultValue={row.tarifa?.[0]?.venta ?? 0}
+                render={({ field, fieldState: { error } }) => {
+                  // Obtener el costo del precio_proveedor
+                  setCostoProveedor(requestFormData?.precio_proveedor ?? row.tarifa?.[0]?.costo ?? 0);
 
-      // Efecto para sincronizar automáticamente el costo con precio_proveedor
-      useEffect(() => {        
-        
-        const updatedRows = [...(rows ?? [])];
-        const currentTarifa = updatedRows[rowIndex]?.tarifa || [{
-          descripcion: 'Movimiento',
-          costo: costoProveedor,  // ← Aquí se establece el costo
-          venta: updatedRows[rowIndex]?.tarifa?.[0]?.venta ?? field.value ?? 0,
-          profit: 0
-        }];
+                  // Efecto para sincronizar automáticamente el costo con precio_proveedor
+                  useEffect(() => {        
+                    
+                    const updatedRows = [...(rows ?? [])];
+                    const currentTarifa = updatedRows[rowIndex]?.tarifa || [{
+                      descripcion: 'Movimiento',
+                      costo: costoProveedor,  // ← Aquí se establece el costo
+                      venta: updatedRows[rowIndex]?.tarifa?.[0]?.venta ?? field.value ?? 0,
+                      profit: 0
+                    }];
 
-        // Actualizar el costo con el precio_proveedor
-        updatedRows[rowIndex] = {
-          ...updatedRows[rowIndex],
-          tarifa: currentTarifa.map((tarifaItem, index) =>
-            index === 0
-              ? { 
-                  ...tarifaItem, 
-                  costo: costoProveedor,  // ← FORZAR la actualización del costo
-                  profit: (currentTarifa[0]?.venta ?? 0) - costoProveedor  // Calcular profit
-                }
-              : tarifaItem
-          ),
-        };
+                    // Actualizar el costo con el precio_proveedor
+                    updatedRows[rowIndex] = {
+                      ...updatedRows[rowIndex],
+                      tarifa: currentTarifa.map((tarifaItem, index) =>
+                        index === 0
+                          ? { 
+                              ...tarifaItem, 
+                              costo: costoProveedor,  // ← FORZAR la actualización del costo
+                              profit: (currentTarifa[0]?.venta ?? 0) - costoProveedor  // Calcular profit
+                            }
+                          : tarifaItem
+                      ),
+                    };
 
-        setRows?.(updatedRows);
+                    setRows?.(updatedRows);
 
-        const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
-        setRoutesInformation(prev => ({
-          ...prev,
-          [composedKey]: {
-            ...prev[composedKey],
-            tarifa: currentTarifa.map((tarifaItem, index) =>
-              index === 0
-                ? { 
-                    ...tarifaItem, 
-                    costo: costoProveedor,
-                    profit: (currentTarifa[0]?.venta ?? 0) - costoProveedor
-                  }
-                : tarifaItem
-            ),
-          }
-        }));
-
-      }, [costoProveedor, rowIndex]); // Ejecutar cuando cambie el costo
-
-      return (
-        <input
-          type="number"
-          {...field}
-          value={watchedVenta0 ?? 0}    
-          onChange={(e) => {
-            const ventaValue = Number(e.target.value);
-            field.onChange(ventaValue);
-
-            // Calcular profit automáticamente
-            const profitValue = ventaValue - costoProveedor;
-
-            // Actualizar los datos de la fila
-            const updatedRows = [...(rows ?? [])];
-            const currentTarifa = updatedRows[rowIndex]?.tarifa || [{
-              descripcion: 'Movimiento',
-              costo: costoProveedor,  // ← Mantener el costo actual
-              venta: 0,
-              profit: 0
-            }];
-
-            updatedRows[rowIndex] = {
-              ...updatedRows[rowIndex],
-              tarifa: currentTarifa.map((tarifaItem, index) =>
-                index === 0
-                  ? { 
-                      ...tarifaItem, 
-                      venta: ventaValue,
-                      profit: profitValue  // ← Calcular profit automáticamente
-                    }
-                  : tarifaItem
-              ),
-            };            
-            setRows?.(updatedRows);
-
-            const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
-            setRoutesInformation(prev => ({
-              ...prev,
-              [composedKey]: {
-                ...prev[composedKey],
-                tarifa: currentTarifa.map((tarifaItem, index) =>
-                  index === 0
-                    ? { 
-                        ...tarifaItem, 
-                        venta: ventaValue,
-                        profit: profitValue
+                    const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
+                    setRoutesInformation(prev => ({
+                      ...prev,
+                      [composedKey]: {
+                        ...prev[composedKey],
+                        tarifa: currentTarifa.map((tarifaItem, index) =>
+                          index === 0
+                            ? { 
+                                ...tarifaItem, 
+                                costo: costoProveedor,
+                                profit: (currentTarifa[0]?.venta ?? 0) - costoProveedor
+                              }
+                            : tarifaItem
+                        ),
                       }
-                    : tarifaItem
-                ),
-              }
-            }));
-          }}
-          className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}                       
-        />
-      );
-    }}
-  />
-</td>
+                    }));
 
+                  }, [costoProveedor, rowIndex]); // Ejecutar cuando cambie el costo
+
+                  return (
+                    <input
+                      type="number"
+                      {...field}
+                      value={watchedVenta0 ?? 0}    
+                      onChange={(e) => {
+                        const ventaValue = Number(e.target.value);
+                        field.onChange(ventaValue);
+
+                        // Calcular profit automáticamente
+                        const profitValue = ventaValue - costoProveedor;
+
+                        // Actualizar los datos de la fila
+                        const updatedRows = [...(rows ?? [])];
+                        const currentTarifa = updatedRows[rowIndex]?.tarifa || [{
+                          descripcion: 'Movimiento',
+                          costo: costoProveedor,  // ← Mantener el costo actual
+                          venta: 0,
+                          profit: 0
+                        }];
+
+                        updatedRows[rowIndex] = {
+                          ...updatedRows[rowIndex],
+                          tarifa: currentTarifa.map((tarifaItem, index) =>
+                            index === 0
+                              ? { 
+                                  ...tarifaItem, 
+                                  venta: ventaValue,
+                                  profit: profitValue  // ← Calcular profit automáticamente
+                                }
+                              : tarifaItem
+                          ),
+                        };            
+                        setRows?.(updatedRows);
+
+                        const composedKey = `${row.serviceTypeId}-${row.rowNumber}`;
+                        setRoutesInformation(prev => ({
+                          ...prev,
+                          [composedKey]: {
+                            ...prev[composedKey],
+                            tarifa: currentTarifa.map((tarifaItem, index) =>
+                              index === 0
+                                ? { 
+                                    ...tarifaItem, 
+                                    venta: ventaValue,
+                                    profit: profitValue
+                                  }
+                                : tarifaItem
+                            ),
+                          }
+                        }));
+                      }}
+                      disabled={userRole==="CON"}                                                     
+                      className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}                       
+                    />
+                  );
+                }}
+              />
+            </td>
 
               {/* Nuevos Campos */}
               <td className='border border-gray-300 px-1 py-2 text-center w-[10%]'>                
@@ -308,6 +310,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                   type="text" 
                   className='h-[20%] rounded-md py-2 w-[95%] border border-gray-300'
                   {...register(`${fieldName}.sh`)}
+                  disabled={userRole==="CON"}           
                 />
               </td>  
               <td className='border border-gray-300 px-1 py-2 text-center w-[10%]'>                
@@ -315,6 +318,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                   type="text" 
                   className='h-[20%] rounded-md py-2 w-[95%] border border-gray-300'
                   {...register(`${fieldName}.numero_contenedor`)}
+                  disabled={userRole==="CON"}           
                 />
               </td>              
 
@@ -332,6 +336,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                         field.onChange(selectedOption?.value); // Solo guarda el valor, no el objeto completo
                       }}
                       onBlur={field.onBlur}
+                      isDisabled={userRole==="CON"}                                                     
                       styles={{
                         control: (base) => ({
                           ...base,
@@ -356,6 +361,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                         <input
                           type="checkbox"
                           checked={checked}
+                          disabled={userRole==="CON"}           
                           onChange={(e) => {
                             const newValue = e.target.checked;
                             field.onChange(newValue);
@@ -376,6 +382,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                             <input
                               type="date"
                               value={field.value || ''}
+                              disabled={userRole==="CON"}           
                               onChange={(e) => {
                                 const formattedDate = dayjs(e.target.value).format('YYYY-MM-DD');
                                 field.onChange(formattedDate);
@@ -413,6 +420,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                   render={({ field }) => (
                     <textarea
                       {...field}
+                      disabled={userRole==="CON"}           
                       className="w-full border border-gray-300 rounded px-2 py-1 text-sm min-h-[80px]"
                       rows={3}
                       placeholder="Escribe un comentario..."

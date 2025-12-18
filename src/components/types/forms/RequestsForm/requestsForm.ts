@@ -86,6 +86,7 @@ export interface RequestsFormValues {
 //
 // PROPS QUE SE PASAN A LOS COMPONENTES Step1, Step2, etc.
 // --------------------------------------------------------
+export type UserRole = "CON" | "ADM" | "SUP" | "CEO";
 
 export interface StepsRequestsProps {
   // Estados compartidos entre pasos
@@ -100,7 +101,7 @@ export interface StepsRequestsProps {
   setServiceTypes?: Dispatch<SetStateAction<ServiceType[]>>;
   isInitialLoad?: boolean;
   setIsInitialLoad?: Dispatch<SetStateAction<boolean>>;
-
+  userRole:UserRole
   // Opcionales si necesitas acceso a funciones del form
   register?: UseFormRegister<RequestsFormValues>;
   setValue?: UseFormSetValue<RequestsFormValues>;

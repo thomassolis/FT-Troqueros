@@ -19,7 +19,8 @@ export const Step3: React.FC<StepsRequestsProps> = ({
   setIsInitialLoad,
   requestFormData,
   setRequestFormData,
-  reset /* getValues*/
+  reset, /* getValues*/
+  userRole
 }) => {
   // Estado del select de tipos de servicio (catálogo para seleccionar)
   const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);
@@ -281,6 +282,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({
             requestFormData={requestFormData}
             setRequestFormData={setRequestFormData}
             reset={reset}
+            userRole = {userRole}
           />
         </div>
       )}

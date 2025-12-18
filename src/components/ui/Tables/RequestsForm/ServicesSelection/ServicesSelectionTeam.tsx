@@ -34,6 +34,7 @@ interface ServicesSelectionTableProps {
   requestFormData?: RequestsFormValues;
   setRequestFormData?: Dispatch<SetStateAction<RequestsFormValues>>; 
   reset?:UseFormReset<RequestsFormValues>
+  userRole: "CON" | "ADM" | "SUP" | "CEO";
 }
 
 export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({   
@@ -51,7 +52,8 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
   setRequestFormData,
   register,
   reset,
-  servicesSelect
+  servicesSelect,
+  userRole
 }) => {      
   const [isLoading, setIsLoading] = useState(false);
   const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;    
@@ -347,7 +349,8 @@ const getRoutesInformation = async (
                     selectDataMap={selectDataMap}
                     isLoading={isLoading}   
                     costoProveedor={costoProveedor}
-                    setCostoProveedor={setCostoProveedor}                 
+                    setCostoProveedor={setCostoProveedor}    
+                    userRole={userRole}             
                 />   
             ):(
             <ServicesSelectionTableOption2
@@ -375,6 +378,7 @@ const getRoutesInformation = async (
                 deleteService={deleteService}
                 selectDataMap={selectDataMap}
                 isLoading={isLoading}
+                userRole={userRole}
             />
             )}
     </div>

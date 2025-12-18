@@ -19,6 +19,8 @@ import { Step5 } from "./Steps/StepFive";
 import { useLocation } from "react-router-dom";
 import { toRouteRow  } from "../../../context/Requests/DynamicRequestsOptions";
 import isEqual from "lodash/isEqual";
+import { useContext } from "react";
+import { AuthContext } from "../../../context/auth/authProvider";
 
 export interface ServiceType {
   id: number;
@@ -74,6 +76,8 @@ export const StepperFormRequests = () => {
     setValue,
     formState: { errors } 
   } = methods;
+
+  const {userRole} = useContext(AuthContext)!;
   
   useEffect(() => {
     const subscription = watch((value) => {      
@@ -188,7 +192,9 @@ const onSubmit = async (data: any) => {
 
           <div className="w-[95%]">            
             <div hidden={activeStep !== 0}>
-              <Step1/>
+              <Step1
+                userRole={userRole as any}
+              />
             </div>
 
             <div hidden={activeStep !== 1}>
@@ -197,6 +203,7 @@ const onSubmit = async (data: any) => {
                 setUseProvider={setUseProvider}          
                 rows={rows}          
                 requestFormData = {requestFormData}
+                userRole={userRole as any}
               />
             </div>
 
@@ -213,6 +220,7 @@ const onSubmit = async (data: any) => {
                 setRequestFormData={setRequestFormData}
                 getValues={getValues}
                 reset={reset}
+                userRole={userRole as any}
               />
             </div>
 
@@ -224,6 +232,7 @@ const onSubmit = async (data: any) => {
                 rows={rows}
                 setRows={setRows}    
                 activeStep={activeStep}             
+                userRole={userRole as any}
               />
             </div>
 
@@ -236,6 +245,7 @@ const onSubmit = async (data: any) => {
                 setRequestFormData={setRequestFormData} 
                 activeStep={activeStep}     
                 procedure={procedure}      
+                userRole={userRole as any}
               />
             </div>
           </div>

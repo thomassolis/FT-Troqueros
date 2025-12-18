@@ -8,7 +8,7 @@ import { SelectOptionTypes } from "../../../types/Select/select";
 import { TransformSelectData } from "../../../../functions/transformSelectData/TransformSelectData";
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 
-export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, requestFormData}) => {        
+export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider, requestFormData, userRole}) => {        
     const [providersSelect, setProvidersSelect] = useState<SelectOptionTypes[]>([]);
     const { control, setValue, register, formState: { errors } } = useFormContext<RequestsFormValues>();            
 
@@ -54,7 +54,9 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
     hasCabezalData ||
     hasChasisData ||
     hasFurgonData ||
-    hasExtras;
+    hasExtras ||
+    userRole === 'CON'
+    ;
 
     const getDisableReason = () => {
         if (multipleServicios) return "Solo se permite un servicio para activar esta opción.";
@@ -125,6 +127,7 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                                 className="w-[60%] text-black" 
                                 options={providersSelect}
                                 value={providersSelect.find(opt => opt.value === field.value)} // Para mostrar el label correcto
+                                isDisabled={userRole==="CON"}                                                     
                                 onChange={opt => field.onChange(opt?.value)} // Guarda solo el ID
                                 styles={{
                                 control: (base, state) => ({
@@ -151,10 +154,11 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                     <div className="flex w-full items-center gap-12">
                         <label className="text-black text-sm mb-1">Costo del proveedor:</label>
                         <Input 
-                        type="number"
-                        className2={`w-[20%] h-8 ${errors?.precio_proveedor ? 'border-red-500' : 'border-gray-300'}`}
-                        placeholder="Costo $"
-                        {...register('precio_proveedor', {valueAsNumber: true, required: 'Campo requerido'})}
+                            type="number"
+                            className2={`w-[20%] h-8 ${errors?.precio_proveedor ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="Costo $"
+                            {...register('precio_proveedor', {valueAsNumber: true, required: 'Campo requerido'})}
+                            disabled={userRole==="CON"}                                                     
                         />
                     </div>             
 

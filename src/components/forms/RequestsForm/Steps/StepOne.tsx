@@ -15,11 +15,10 @@ import dayjs from 'dayjs';
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 import InfoTooltip from "../../../ui/ToolTip/ToolTip";
 
-
-export const Step1: React.FC<StepsRequestsProps> = () => { 
+export const Step1: React.FC<StepsRequestsProps> = ({userRole}:StepsRequestsProps) => { 
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
     // const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
-    const { control, formState: { errors } } = useFormContext<RequestsFormValues>();
+    const { control, formState: { errors } } = useFormContext<RequestsFormValues>();    
     
     useEffect(() => {
         const getSelectData = async () => {
@@ -69,28 +68,30 @@ export const Step1: React.FC<StepsRequestsProps> = () => {
                             rules={{ required: "El cliente es obligatorio" }} // ✅ aquí validas
                             render={({ field }) => (
                                 <Select
-                                {...field}
-                                isClearable                                
-                                className="w-full"
-                                options={customersSelect}
-                                placeholder="Selecciona un cliente..."
-                                value={customersSelect.find(opt => opt.value === field.value)}
-                                onChange={option => field.onChange(option?.value)}
-                                menuPortalTarget={document.body}
-                                styles={{
-                                    control: (base, state) => ({
-                                    ...base,
-                                    borderColor: errors?.id_cliente ? '#d32f2f' : base.borderColor,
-                                    '&:hover': {
+                                    {...field}
+                                    isClearable                                     
+                                    isDisabled={userRole==="CON"}                                                                          
+                                    className="w-full"
+                                    options={customersSelect}
+                                    placeholder="Selecciona un cliente..."
+                                    value={customersSelect.find(opt => opt.value === field.value)}
+                                    onChange={option => field.onChange(option?.value)}
+                                    menuPortalTarget={document.body}
+                                    
+                                    styles={{
+                                        control: (base, state) => ({
+                                        ...base,
                                         borderColor: errors?.id_cliente ? '#d32f2f' : base.borderColor,
-                                    },
-                                    boxShadow: state.isFocused ? `0 0 0 1px ${errors?.id_cliente ? '#d32f2f' : '#2684FF'}` : 'none',
-                                    }),
-                                    placeholder: (base) => ({
-                                    ...base,
-                                    color: errors?.id_cliente ? '#d32f2f' : '#6b7280',
-                                    }),
-                                }}
+                                        '&:hover': {
+                                            borderColor: errors?.id_cliente ? '#d32f2f' : base.borderColor,
+                                        },
+                                        boxShadow: state.isFocused ? `0 0 0 1px ${errors?.id_cliente ? '#d32f2f' : '#2684FF'}` : 'none',
+                                        }),
+                                        placeholder: (base) => ({
+                                        ...base,
+                                        color: errors?.id_cliente ? '#d32f2f' : '#6b7280',
+                                        }),
+                                    }}
                                 />
                             )}
                             />                           
@@ -101,13 +102,15 @@ export const Step1: React.FC<StepsRequestsProps> = () => {
                             <Controller
                                 name="fecha_salida"
                                 control={control}           
-                                rules={{required:'Campo Requerido'}}                     
+                                rules={{required:'Campo Requerido'}}                                  
                                 render={({ field }) => (
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <DemoContainer components={["DatePicker"]} sx={{width:'100%'}}>
                                             <DatePicker
                                                 label="Selecciona una fecha"
-                                                format="DD/MM/YYYY"
+                                                
+                                                format="DD/MM/YYYY"                                                
+                                                readOnly={userRole==="CON"}                                                     
                                                 value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
                                                 onChange={(date) => {
                                                     const formattedDate = dayjs(date).format('YYYY-MM-DD');
@@ -151,6 +154,7 @@ export const Step1: React.FC<StepsRequestsProps> = () => {
                                         const formattedTime = dayjs(time).format("HH:mm:ss"); // Formatea a "HH:mm"
                                         field.onChange(formattedTime); // Guarda el string (ej: "14:30")
                                     }}
+                                    readOnly={userRole==="CON"}                                    
                                     className="bg-white w-full"
                                     // slotProps={{
                                     //     textField: {

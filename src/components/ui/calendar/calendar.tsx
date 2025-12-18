@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { EventPropGetter } from 'react-big-calendar';
 import { CSSProperties } from 'react';
 import { vacioEntregadoStatus } from "../../../api/Home/home.route";
-import { startsWith } from "lodash";
 
 interface EventDetails {
   id_Pedido_Servicio: number;

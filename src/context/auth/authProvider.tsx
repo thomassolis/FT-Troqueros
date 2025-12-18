@@ -15,6 +15,7 @@ interface AuthContextType {
   setUserName: (name: string | null) => void;
   setUserLastName: (lastName: string | null) => void;
   setUserEmail: (email: string | null) => void;
+  
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
