@@ -78,6 +78,7 @@ interface RequesCollapsibleTableProps {
 }
 
 export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _isLoading }: RequesCollapsibleTableProps) => {
+  console.log('tableData: ', tableData);
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [_selectedStatus, setSelectedStatus] = useState<{ value: string, label: string } | null>({ value: '', label: '' });
   const navigate = useNavigate();
@@ -159,11 +160,11 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
               <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%]" align="center"></th>
 
               {procedure === 'completeRequestHistory' ? (
-                ['ID', 'Cliente', 'Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón', 'SH', 'Contenedor', 'Tamaño Contenedor', 'Costo Total', 'Venta Total', 'Comienzo de Petición', 'Proveedor', 'Costo Proveedor', 'Profit', 'Comentario', '# Facturación'].map((title) => (
+                ['ID', 'Cliente', 'SH', 'Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón', 'Contenedor', 'Tamaño Contenedor', 'Costo Total', 'Venta Total', 'Comienzo de Petición', 'Proveedor', 'Costo Proveedor', 'Profit', 'Comentario', '# Facturación'].map((title) => (
                   <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%] z-40" align="center">{title}</th>
                 ))
               ) : (
-                ['ID', 'Cliente', 'Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón'].map((title) => (
+                ['ID', 'Cliente', 'SH','Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón'].map((title) => (
                   <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%] z-40" align="center">{title}</th>
                 ))
               )}
@@ -217,6 +218,10 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                       <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
                         {item.services[0].cliente}
                       </td>
+                      <td className={`px-2 py-1 text-sm max-w-xs break-words whitespace-normal ${item.services[0].sh==="n/a"?'text-red-400':'text-gray-500'}`} align="center">
+                        {/* {item.services[0].sh || '-'} */}
+                        {`${item.services[0].sh === "n/a"? '-':item.services[0].sh}`}
+                      </td>
                       <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
                         {item.services[0].servicio} ({item.services[0].lugar_origen}-{item.services[0].lugar_destino})
                       </td>
@@ -235,9 +240,9 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
 
                       {procedure === 'completeRequestHistory' && (
                         <>
-                          <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].sh ? '' : 'text-red-500'}`} align="center">
+                          {/* <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].sh ? '' : 'text-red-500'}`} align="center">
                             {item.services[0].sh || '-'}
-                          </td>
+                          </td> */}
                           <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].numero_contenedor ? '' : 'text-red-500'}`} align="center">
                             {item.services[0].numero_contenedor || '-'}
                           </td>
@@ -326,6 +331,7 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                       <td className="px-2 py-1 text-sm text-gray-500" align="center"></td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.id_peticion}</td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.cliente}</td>
+                      <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.sh}</td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.servicio}</td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.conductor || 'No Asignado'}</td>
                       <td className={`px-2 py-1 text-sm text-gray-500 ${service.chasis ? '' : 'text-red-500'}`} align="center">{service.chasis || 'No Asignado'}</td>
@@ -335,7 +341,7 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
 
                       {procedure === 'completeRequestHistory' ? (
                         <>
-                          <td className={`px-2 py-1 text-sm text-gray-500 ${service.sh ? '' : 'text-red-500'}`} align="center">{service.sh || '-'}</td>
+                          
                           <td className={`px-2 py-1 text-sm text-gray-500 ${service.numero_contenedor ? '' : 'text-red-500'}`} align="center">{service.numero_contenedor || '-'}</td>
                           <td className={`px-2 py-1 text-sm text-gray-500 ${service.size_contenedor ? '' : 'text-red-500'}`} align="center">{service.size_contenedor || '-'}</td>
                           <td className={`px-2 py-1 text-sm text-gray-500 ${service.costo ? '' : 'text-red-500'}`} align="center">{service.costo || 0}</td>

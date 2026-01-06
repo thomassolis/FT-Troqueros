@@ -24,3 +24,25 @@ export const getGeneralReportsData = async({filters, dates}:any) => {
         console.error('Error en getGeneralReportsData: ', error);
     }
 }
+
+
+export const getTeamReports = async(currentPage:number, pageSize:number, searchTerm:string, driverSearch: string, statusSelected:any, dates:{startDate?: Date; endDate?: Date}) => {
+    console.log('getTeamReports');
+    try{
+        const response = await axios.get('/reports/get_team_reports',{
+            params:{
+                page: currentPage,
+                pageSize: pageSize,                
+                searchTerm: searchTerm,
+                statusSelected: statusSelected, 
+                driverSearch: driverSearch,
+                dates: dates
+            }
+        });   
+        console.log('getTeamReportsResponse', response);
+        return response.data;     
+    }catch(error){
+        console.error('Error en getTeamReports: ', error);
+    }
+}
+

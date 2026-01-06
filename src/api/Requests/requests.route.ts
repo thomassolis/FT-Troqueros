@@ -12,6 +12,7 @@ interface SelectDataProps {
 
 //Extrae toda la data para los select al momento de crear una petición
 export const SelectData = async({type, serviceID, fecha_salida, hora_salida, requestID}: SelectDataProps) => {            
+  console.log('SelectData');
     const params = {
         fecha_salida: fecha_salida,
         hora_salida: hora_salida,
@@ -35,6 +36,7 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida, req
             response = await axios.get(`requests/get_request_suppliers`)
             return response?.data.data;
         } else if (type === 'drivers'){
+          console.log('test')
             response = await axios.get(`requests/get_request_drivers`, {params});            
             return response?.data.data;
         } else if (type === 'chasis'){

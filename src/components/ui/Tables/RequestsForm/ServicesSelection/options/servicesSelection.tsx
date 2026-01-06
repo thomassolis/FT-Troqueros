@@ -310,7 +310,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                   type="text" 
                   className='h-[20%] rounded-md py-2 w-[95%] border border-gray-300'
                   {...register(`${fieldName}.sh`)}
-                  disabled={userRole==="CON"}           
+                  // disabled={userRole==="CON"}           
                 />
               </td>  
               <td className='border border-gray-300 px-1 py-2 text-center w-[10%]'>                

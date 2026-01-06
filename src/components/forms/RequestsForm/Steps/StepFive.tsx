@@ -44,7 +44,7 @@ export const Step5: React.FC<StepsRequestsProps> = ({useProvider, requestFormDat
                 <BillTable/>
             </div>
 
-            {userRole === 'ADM' &&
+            {(userRole === 'ADM'|| userRole === 'CON') &&
             <>
                 {requestFormData?.files && (
                     <div className="mt-6 flex justify-center w-full">

@@ -107,6 +107,7 @@ useEffect(() => {
   }else{
     options=[
       {value: 'id', label: 'ID'}, 
+      {value: 'sh', label: 'SH'},  
       {value: 'nameService', label: 'Servicio'}, 
       {value: 'nameDriver', label: 'Conductor'}, 
       {value: 'nameCustomer', label: 'Cliente'},                 

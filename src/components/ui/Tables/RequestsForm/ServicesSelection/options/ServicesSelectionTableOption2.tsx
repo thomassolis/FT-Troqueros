@@ -230,7 +230,7 @@ userRole
                         type="text" 
                         className='h-[20%] rounded-md py-2 w-[95%] border-gray-300 border'
                         {...register(`${fieldName}.sh`)}
-                        disabled={userRole==="CON"}  
+                        // disabled={userRole==="CON"}  
                       />
                     </td>
                     <td className="p-3 border-b border-gray-300">
