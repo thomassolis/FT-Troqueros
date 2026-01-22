@@ -2,8 +2,7 @@ import { AnimatedCounter } from "../../../ui/AnimatedCounter/AnimatedCounter";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Fragment } from "react/jsx-runtime";
 
-export const ReportsKPI = ({ type, reports, styleReport }: any) => {
-  console.log('reports ennn', reports);
+export const ReportsKPI = ({ type, reports, styleReport }: any) => {  
 
 const toNumber = (v: any) => {
   const n = typeof v === "number" ? v : Number(v ?? 0);

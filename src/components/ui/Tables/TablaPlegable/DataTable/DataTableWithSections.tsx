@@ -9,7 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input } from '../../../inputs/input';
 import { deleteRoute } from '../../../../../functions/ServicesModule/Routes/routesFunctions';
@@ -19,22 +19,54 @@ import { editService } from '../../../../../functions/ServicesModule/servicesFun
 import { SubmitTableForm } from './DataTableFunctions/DataTableFunctions';
 import { handleEdit } from './DataTableFunctions/DataTableFunctions';
 import { DeleteService } from './DataTableFunctions/DataTableFunctions';
+import { AuthContext } from '../../../../../context/auth/authProvider';
 
 function Row(props: { id:any, row: { name: string, history: any[] }, servicesData:any, reloadServices:() => Promise<void> }) {    
   const { id, row, reloadServices } = props; 
   const [open, setOpen] = React.useState(false);
   const [isAdding, setIsAdding] = React.useState(false);
   const [localHistory, setLocalHistory] = useState(row.history); // Estado Interno  
-
+  const {userRole} = useContext(AuthContext)!;
   //Edición de servicio
   const [serviceEdit, setServiceEdit] = useState(false)
-  //  const [routeEdit, setRouteEdit] = useState(false)
   const [serviceName, setServiceName] = useState('')
   const [editingRouteId, setEditingRouteId] = useState<number | null>(null);
 
+  const {register, handleSubmit, reset} = useForm();
 
-const {register, handleSubmit, reset} = useForm();
+  // Función para manejar la cancelación y limpiar el formulario
+  const handleCancelEdit = () => {
+    setEditingRouteId(null);
+    reset();
+  };
 
+  // Función para manejar la cancelación de agregar
+  const handleCancelAdd = () => {
+    setIsAdding(false);
+    reset();
+  };
+
+  // Función para verificar si se puede editar otra ruta
+  const canEditRoute = (index: number) => {
+    if (editingRouteId !== null && editingRouteId !== index) {
+      alert('Por favor, guarda o cancela la edición actual antes de editar otra ruta.');
+      return false;
+    }
+    if (isAdding) {
+      alert('Por favor, guarda o cancela la nueva ruta antes de editar.');
+      return false;
+    }
+    return true;
+  };
+
+  // Función para verificar si se puede agregar una nueva ruta
+  const canAddRoute = () => {
+    if (editingRouteId !== null) {
+      alert('Por favor, guarda o cancela la edición actual antes de agregar una nueva ruta.');
+      return false;
+    }
+    return true;
+  };
 
   return (
     <React.Fragment>
@@ -75,23 +107,34 @@ const {register, handleSubmit, reset} = useForm();
             <div className="flex gap-2 justify-center items-center">             
                
                 <td className="py-4 whitespace-nowrap text-blue-800">
+                <button
+                  disabled={
+                    userRole != 'ADM'? true: false
+                  }
+                >                                               
                 <Icon 
-                    type='button'
                     icon="uil:edit" 
                     width="24" 
                     height="24" 
                     className="cursor-pointer" 
                     onClick={()=>setServiceEdit(true)}
-                    />
+                />
+                </button>   
                 </td>                                                                        
                 <td className="py-4 whitespace-nowrap ">
+                  <button
+                    disabled={
+                      userRole != 'ADM'? true: false
+                    }
+                  >     
                     <Icon 
                         icon="material-symbols:delete" 
                         width="24" 
                         height="24" 
                         className="cursor-pointer text-red-700" 
                         onClick={()=>DeleteService(id, row.name, reloadServices)}
-                    />    
+                    /> 
+                    </button>      
                 </td>                                                                        
             </div>  
         </TableCell>        
@@ -106,15 +149,15 @@ const {register, handleSubmit, reset} = useForm();
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    {['Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Tiempo Promedio', 'Acciones'].map((item)=>(
-                        <TableCell align="center">{item}</TableCell>    
+                    {['Lugar de Origen', 'Lugar de Destino', 'Tarifa', 'Tiempo Promedio', 'Acciones'].map((item, idx)=>(
+                        <TableCell key={idx} align="center">{item}</TableCell>    
                     ))}                    
                   </TableRow>
                 </TableHead>
                 <TableBody className='w-full'>
                   {localHistory.map((historyRow, index) => (
                     
-                    <TableRow key={`${historyRow.lugar_origen}-${historyRow.lugar_destino}-${historyRow.tarifa}`}>                                            
+                    <TableRow key={historyRow.id_servicio_datos || `${historyRow.lugar_origen}-${historyRow.lugar_destino}-${historyRow.tarifa}`}>                                            
                       <TableCell component="th" scope="row" align="center">                        
                         {(editingRouteId === index) ? (
                           <Input
@@ -167,48 +210,88 @@ const {register, handleSubmit, reset} = useForm();
                       <TableCell align="center">
                         {(editingRouteId === index) ? (
                           <div className="flex gap-1 justify-center mt-1">
-                            <Icon                            
-                                icon="ph:check-fill"
+                            <button
+                              onClick={() => {
+                                if (canEditRoute(index)) {
+                                  setEditingRouteId(index);
+                                }
+                              }}
+                              disabled={
+                                userRole != 'ADM'? true: false
+                              }
+                            >                                                     
+                              <Icon                            
+                                  icon="ph:check-fill"
+                                  width="23"
+                                  height="23"
+                                  className="text-green-500 cursor-pointer hover:text-green-700"
+                                  onClick={handleSubmit((data) =>
+                                      SubmitTableForm(data, editingRouteId, localHistory, editRoute, row, setLocalHistory, setEditingRouteId, reset, isAdding, setIsAdding)
+                                  )}
+                                  
+                              />
+                            </button>  
+
+                            <button
+                              onClick={() => {
+                                if (canEditRoute(index)) {
+                                  setEditingRouteId(index);
+                                }
+                              }}
+                              disabled={
+                                userRole != 'ADM'? true: false
+                              }
+                            >                                                    
+                              <Icon
+                                icon="basil:cancel-solid"
                                 width="23"
                                 height="23"
-                                className="text-green-500 cursor-pointer hover:text-green-700"
-                                onClick={handleSubmit((data) =>
-                                    SubmitTableForm(data, editingRouteId, localHistory, editRoute, row, setLocalHistory, setEditingRouteId, reset, isAdding, setIsAdding)
-                                )}
-                                
-                            />
-                            <Icon
-                              icon="basil:cancel-solid"
-                              width="23"
-                              height="23"
-                              className="text-red-600 cursor-pointer hover:text-red-800"
-                              onClick={() => setEditingRouteId(null)}
-                            />
+                                className="text-red-600 cursor-pointer hover:text-red-800"
+                                onClick={handleCancelEdit}
+                              />
+                            </button>   
                           </div>
                         ):(
-                          <div className='flex gap-3 items-center justify-center'>
+                          <div className='flex gap-3 items-center justify-center'>                    
+
+                            <button
+                              onClick={() => {
+                                if (canEditRoute(index)) {
+                                  setEditingRouteId(index);
+                                }
+                              }}
+                              disabled={
+                                userRole != 'ADM'? true: false
+                              }
+                            >
                               <Icon 
-                                    type='button'
                                   icon="uil:edit" 
                                   width="24" 
                                   height="24" 
                                   className="cursor-pointer hover:text-gray-500"
-                                  onClick={(e) => {
-                                    e.preventDefault();  // 👈 Evita propagación o efectos colaterales
-                                    e.stopPropagation();
-                                    // editRoute(historyRow.id_servicio_datos, row.id, setRouteEdit);
-                                    setEditingRouteId(index);
-                                  }}
                               />
+                            </button>
 
+
+                            <button
+                              onClick={() => {
+                                if (canEditRoute(index)) {
+                                  setEditingRouteId(index);
+                                }
+                              }}
+                              disabled={
+                                userRole != 'ADM'? true: false
+                              }
+                            >     
+                                                
                               <Icon 
-                                type='button'
                                   icon="material-symbols:delete" 
                                   width="24" 
                                   height="24" 
                                   className="cursor-pointer hover:text-gray-500"
                                   onClick={()=>{deleteRoute(historyRow.id_servicio_datos, setLocalHistory)}}
                               />
+                              </button>
                           </div>
                         )}
 
@@ -249,14 +332,12 @@ const {register, handleSubmit, reset} = useForm();
 
                     <TableCell align="center">
                     <input
-                      placeholder="Tiempo Estimado2"
+                      placeholder="Tiempo Estimado (h)"
                       type="number"
                       style={{ padding: "4px", width: "100%" }}
                       className="border border-gray-300 rounded"
                       {...register("tiempo_estimado", {
-                        // en vacío ⇒ undefined; si no, número
                         setValueAs: (v) => v === "" ? 1.5 : Number(v),
-                        // opcional: validaciones
                         min: { value: 0, message: "Debe ser ≥ 0" },
                       })}
                     />
@@ -264,21 +345,36 @@ const {register, handleSubmit, reset} = useForm();
                     </TableCell>
                     
                     <TableCell align="center">
-                      <button
-                          type="submit"
-                            onClick={handleSubmit((data) =>
-                              SubmitTableForm(data, editingRouteId, localHistory, editRoute, row, setLocalHistory, setEditingRouteId, reset, isAdding, setIsAdding)
-                            )}
-                          className='p-2 bg-[#007bff] text-white rounded-md hover:bg-blue-400'
-                      >Guardar</button>
+                      <div className="flex gap-1 justify-center">
+                        <button
+                          type="button"
+                          onClick={handleSubmit((data) =>
+                            SubmitTableForm(data, editingRouteId, localHistory, editRoute, row, setLocalHistory, setEditingRouteId, reset, isAdding, setIsAdding)
+                          )}
+                          className='px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm'
+                        >
+                          ✓
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelAdd}
+                          className='px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm'
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </TableCell>
                 </TableRow>
                 ) : (
                 <TableRow>
-                    <TableCell colSpan={4} align="center">
+                    <TableCell colSpan={5} align="center">
                     <span
                         className="text-gray-400 hover:text-gray-300 cursor-pointer font-semibold"
-                        onClick={() => setIsAdding(true)}
+                        onClick={() => {
+                          if (canAddRoute()) {
+                            setIsAdding(true);
+                          }
+                        }}
                     >
                         + Agregar nueva ruta...
                     </span>

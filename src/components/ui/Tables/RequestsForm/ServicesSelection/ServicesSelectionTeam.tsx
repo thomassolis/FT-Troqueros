@@ -35,6 +35,7 @@ interface ServicesSelectionTableProps {
   setRequestFormData?: Dispatch<SetStateAction<RequestsFormValues>>; 
   reset?:UseFormReset<RequestsFormValues>
   userRole: "CON" | "ADM" | "SUP" | "CEO";
+  procedure: string|undefined
 }
 
 export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({   
@@ -53,7 +54,8 @@ export const ServicesSelectionTeam: React.FC<ServicesSelectionTableProps> = ({
   register,
   reset,
   servicesSelect,
-  userRole
+  userRole,
+  procedure
 }) => {      
   const [isLoading, setIsLoading] = useState(false);
   const { routeIDsByRow, setRouteIDsByRow } = useContext(dynamicRequestsContext)!;    
@@ -304,7 +306,7 @@ const getRoutesInformation = async (
                 name="serviceOption"
                 value="option1"
                 checked={selectedOption === 'option1'}
-                onChange={() => setSelectedOption('option1')}
+                onChange={() => setSelectedOption('option1')}                
               />
               <label htmlFor="option1" className='text-black'>Opción 1</label>
           </div>        
@@ -316,7 +318,7 @@ const getRoutesInformation = async (
                 name="serviceOption"
                 value="option2"
                 checked={selectedOption === 'option2'}
-                onChange={() => setSelectedOption('option2')}
+                onChange={() => setSelectedOption('option2')}                
               />
               <label htmlFor="option2" className='text-black'>Opción 2</label>
           </div>     
@@ -350,7 +352,8 @@ const getRoutesInformation = async (
                     isLoading={isLoading}   
                     costoProveedor={costoProveedor}
                     setCostoProveedor={setCostoProveedor}    
-                    userRole={userRole}             
+                    userRole={userRole}                         
+                    procedure={procedure}
                 />   
             ):(
             <ServicesSelectionTableOption2
@@ -379,6 +382,7 @@ const getRoutesInformation = async (
                 selectDataMap={selectDataMap}
                 isLoading={isLoading}
                 userRole={userRole}
+                procedure={procedure}
             />
             )}
     </div>

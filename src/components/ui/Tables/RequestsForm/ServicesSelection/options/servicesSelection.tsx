@@ -57,6 +57,7 @@ interface ServicesSelectionTableProps {
   costoProveedor: number;
   setCostoProveedor: React.Dispatch<React.SetStateAction<number>>;
   userRole: "CON" | "ADM" | "SUP" | "CEO";
+  procedure: string|undefined
 }
 
 
@@ -78,7 +79,8 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
   requestFormData,
   setCostoProveedor,
   costoProveedor,
-  userRole
+  userRole,
+  procedure
 }) => { 
   const servicios = useWatch({ control, name: "servicios" }) as any[] | undefined;
   // const [costoProveedor, setCostoProveedor] = useState(0);
@@ -132,7 +134,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                             value={selectedOption}
                             isLoading={isLoading}    
                             // isDisabled={`${userRole==='CON'? true: false}`}                                                     
-                            isDisabled={(isEditMode||userRole==='CON')?true:false}
+                            isDisabled={(isEditMode||(userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')))?true:false}
                             onChange={(selectedOption) => {
                               const value = typeof selectedOption === 'object' && selectedOption !== null
                               ? selectedOption.value
@@ -296,7 +298,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                           }
                         }));
                       }}
-                      disabled={userRole==="CON"}                                                     
+                      disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}                                                     
                       className={`w-full border rounded py-1 ${error ? "border-red-500" : "border-gray-300"}`}                       
                     />
                   );
@@ -318,7 +320,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                   type="text" 
                   className='h-[20%] rounded-md py-2 w-[95%] border border-gray-300'
                   {...register(`${fieldName}.numero_contenedor`)}
-                  disabled={userRole==="CON"}           
+                  disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}           
                 />
               </td>              
 
@@ -336,7 +338,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                         field.onChange(selectedOption?.value); // Solo guarda el valor, no el objeto completo
                       }}
                       onBlur={field.onBlur}
-                      isDisabled={userRole==="CON"}                                                     
+                      isDisabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}                                                     
                       styles={{
                         control: (base) => ({
                           ...base,
@@ -361,7 +363,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                         <input
                           type="checkbox"
                           checked={checked}
-                          disabled={userRole==="CON"}           
+                          disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}           
                           onChange={(e) => {
                             const newValue = e.target.checked;
                             field.onChange(newValue);
@@ -382,12 +384,12 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                             <input
                               type="date"
                               value={field.value || ''}
-                              disabled={userRole==="CON"}           
+                              disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}           
                               onChange={(e) => {
                                 const formattedDate = dayjs(e.target.value).format('YYYY-MM-DD');
                                 field.onChange(formattedDate);
                               }}
-                              min={dayjs().format('YYYY-MM-DD')}
+                              // min={dayjs().format('YYYY-MM-DD')}
                               className={`
                                 w-full px-4 py-3 rounded-lg border
                                 focus:outline-none focus:ring-2 focus:border-transparent
@@ -420,7 +422,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
                   render={({ field }) => (
                     <textarea
                       {...field}
-                      disabled={userRole==="CON"}           
+                      disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}           
                       className="w-full border border-gray-300 rounded px-2 py-1 text-sm min-h-[80px]"
                       rows={3}
                       placeholder="Escribe un comentario..."
@@ -432,7 +434,7 @@ export const ServicesSelectionTableOption1: React.FC<ServicesSelectionTableProps
               {isEditMode ? (
                 <td className='text-center px-4 bg-troquerosGray'>
                   <Icon
-                    icon="line-md:trash"                    
+                    icon="line-md:trash"                                        
                     width="22"
                     height="22"
                     className="text-red-600 cursor-pointer hover:text-red-400"

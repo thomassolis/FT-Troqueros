@@ -5,6 +5,9 @@ import { DoubleConfirmationAlert } from "../../Alerts/DoubleConfirmation/doubleC
 import { UpdateRequestStatus } from "../../../../api/Home/home.route";
 import { useNavigate } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
+import { useContext } from "react";
+import { AuthContext } from "../../../../context/auth/authProvider";
+
 
 interface Service {
   id: string;
@@ -65,6 +68,7 @@ export interface TableRowVariables {
   lugar_origen:string;
   lugar_destino:string;
   numero_factura:string;
+  createdBy:string;
   costo:number;
   venta:number;
   services: Service[];  
@@ -77,11 +81,11 @@ interface RequesCollapsibleTableProps {
   _isLoading: boolean;
 }
 
-export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _isLoading }: RequesCollapsibleTableProps) => {
-  console.log('tableData: ', tableData);
+export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _isLoading }: RequesCollapsibleTableProps) => {    
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [_selectedStatus, setSelectedStatus] = useState<{ value: string, label: string } | null>({ value: '', label: '' });
   const navigate = useNavigate();
+  const {userRole} = useContext(AuthContext)!;
 
   const statusOptions = [
     { value: 'en espera', label: 'En Espera' },
@@ -151,7 +155,7 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
   };
 
   return (
-    <div className="overflow-x-auto max-w-[1260px] mx-auto rounded-lg border border-gray-200">
+    <div className="overflow-x-auto w-full mx-auto rounded-lg border border-gray-200 ">
       <div className="overflow-y-auto max-h-96">
         <table className="min-w-full divide-y divide-gray-200 min-h-7 ">
           <thead className="bg-gray-50 z-50">
@@ -160,11 +164,11 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
               <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%]" align="center"></th>
 
               {procedure === 'completeRequestHistory' ? (
-                ['ID', 'Cliente', 'SH', 'Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón', 'Contenedor', 'Tamaño Contenedor', 'Costo Total', 'Venta Total', 'Comienzo de Petición', 'Proveedor', 'Costo Proveedor', 'Profit', 'Comentario', '# Facturación'].map((title) => (
+                ['ID', 'Comienzo de Petición','Cliente', 'SH', 'Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón', 'Contenedor', 'Tamaño Contenedor', 'Costo Total', 'Venta Total', /*'Comienzo de Petición',*/ 'Proveedor', 'Costo Proveedor', 'Profit', 'Comentario', '# Facturación', 'Creado Por'].map((title) => (
                   <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%] z-40" align="center">{title}</th>
                 ))
               ) : (
-                ['ID', 'Cliente', 'SH','Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón'].map((title) => (
+                ['ID', 'Comienzo de Petición', 'Cliente', 'SH','Servicio', 'Conductor', 'Chasis', 'Cabezal', 'Furgón'].map((title) => (
                   <th className="sticky top-0 bg-gray-50 px-2 py-3 text-xs font-medium text-black uppercase tracking-wider w-[2%] z-40" align="center">{title}</th>
                 ))
               )}
@@ -215,11 +219,13 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                       <td className="px-2 py-1 text-sm text-gray-900 max-w-xs break-words whitespace-normal">
                         {item.services[0].id_peticion}
                       </td>
+                      <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].fecha_salida ? '' : 'text-red-500'}`} align="center">
+                        {`${item.services[0].fecha_salida}-${item.services[0].hora_salida}` || '-'}
+                      </td>
                       <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
                         {item.services[0].cliente}
                       </td>
-                      <td className={`px-2 py-1 text-sm max-w-xs break-words whitespace-normal ${item.services[0].sh==="n/a"?'text-red-400':'text-gray-500'}`} align="center">
-                        {/* {item.services[0].sh || '-'} */}
+                      <td className={`px-2 py-1 text-sm max-w-xs break-words whitespace-normal ${item.services[0].sh==="n/a"?'text-red-400':'text-gray-500'}`} align="center">                       
                         {`${item.services[0].sh === "n/a"? '-':item.services[0].sh}`}
                       </td>
                       <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" align="center">
@@ -255,9 +261,9 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                           <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].venta ? '' : 'text-red-500'}`} align="center">
                             {item.services[0].venta || '-'}
                           </td>
-                          <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].fecha_salida ? '' : 'text-red-500'}`} align="center">
+                          {/* <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].fecha_salida ? '' : 'text-red-500'}`} align="center">
                             {`${item.services[0].fecha_salida}-${item.services[0].hora_salida}` || '-'}
-                          </td>
+                          </td> */}
                           <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal ${item.services[0].proveedor ? '' : 'text-red-500'}`} align="center">
                             {item.services[0].proveedor || '-'}
                           </td>
@@ -273,11 +279,15 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                           <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal`} align="center" onClick={(e) => { e.stopPropagation() }}>
                             {item.numero_factura}
                           </td>
+                          <td className={`px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal` } align="center">
+                            {item.createdBy || '-'}
+                          </td>
                         </>
                       )}
                       <td className="px-2 py-1 text-sm text-gray-500 max-w-xs break-words whitespace-normal" onClick={(e) => { e.stopPropagation() }} align="center">
                         <Select
                           options={statusOptions}
+                          isDisabled={userRole!='ADM'?true:false}                          
                           className="z-0"
                           value={statusOptions.find(opt => opt.value.toLowerCase() === item.services[0].status?.toLowerCase()) || null}
                           onChange={(optionselected) => {
@@ -290,6 +300,7 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                               });
                             }
                           }}
+                          
                           menuPortalTarget={document.body}
                           styles={{
                             menuPortal: base => ({ ...base, zIndex: 10 }),
@@ -330,6 +341,7 @@ export const RequestCollapsibleTable = ({ tableData, setTableData, procedure, _i
                       <td className="px-2 py-1 text-sm text-gray-500" align="center"></td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center"></td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.id_peticion}</td>
+                      <td className="px-2 py-1 text-sm text-gray-500" align="center">{`${service.fecha_salida}-${service.hora_salida}`}</td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.cliente}</td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.sh}</td>
                       <td className="px-2 py-1 text-sm text-gray-500" align="center">{service.servicio}</td>

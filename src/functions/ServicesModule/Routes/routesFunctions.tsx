@@ -23,7 +23,7 @@ export const deleteRoute = async(
 
 };
 
-export const editRoute = async(id_servicio_datos: string, /*setEditingRouteId:any*/data:any) => {  
+export const editRoute = async(id_servicio_datos: string, /*setEditingRouteId:any*/data:any) => {    
     const updateRouteData = {
         // serviceID: id,
         id_servicio_datos: id_servicio_datos,

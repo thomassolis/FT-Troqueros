@@ -82,9 +82,9 @@ export const StepperFormRequests = () => {
   useEffect(() => {
     const subscription = watch((value) => {      
       setRequestFormData(value as RequestsFormValues);      
-    });    
-    // console.log('requestFormData updated:', requestFormData)
-    return () => subscription.unsubscribe();
+    });        
+    // console.log('subscription ', requestFormData);
+    return () => subscription.unsubscribe();    
   // }, [watch]);
   }, [watch, requestFormData]);
 
@@ -137,9 +137,11 @@ const onSubmit = async (data: any) => {
     setIsLoading(true);
     const {isProviderRequest, ...payload} = data; // Elimina el campo isProviderRequest
 
-    // Función mejorada de limpieza    
-    const cleanData = CleanRequestDataBeforeSend(payload, isProviderRequest);
-    
+    // Función mejorada de limpieza
+    console.log('payload',payload)        
+    const cleanData = CleanRequestDataBeforeSend(payload, isProviderRequest, procedure);    
+    console.log('cleanData',cleanData)        
+
     if (procedure === 'create') {            
       const response = await CreateNewRequest({ data: cleanData });
       if (response.success) {          
@@ -151,7 +153,7 @@ const onSubmit = async (data: any) => {
         data: cleanData,
         requestID: requestID,
         id_pedidoServicio: requestFormData?.id_pedidoServicio
-      });      
+      });            
 
       if(response.success){
         navigate('/home');
@@ -194,6 +196,7 @@ const onSubmit = async (data: any) => {
             <div hidden={activeStep !== 0}>
               <Step1
                 userRole={userRole as any}
+                procedure={procedure}
               />
             </div>
 
@@ -204,6 +207,7 @@ const onSubmit = async (data: any) => {
                 rows={rows}          
                 requestFormData = {requestFormData}
                 userRole={userRole as any}
+                procedure={procedure}
               />
             </div>
 
@@ -221,6 +225,7 @@ const onSubmit = async (data: any) => {
                 getValues={getValues}
                 reset={reset}
                 userRole={userRole as any}
+                procedure={procedure}
               />
             </div>
 
@@ -233,6 +238,7 @@ const onSubmit = async (data: any) => {
                 setRows={setRows}    
                 activeStep={activeStep}             
                 userRole={userRole as any}
+                procedure={procedure}
               />
             </div>
 
@@ -245,7 +251,7 @@ const onSubmit = async (data: any) => {
                 setRequestFormData={setRequestFormData} 
                 activeStep={activeStep}     
                 procedure={procedure}      
-                userRole={userRole as any}
+                userRole={userRole as any}                
               />
             </div>
           </div>

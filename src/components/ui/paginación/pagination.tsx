@@ -4,9 +4,10 @@ interface PaginacionProps {
     totalRecords: number;
     pageSize: number;
     handlePageClick: (selectedPage: number) => void;
+    currentPage: number;
 }
 
-export const Paginacion = ({ totalRecords, pageSize, handlePageClick }: PaginacionProps) => {
+export const Paginacion = ({ totalRecords, pageSize, handlePageClick, currentPage }: PaginacionProps) => {
     const pageCount = Math.ceil(totalRecords / pageSize);   
     return (
         <div className="flex justify-center mt-4">
@@ -18,6 +19,7 @@ export const Paginacion = ({ totalRecords, pageSize, handlePageClick }: Paginaci
                 pageCount={pageCount}
                 marginPagesDisplayed={2}
                 pageRangeDisplayed={3}
+                forcePage={currentPage - 1}
                 onPageChange={({ selected }) => handlePageClick(selected + 1)}
                 containerClassName={'pagination flex space-x-2'}
                 pageClassName={'border border-black px-4 py-2 rounded-md cursor-pointer'}

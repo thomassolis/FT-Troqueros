@@ -11,9 +11,8 @@ interface ServicesTableManagement {
 export const ServicesTableManagement = ({module}: ServicesTableManagement) =>{
         const [servicesData, setServicesData] = useState([]);
         const [totalRecords, setTotalRecords] = useState(0)
-        const {searchValue} = useContext(searchValueContext)!;
-        const [pageSize, setPageSize] = useState<number>(10)
-        const [currentPage, setCurrentPage] = useState<number>(1);
+        const {searchValue, currentPage, setCurrentPage} = useContext(searchValueContext)!;
+        const [pageSize, setPageSize] = useState<number>(10)        
 
       const getServicesData = async() =>{
           try{
@@ -49,7 +48,7 @@ export const ServicesTableManagement = ({module}: ServicesTableManagement) =>{
               servicesData = {servicesData}
               reloadServices = {getServicesData}
             />
-            <Paginacion totalRecords={totalRecords} pageSize={pageSize} handlePageClick={handlePageClick} />            
+            <Paginacion totalRecords={totalRecords} pageSize={pageSize} handlePageClick={handlePageClick} currentPage={currentPage}/>            
         </div>
     )
 }

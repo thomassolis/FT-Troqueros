@@ -6,13 +6,14 @@ import { Back } from "../../ui/Back/Back"
 import { useContext } from "react"
 import { FilterSearch } from "../../ui/FilterSearch/FilterSearch"
 import { changeVehicleValue } from "../../../functions/changeVehicleType/changeVehicleType"
-
+import { AuthContext } from "../../../context/auth/authProvider"
 export const VehicleParts = () =>{
     const { vehicleType, setVehicleType } = useContext(vehicleTypeContext)!;
     // const [selectedOption, setSelectedOption] = useState<string>("")
     const vehicleParts: string[] = ["Chasises", "Cabezales", "Furgones"] 
     const navigate = useNavigate();
     const location = useLocation();
+    const {userRole} = useContext(AuthContext)!;
 
     const vehicle = changeVehicleValue(vehicleType)
     return(
@@ -35,6 +36,9 @@ export const VehicleParts = () =>{
                             : `${location.pathname}/${vehicleType}`;                        
                         navigate(`${newPath}/create`);
                     }} 
+                disabled={
+                    userRole != 'ADM'? true: false
+                }
                 />
 
                 </div>              

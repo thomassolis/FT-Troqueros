@@ -5,11 +5,12 @@ import { Button } from "../../ui/buttons/button";
 import { useNavigate } from "react-router-dom";
 import { GetProcedureFromURL } from "../../../functions/GetURL/GetURLInfo"
 import { ServicesTableManagement } from "../Services/ServicesFather";
-
+import { useContext } from "react";
+import { AuthContext } from "../../../context/auth/authProvider";
 export const CurrentCustomers: React.FC = () => {      
     const navigate = useNavigate();
     const module = GetProcedureFromURL();
-
+    const {userRole} = useContext(AuthContext)!;
 
     // Definir el texto y la acción antes del retorno del JSX
     const buttonText = module === 'Customers' ? 'Agregar Cliente' :module ==='Drivers'? 'Agregar Conductor':module === 'Services'? 'Agregar Servicio':module === 'Providers'? 'Agregar Proveedor':null;
@@ -61,6 +62,9 @@ export const CurrentCustomers: React.FC = () => {
               bgColor='bg-[#1B5316]'
               textColor="white" 
               className2={'font-bold'}
+              disabled={
+                userRole != 'ADM'? true: false
+              }
             />
           </div>          
         </div>

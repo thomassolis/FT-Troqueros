@@ -32,11 +32,14 @@ interface SidebarProps {
 }
 
 
-export const TableTabs = ({selectedOption, setCurrentPage, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates }: SidebarProps) => {
+export const TableTabs = ({selectedOption, setTotalRecords, setPageSize, currentPage, procedure, selectedTab, setSelectedTab, formattedDates }: SidebarProps) => {
     const [tableData, setTableData] = useState<TableRowVariables[]>([]);    
     const [_isLoading, setIsLoading] = useState(false);
-    const {searchValue} = useContext(searchValueContext)!;       
-      const reqIdRef = useRef(0);           // 👈 marcador de request “vigente”
+    const {searchValue, withInvoice, setWithInvoice, withoutInvoice, setWithoutInvoice} = useContext(searchValueContext)!; 
+    // const [withInvoice, setWithInvoice] = useState(true);
+    // const [withoutInvoice, setWithoutInvoice] = useState(true);
+    
+    const reqIdRef = useRef(0);           // 👈 marcador de request “vigente”
 
     const navigate = useNavigate();
 
@@ -58,7 +61,7 @@ useEffect(() => {
       const myReqId = ++reqIdRef.current;   // 👈 id para esta llamada
 
       setIsLoading(true);
-      setTableData([]);                     // 👈 limpia la tabla al cambiar tab/filtros
+      setTableData([]);                     // 👈 limpia la tabla al cambiar tab/filtros      
 
       try {
         setIsLoading(true);
@@ -69,7 +72,9 @@ useEffect(() => {
           selectedOption, 
            searchValue: searchValue != null ? String(searchValue) : null,
           currentPage, 
-          formattedDates
+          formattedDates,
+          withoutInvoice: withoutInvoice,
+          withInvoice: withInvoice
         });        
 
         if (myReqId !== reqIdRef.current) return; // 👈 llegó tarde: ignora
@@ -77,8 +82,7 @@ useEffect(() => {
         const transformedData = transformTableData(Array.isArray(response?.data) ? response.data : []);
         setTableData(transformedData);
         setTotalRecords(response?.totalRegistros ?? 0);
-        setPageSize(response?.limite ?? 10);
-        setCurrentPage(Number(response?.paginaActual) || 1);
+        setPageSize(response?.limite ?? 10);        
       } catch (e) {
         if (myReqId !== reqIdRef.current) return; // 👈 ignora si ya cambiaste
         console.error(e);
@@ -90,20 +94,45 @@ useEffect(() => {
     };
 
     RequestDataForHomeTable();
-  }, [selectedTab, selectedOption, searchValue, currentPage, formattedDates]);    
+  }, [selectedTab, selectedOption, searchValue, currentPage, formattedDates, withInvoice, withoutInvoice ]);    
 
     return (
         <div className="w-[90%] overflow-hidden flex justify-end">
             <Tabs
                 selectedIndex={selectedTab} 
                 onSelect={(index) => {
-                    setSelectedTab(index); 
-                    setCurrentPage(1);
+                    setSelectedTab(index);                     
                 }}
                 style={{ width: "100%" }}
             >
-                <TabList className="flex justify-end w-full">
-                    <div className="flex justify-between w-full items-end">
+                <TabList className="flex justify-end w-full flex-col gap-5">
+                    <div className="rounded-md bg-white flex justify-start items-center gap-5">
+                        <h2 className="text-lg font-semibold p-2 text-black">Filtrar Por: </h2>
+                        <div className="flex">
+                            <ul className="flex gap-5">
+                                <li className="flex gap-2 justify-center">
+                                    <input 
+                                        type="checkbox" 
+                                        id="withInvoice" 
+                                        checked={withInvoice} 
+                                        onChange={(e) => setWithInvoice(e.target.checked)} 
+                                    />                                     
+                                    <label className="text-black cursor-pointer" htmlFor="withInvoice">Con Factura</label>
+                                </li>
+
+                                <li className="flex gap-2 justify-center">
+                                    <input 
+                                        type="checkbox" 
+                                        id="withoutInvoice" 
+                                        checked={withoutInvoice} 
+                                        onChange={(e) => setWithoutInvoice(e.target.checked)} 
+                                    />                                     
+                                    <label className="text-black cursor-pointer" htmlFor="withoutInvoice">Sin Factura</label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="flex justify-between w-full items-end ">
                         {/* Botón de expansión */}
                         {procedure === 'home' && (
                             <div className="rounded-t-lg text-black flex w-[23%] justify-between items-center pr-2 pl-2 bg-slate-100 shadow-2xl cursor-pointer bg-red-" onClick={()=>{navigate('/home/completeRequestHistory')}}>
@@ -138,43 +167,3 @@ useEffect(() => {
         </div>
     );
 };
-
-
-
-//
-
-    // useEffect(() => {
-    //     RequestDataForHomeTable(selectedTab).catch((error) => console.error("Error en RequestDataForHomeTable: ", error));
-    // }, [selectedTab, selectedOption, searchValue, currentPage, formattedDates]);
-
-    // const transformTableData = (data: any[]): TableRowVariables[] => {
-    // return data.map(item => ({
-    //     ...item,
-    //     // Mapeo de campos con nombres diferentes
-    //     id: item.id_peticion || item.id || '',
-    //     nombreCliente: item.cliente || item.nombreCliente || '',
-    //     id_proveedor: item.proveedor || item.id_proveedor || '',
-    //     // Asegurar que services sea un array
-    //     services: item.services || []
-    // }));
-    // };
-
-    // const RequestDataForHomeTable = async (index: number): Promise<void> => {
-    //     const tableSections: string[] = ["","En Espera", "En Proceso", "Completado", 'Cancelado'];
-        
-    //     try {
-    //         setIsLoading(true);
-    //         const response: any  = await DataForRequestTable({ tableSection: tableSections[index], selectedOption: selectedOption, searchValue: searchValue, currentPage:currentPage, formattedDates:formattedDates });                                   
-    //         const transformedData = transformTableData(response.data);
-    //         setTableData(transformedData);
-            
-    //         setTotalRecords(response.totalRegistros); 
-    //         setPageSize(response.limite);
-    //         setCurrentPage(Number(response.paginaActual) || 1);
-
-    //     } catch (e) {
-    //         console.error("Error en RequestDataForHomeTable", e);
-    //     }finally{
-    //         setIsLoading(false);
-    //     }
-    // };  

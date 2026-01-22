@@ -69,7 +69,7 @@ type ActionType = 'update' | 'delete' | 'add';
 
 
 // Función que permite eliminar o actualizar una ruta
-export const RoutesActions = async (actionType: ActionType, updateRouteData:any) => {  
+export const RoutesActions = async (actionType: ActionType, updateRouteData:any) => {    
   
   try {
     let response;

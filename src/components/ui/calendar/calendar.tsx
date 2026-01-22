@@ -53,7 +53,6 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
     entregasProveedores: true
   });
   const navigate = useNavigate();
-
   const CustomToolbar = (toolbar: any) => {
     const goToBack = () => toolbar.onNavigate('PREV');
     const goToNext = () => toolbar.onNavigate('NEXT');
@@ -194,14 +193,38 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
     const fetchCalendarData = async () => {
       try {
         const response = await getDataForCalendar();        
-        const formatted = response.map((event: any) => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
-          allDay: event.allDay || false
-        }));
-        setAllEvents(formatted); // Guardar en allEvents
-        setEvents(formatted); // Inicialmente mostrar todos
+
+        const formatted = response.map((event: any) => {
+          let computedTitle = event.title; // fallback final
+
+          if (event.type === 'Vacio') {
+            const cont = event.details?.numero_contenedor;
+            const sh = event.details?.sh;
+
+            const isValid = (v: any) =>
+              v !== null &&
+              v !== undefined &&
+              String(v).toLowerCase() !== 'n/a' &&
+              String(v).trim() !== '';
+
+            if (isValid(cont)) {
+              computedTitle = `Cont: ${cont}`;
+            } else if (isValid(sh)) {
+              computedTitle = `SH: ${sh}`;
+            }
+          }
+
+          return {
+            ...event,
+            start: new Date(event.start),
+            end: new Date(event.end),
+            allDay: event.allDay || false,
+            title: computedTitle,
+          };
+        });
+
+        setAllEvents(formatted);
+        setEvents(formatted);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -209,7 +232,6 @@ const MyCalendar = ({ sidebarState }: SidebarStatus) => {
 
     fetchCalendarData();
   }, []);
-
 
   const openModal = (event: any) => setSelectedEvent(event);
   const closeModal = () => setSelectedEvent(null);

@@ -26,6 +26,8 @@ onUpdate: (id: number, field: keyof ServiceType, name: string| number, value: st
   isEditMode: boolean;
   serviceTypes?: ServiceType[];
   useProvider:boolean|null|undefined;
+  procedure: string | undefined;
+  userRole: string;
 }
 
 
@@ -40,7 +42,9 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
   requestFormData,
   isEditMode,
   serviceTypes,
-  useProvider
+  useProvider,
+  procedure,
+  userRole
 }) => {        
     const [isLoading, setIsLoading] = useState(false);
     useEffect(() => {        
@@ -65,7 +69,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
                 <Select
                     className="text-black"                    
                     options={servicesSelect}
-                    isClearable                    
+                    isClearable                                        
                     placeholder="Selecciona un servicio"
                     value={servicesSelect.find(opt => opt.label === selectedValue)}
                     onChange={(option) => onUpdate(
@@ -75,7 +79,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
                         option?.value??""     // value
                     )}
                     isLoading={isLoading}
-                    isDisabled={isLoading}
+                    isDisabled={isLoading || (userRole !== "ADM" && !(userRole === "CON" && procedure === 'create'))}
                 />
             </div>
 
@@ -84,6 +88,7 @@ export const DynamicRequestsType: React.FC<DynamicRequestsTypeProps> = ({
                     type="number"
                     className2={'w-full h-9'}
                     placeholder={useProvider?"Máximo 1":"Máximo 5"}
+                    disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}
                     value={quantity === 0 ? '' : quantity} // Mostrar cadena vacía si es 0
                     onChange={(e) => {
                         const maxValue = useProvider?1:5;                        

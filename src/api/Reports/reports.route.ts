@@ -26,8 +26,7 @@ export const getGeneralReportsData = async({filters, dates}:any) => {
 }
 
 
-export const getTeamReports = async(currentPage:number, pageSize:number, searchTerm:string, driverSearch: string, statusSelected:any, dates:{startDate?: Date; endDate?: Date}) => {
-    console.log('getTeamReports');
+export const getTeamReports = async(currentPage:number, pageSize:number, searchTerm:string, driverSearch: string, statusSelected:any, dates:{startDate?: Date; endDate?: Date}) => {    
     try{
         const response = await axios.get('/reports/get_team_reports',{
             params:{
@@ -38,8 +37,7 @@ export const getTeamReports = async(currentPage:number, pageSize:number, searchT
                 driverSearch: driverSearch,
                 dates: dates
             }
-        });   
-        console.log('getTeamReportsResponse', response);
+        });           
         return response.data;     
     }catch(error){
         console.error('Error en getTeamReports: ', error);

@@ -9,50 +9,41 @@ import { Icon } from "@iconify/react/dist/iconify.js"
 import { Paginacion } from "../../../ui/paginación/pagination.tsx"
 import DatePickerRange from "../../../ui/DateRangePicker/DateRangePicker.tsx"
 import { SelectData } from "../../../../api/Requests/requests.route.ts"
+import { useContext } from "react"
+import { searchValueContext } from "../../../../context/searchValueForFilter/searchValue.tsx"
 
 interface TeamReportsTypes {
-    selectedTab: number,
-    reportes: any
+    selectedTab: number,    
 }
 type Driver = {
   id_conductor: string | number;
   nombre: string;
 };
 
-export const TeamReports = ({ selectedTab, reportes }: TeamReportsTypes) => {
-    console.log('reportesss', reportes)
+export const TeamReports = ({ selectedTab }: TeamReportsTypes) => {    
     const [dates, setDates] = useState<{startDate?: Date; endDate?: Date}>({});
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    // const [currentPage, setCurrentPage] = useState<number>(1);
     const [reports, setReports] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [driverSearch, setDriverSearch] = useState<string>('');
     const [statusSelected, setStatusSelected] = useState<any>(null);
+    const {currentPage, setCurrentPage} = useContext(searchValueContext)!;     
     const [drivers, setDrivers] = useState<Driver[]>([]);
     const handlePageClick = (selectedPage: number) => {        
         setCurrentPage(selectedPage);
     };
 
-  useEffect(()=>{
-    console.log('entré en useeffect')
+  useEffect(()=>{    
     const getData = async () => {
         try{
-            const response = await getTeamReports(currentPage, 10, searchTerm, driverSearch, statusSelected, dates);
-            setReports(response.data);
-            console.log('responseuu', response);
+            const response = await getTeamReports(currentPage, 10, searchTerm, driverSearch, statusSelected, dates);            
+            setReports(response.data);            
         }catch(error){
             console.error('Error en getData: ', error);
         }
     }
     getData();
   },[currentPage, searchTerm, statusSelected, driverSearch, dates])
-
-  console.log('reports.totalData: ', reports?.totalData);
-  console.log('reports.totalData: ', reports);
-
-  useEffect(()=>{
-    console.log('driverSearch: ', driverSearch);
-    console.log('dates: ', dates);
-  },[driverSearch, dates])
 
     const hoursBetween = (start: string | Date, end?: string | Date) => {
         const s = new Date(start).getTime();
@@ -164,11 +155,9 @@ export const TeamReports = ({ selectedTab, reportes }: TeamReportsTypes) => {
                             }}
                             className="text-black"
                             
-                            onMenuOpen={async () => {
-                                console.log("abriendo menu...");
+                            onMenuOpen={async () => {                                
                                 const response = await SelectData({ type: "drivers" });
-                                setDrivers(Array.isArray(response) ? response : [] as any);
-                                console.log("drivers", response);
+                                setDrivers(Array.isArray(response) ? response : [] as any);                                
                             }}
                             options={[                        
                                     ...drivers.map((d) => ({
@@ -335,6 +324,7 @@ export const TeamReports = ({ selectedTab, reportes }: TeamReportsTypes) => {
                                 pageSize={reports?.pageSize}
                                 totalRecords={reports?.totalRows || 0}
                                 handlePageClick={handlePageClick}
+                                currentPage={currentPage}
                             />
                         </div>
                     </div>

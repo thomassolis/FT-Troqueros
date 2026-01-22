@@ -123,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSidebarChange }) => {
 
             <div>
 
-                {userRole === 'CEO' &&
+                {(userRole === 'CEO' || userRole === 'ADM' )&&
                   <li>
                     <MenuItem
                             icon={<Icon icon="fa-solid:chart-line" width="28" height="28" />}

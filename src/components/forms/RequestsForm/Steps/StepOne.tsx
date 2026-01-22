@@ -15,7 +15,7 @@ import dayjs from 'dayjs';
 import { RequestsFormValues } from "../../../types/forms/RequestsForm/requestsForm";
 import InfoTooltip from "../../../ui/ToolTip/ToolTip";
 
-export const Step1: React.FC<StepsRequestsProps> = ({userRole}:StepsRequestsProps) => { 
+export const Step1: React.FC<StepsRequestsProps> = ({userRole, procedure}:StepsRequestsProps) => {     
     const [customersSelect, setCustomersSelect] = useState<SelectOptionTypes[]>([]);
     // const { control, setValue, register, errors } = useFormContext<RequestsFormValues>();
     const { control, formState: { errors } } = useFormContext<RequestsFormValues>();    
@@ -24,7 +24,7 @@ export const Step1: React.FC<StepsRequestsProps> = ({userRole}:StepsRequestsProp
         const getSelectData = async () => {
             try {
             const response = await SelectData({ type: 'customers' });
-            const transformedData = TransformSelectData({type:'customers',data:response});
+            const transformedData = TransformSelectData({type:'customers',data:response});            
             setCustomersSelect(transformedData ?? []);        
             } catch (error) {
             console.error('Error en: getSelectData', error);
@@ -70,7 +70,7 @@ export const Step1: React.FC<StepsRequestsProps> = ({userRole}:StepsRequestsProp
                                 <Select
                                     {...field}
                                     isClearable                                     
-                                    isDisabled={userRole==="CON"}                                                                          
+                                    isDisabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}                                                                          
                                     className="w-full"
                                     options={customersSelect}
                                     placeholder="Selecciona un cliente..."
@@ -109,8 +109,8 @@ export const Step1: React.FC<StepsRequestsProps> = ({userRole}:StepsRequestsProp
                                             <DatePicker
                                                 label="Selecciona una fecha"
                                                 
-                                                format="DD/MM/YYYY"                                                
-                                                readOnly={userRole==="CON"}                                                     
+                                                format="DD/MM/YYYY"                                                     
+                                                readOnly={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}                                                     
                                                 value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
                                                 onChange={(date) => {
                                                     const formattedDate = dayjs(date).format('YYYY-MM-DD');
@@ -154,7 +154,7 @@ export const Step1: React.FC<StepsRequestsProps> = ({userRole}:StepsRequestsProp
                                         const formattedTime = dayjs(time).format("HH:mm:ss"); // Formatea a "HH:mm"
                                         field.onChange(formattedTime); // Guarda el string (ej: "14:30")
                                     }}
-                                    readOnly={userRole==="CON"}                                    
+                                    readOnly={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}                                    
                                     className="bg-white w-full"
                                     // slotProps={{
                                     //     textField: {

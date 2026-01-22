@@ -45,8 +45,7 @@ export const GeneralTabs = ({options}: {options: string[]}) => {
         <Tabs 
             className={'w-full rounded-md mt-5'} 
             selectedIndex={selectedTab}
-            onSelect={(index) => {
-                console.log('selección: ', index)
+            onSelect={(index) => {                
                 setSelectedTab(index); 
                 // setCurrentPage(1);
             }}        
@@ -160,8 +159,7 @@ export const GeneralTabs = ({options}: {options: string[]}) => {
 
             <TabPanel>
                 <TeamReports 
-                    selectedTab={selectedTab}
-                    reportes = {reports}
+                    selectedTab={selectedTab}                    
                 />
             </TabPanel>
         </Tabs>

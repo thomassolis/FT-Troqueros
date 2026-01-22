@@ -15,19 +15,19 @@ import { searchValueContext } from "../../context/searchValueForFilter/searchVal
 interface MyComponentProps {
     sidebarState: boolean;
 }
- 
+
 export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {        
     const navigate = useNavigate()    
     const procedure = GetProcedureFromURL()   
-    const {searchValue, selectedOption, setSelectedOption} = useContext(searchValueContext)!;     
+    const {searchValue, selectedOption, setSelectedOption, currentPage, setCurrentPage, withInvoice, withoutInvoice} = useContext(searchValueContext)!;     
     const [selectedTab, setSelectedTab] = useState<number>(0); 
     //ESTADO QUE MANEJARÁ EL VALOR SELECCIONADO DENTRO DEL FILTRADOR DE LA TABLA DE PETICIONES
     // const [selectedOption, setSelectedOption] = useState<{value: string, label: string} | null>({value: 'id', label: 'ID'});    
 
     //Paginación
     const [totalRecords, setTotalRecords] = useState(0);
-    const [pageSize, setPageSize] = useState<number>(10)
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [pageSize, setPageSize] = useState<number>(10);
+    
     const tableSections: string[] = ["","En Espera", "En Proceso", "Completado", 'Cancelado'];
     // Estado para almacenar las fechas formateadas
     const [formattedDates, setFormattedDates] = useState<{
@@ -45,7 +45,15 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
 
     const downloadExcel = async() => {
         try{
-            await DownloadRequestExcel({selectedOption:selectedOption,  searchValue: searchValue != null ? String(searchValue) : null, selectedTab:selectedTab, tableSections:tableSections, formattedDates:formattedDates});
+            await DownloadRequestExcel({
+                selectedOption:selectedOption,  
+                searchValue: searchValue != null ? String(searchValue) : null, 
+                selectedTab:selectedTab, 
+                tableSections:tableSections, 
+                formattedDates:formattedDates, 
+                withInvoice:withInvoice, 
+                withoutInvoice:withoutInvoice
+            });
         }catch(error){
             console.error('Error en downloadExcel: ', error);
         }
@@ -98,7 +106,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                         sidebarState={sidebarState} 
                         selectedOption={selectedOption} 
                         currentPage={currentPage} 
-                        setCurrentPage={setCurrentPage} 
+                        setCurrentPage={setCurrentPage as any} 
                         setTotalRecords={setTotalRecords} 
                         totalRecords={totalRecords}
                         setPageSize={setPageSize}
@@ -124,7 +132,7 @@ export const HomeOptions: React.FC<MyComponentProps> = ({ sidebarState }) => {
                         </div>
 
                     </div>
-                    <Paginacion pageSize= {pageSize} totalRecords={totalRecords} handlePageClick = {handlePageClick}/>            
+                    <Paginacion pageSize= {pageSize} totalRecords={totalRecords} handlePageClick = {handlePageClick} currentPage={currentPage}/>            
                 </div>                    
             </div> 
             

@@ -11,8 +11,7 @@ interface SelectDataProps {
 }
 
 //Extrae toda la data para los select al momento de crear una petición
-export const SelectData = async({type, serviceID, fecha_salida, hora_salida, requestID}: SelectDataProps) => {            
-  console.log('SelectData');
+export const SelectData = async({type, serviceID, fecha_salida, hora_salida, requestID}: SelectDataProps) => {              
     const params = {
         fecha_salida: fecha_salida,
         hora_salida: hora_salida,
@@ -35,8 +34,7 @@ export const SelectData = async({type, serviceID, fecha_salida, hora_salida, req
         }else if(type==='providers'){
             response = await axios.get(`requests/get_request_suppliers`)
             return response?.data.data;
-        } else if (type === 'drivers'){
-          console.log('test')
+        } else if (type === 'drivers'){          
             response = await axios.get(`requests/get_request_drivers`, {params});            
             return response?.data.data;
         } else if (type === 'chasis'){
@@ -127,7 +125,7 @@ export const DeleteServiceFromRequest = async(serviceID:string|number|undefined)
 
 
 //Ruta para actualizar toda la petición seleccionada
-export const EditRequestData = async ({ data, requestID }: CreateNewRequestProps) => {    
+export const EditRequestData = async ({ data, requestID }: CreateNewRequestProps) => {      
   try {
     const formData = new FormData();
 

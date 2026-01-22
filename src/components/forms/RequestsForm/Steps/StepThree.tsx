@@ -20,7 +20,8 @@ export const Step3: React.FC<StepsRequestsProps> = ({
   requestFormData,
   setRequestFormData,
   reset, /* getValues*/
-  userRole
+  userRole,
+  procedure
 }) => {
   // Estado del select de tipos de servicio (catálogo para seleccionar)
   const [servicesSelect, setServicesSelect] = useState<SelectOptionTypes[]>([]);
@@ -212,6 +213,8 @@ export const Step3: React.FC<StepsRequestsProps> = ({
             isEditMode={isEditMode}
             serviceTypes={serviceTypes}
             useProvider={useProvider}
+            procedure={procedure}
+            userRole={userRole}
           />
         ))}
 
@@ -265,6 +268,7 @@ export const Step3: React.FC<StepsRequestsProps> = ({
                     "Comentario",
                   ]
             }
+            procedure={procedure}
             serviceTypes={serviceTypes}
             servicesSelect={servicesSelect}
             routeIDsByRow={routeIDsByRow}

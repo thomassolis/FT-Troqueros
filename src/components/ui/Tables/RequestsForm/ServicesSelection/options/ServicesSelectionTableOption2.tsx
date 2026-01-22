@@ -52,6 +52,7 @@ interface ServicesSelectionTableProps {
   
     selectDataMap: Record<string, SelectOptionTypes[]>;
     userRole: "CON" | "ADM" | "SUP" | "CEO";
+    procedure: string|undefined;
 }
 
 export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps> = ({     
@@ -67,7 +68,8 @@ export const ServicesSelectionTableOption2: React.FC<ServicesSelectionTableProps
   selectDataMap,
   isLoading,
   deleteService,
-userRole
+  userRole,
+  procedure
 }) => {      
 
   return (
@@ -121,7 +123,7 @@ userRole
                                   options={options}
                                   value={selectedOption}
                                   isLoading={isLoading}    
-                                  isDisabled={(isEditMode||userRole==='CON')?true:false}                                  
+                                  isDisabled={(isEditMode||(userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')))?true:false}                                  
                                   onChange={(selectedOption) => {                                    
                                     const value = typeof selectedOption === 'object' && selectedOption !== null
                                     ? selectedOption.value
@@ -182,7 +184,7 @@ userRole
                             {...field}                          
                             value={row.tarifa?.[0]?.venta || 0}
                             // value={row.tarifa} // usa field.value (no row.tarifa)
-                            disabled={userRole==="CON"}           
+                            disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}           
                             onChange={(e) => {
                               const value = Number(e.target.value);
                               field.onChange(value);
@@ -238,7 +240,7 @@ userRole
                         type="text" 
                         className='h-[20%] rounded-md py-2 w-[95%] border-gray-300 border text-black'
                         {...register(`${fieldName}.numero_contenedor`)}
-                        disabled={userRole==="CON"}  
+                        disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}  
                       />
                     </td>
                     <td className="p-3 border border-gray-300 text-black" rowSpan={2}>
@@ -250,7 +252,7 @@ userRole
                             {...field}
                             className="w-full border border-gray-300 rounded px-2 py-1 text-sm min-h-[80px]"
                             rows={3}
-                            disabled={userRole==="CON"}  
+                            disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}  
                             placeholder="Escribe un comentario..."
                           />
                         )}
@@ -290,7 +292,7 @@ userRole
                               <input
                                 type="checkbox"
                                 checked={checked}
-                                disabled={userRole==="CON"}  
+                                disabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}  
                                 onChange={(e) => {
                                   const newValue = e.target.checked;
                                   field.onChange(newValue);
@@ -307,7 +309,7 @@ userRole
                                     render={({ field, fieldState }) => (
                                   <input
                                     type="date"
-                                    readOnly={userRole==="CON"}  
+                                    readOnly={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}  
                                     value={field.value || ''}
                                     onChange={(e) => {
                                       const formattedDate = dayjs(e.target.value).format('YYYY-MM-DD');
@@ -346,7 +348,7 @@ userRole
                           <Select
                             {...field}
                             options={ContainerSizeData}
-                            isDisabled={userRole==="CON"}  
+                            isDisabled={userRole !== "ADM" && !(userRole === "CON" && procedure === 'create')}  
                             placeholder="Seleccionar"
                             value={ContainerSizeData.find(option => option.value === field.value)}
                             onChange={(selectedOption) => {

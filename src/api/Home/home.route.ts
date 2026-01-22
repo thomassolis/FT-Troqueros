@@ -15,6 +15,8 @@ interface RequestParams {
     // };
 
     formattedDates: { start: string | number | null; end: string | number | null; }
+    withInvoice: boolean,
+    withoutInvoice: boolean
 
 }
 interface UpdateRequestStatusParams {
@@ -31,13 +33,13 @@ const optionToApiParam = {
   nameCustomer: 'nameCustomer',
   sh: 'sh',
   num_contenedor: 'num_contenedor',
-  numero_factura: 'numero_factura'
+  numero_factura: 'numero_factura',  
 } as const;
 
 type ApiParam = keyof typeof optionToApiParam;
 
 //Data que requiere la tabla del home para mostrar los datos
-export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage, formattedDates}: RequestParams): Promise<Record<string, string>[]> => {            
+export const DataForRequestTable = async ({tableSection, selectedOption, searchValue, currentPage, formattedDates, withInvoice, withoutInvoice}: RequestParams): Promise<Record<string, string>[]> => {                
     const page = Number(currentPage)        
     try {
         // Crear objeto de parámetros dinámicamente
@@ -57,8 +59,16 @@ export const DataForRequestTable = async ({tableSection, selectedOption, searchV
             params.startDate = formattedDates.start; // "2025-07-08"
             params.endDate = formattedDates.end;     // "2025-07-19"
         }
-                
-        const response = await axios.get('/requests/see_requests', { params });                   
+        
+        if (withInvoice !== undefined) {
+            params.withInvoice = withInvoice ? 'true' : 'false'; // convierte a string
+        }
+
+        if (withoutInvoice !== undefined) {
+            params.withoutInvoice = withoutInvoice ? 'true' : 'false'; // convierte a string
+        }
+
+        const response = await axios.get('/requests/see_requests', { params });                       
         // Acceder correctamente al success
         if (response.data?.success) {
             return response.data.data;   
@@ -103,10 +113,12 @@ interface DownloadRequestExcelProps {
     selectedOption: { value: string; label: string; } | null
     searchValue:string | null
     selectedTab: number
-    tableSections?: string[]
+    tableSections?: string[],
+    withoutInvoice: boolean, 
+    withInvoice: boolean,
     formattedDates: { start: string | null; end: string | null; }
 }
-export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections, formattedDates}: DownloadRequestExcelProps) => {    
+export const DownloadRequestExcel = async({selectedOption, searchValue, selectedTab, tableSections, formattedDates, withoutInvoice, withInvoice}: DownloadRequestExcelProps) => {    
     // Mapeo específico según tus requerimientos
     const getApiParam = (value: string) => {
         return value === 'id' ? 'idPeticion' : value;
@@ -126,6 +138,13 @@ export const DownloadRequestExcel = async({selectedOption, searchValue, selected
     if (formattedDates) {
         params.startDate = formattedDates.start;
         params.endDate = formattedDates.end;
+    }
+
+    if(withInvoice){
+        params.withInvoice = withInvoice ? 'true' : 'false'; 
+    }
+    if(withoutInvoice){
+        params.withoutInvoice = withoutInvoice ? 'true' : 'false'; 
     }
          
     try {        

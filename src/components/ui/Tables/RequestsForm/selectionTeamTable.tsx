@@ -23,8 +23,9 @@ interface SelectionTeamTableProps {
     activeStep:number|undefined;
     setRequestFormData?: Dispatch<SetStateAction<RequestsFormValues>>;
     userRole: "CON" | "ADM" | "SUP" | "CEO";
+    procedure: string|undefined;
 }
-export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setValue, setRequestFormData, activeStep, userRole}: SelectionTeamTableProps) => {      
+export const SelectionTeamTable = ({title, control,  useProvider, rows, requestFormData, setValue, setRequestFormData, activeStep, userRole, procedure}: SelectionTeamTableProps) => {      
   const [_fecha, setFecha] = useState(requestFormData?.fecha_salida??'');
   const [_hora, setHora] = useState(requestFormData?.hora_salida??'');        
   
@@ -191,7 +192,7 @@ useEffect(() => {
                           {...field}
                           isClearable
                           onMenuOpen={() => getRoutesForSelect('drivers','requestID',requestFormData?.fecha_salida, requestFormData?.hora_salida||'09:00:00')}
-                          isDisabled={!!useProvider || userRole==='CON'}                          
+                          isDisabled={!!useProvider || (userRole !== "ADM" && !(userRole === "CON" && procedure === 'create'))}                          
                           options={driversData}
                           isLoading={isLoading}                          
                           onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}                        
@@ -249,7 +250,7 @@ useEffect(() => {
                           onMenuOpen={() => getRoutesForSelect('chasis',requestID,requestFormData?.fecha_salida, requestFormData?.hora_salida||'09:00:00')}
                           isClearable
                           options={chasisData}
-                          isDisabled={useProvider || rowDisabledFields.chasisDisabled || userRole==='CON'}
+                          isDisabled={useProvider || rowDisabledFields.chasisDisabled || (userRole !== "ADM" && !(userRole === "CON" && procedure === 'create'))}
                           isLoading={isLoading}
                           onChange={(selectedOption) => {
                               field.onChange(selectedOption?.value ?? null);                              
@@ -300,7 +301,7 @@ useEffect(() => {
                           isClearable
                           onMenuOpen={() => getRoutesForSelect('cabezal',requestID,requestFormData?.fecha_salida, requestFormData?.hora_salida||'09:00:00')}
                           options={cabezalData}
-                          isDisabled={!!useProvider||userRole==='CON'}
+                          isDisabled={!!useProvider||(userRole !== "ADM" && !(userRole === "CON" && procedure === 'create'))}
                           isLoading={isLoading}
                           onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}                        
                           value={cabezalData.find(option => option.value === field.value) || { label: field.value, value: field.value }}
@@ -354,7 +355,7 @@ useEffect(() => {
                           isClearable
                           options={furgonData}
                           isLoading={isLoading}
-                          isDisabled={useProvider || rowDisabledFields.furgonDisabled || userRole==='CON'}
+                          isDisabled={useProvider || rowDisabledFields.furgonDisabled || (userRole !== "ADM" && !(userRole === "CON" && procedure === 'create'))}
                           onChange={(selectedOption) => {
                               field.onChange(selectedOption?.value ?? null);
                               updateDisabledFields(

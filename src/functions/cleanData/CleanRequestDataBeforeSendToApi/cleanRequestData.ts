@@ -1,8 +1,8 @@
-export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean): any => {  
+export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean, procedure: string): any => {  
   if (obj === null || obj === undefined) {
     return undefined;
   }  
-
+  
   // ⚡️ Evitar limpiar archivos
   if (obj instanceof File) {
     return obj;
@@ -12,7 +12,7 @@ if (Array.isArray(obj)) {
   // Si es el array de servicios, aplicar filtro especial
   if (obj.some(item => item.id_servicio_datos !== undefined)) { // Detecta si es array de servicios
     return obj
-      .map((item) => CleanRequestDataBeforeSend(item, isProviderRequest))
+      .map((item) => CleanRequestDataBeforeSend(item, isProviderRequest, procedure))
       .filter(
         (item) =>
           item !== undefined &&
@@ -25,7 +25,7 @@ if (Array.isArray(obj)) {
   }
 
   return obj
-    .map((item) => CleanRequestDataBeforeSend(item, isProviderRequest))
+    .map((item) => CleanRequestDataBeforeSend(item, isProviderRequest, procedure))
     .filter((item) => item !== undefined);
 }
 
@@ -52,9 +52,13 @@ if (Array.isArray(obj)) {
         "rowIndex",
       ];
 
-      if ((!isProviderRequest && key === "precio_proveedor") || FIELDS_TO_REMOVE.includes(key)) {
+      if (
+        ((!isProviderRequest && key === "precio_proveedor") || FIELDS_TO_REMOVE.includes(key)) &&
+        !(procedure === "edit" && obj.id_proveedor)
+      ) {
         return acc;
       }
+
 
       if (
         isProviderRequest &&
@@ -75,7 +79,7 @@ if (Array.isArray(obj)) {
         return acc;
       }
 
-      const cleanedValue = CleanRequestDataBeforeSend(obj[key], isProviderRequest);
+      const cleanedValue = CleanRequestDataBeforeSend(obj[key], isProviderRequest, procedure);
       if (cleanedValue !== undefined) {
         return { ...acc, [key]: cleanedValue };
       }
