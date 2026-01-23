@@ -137,10 +137,8 @@ const onSubmit = async (data: any) => {
     setIsLoading(true);
     const {isProviderRequest, ...payload} = data; // Elimina el campo isProviderRequest
 
-    // Función mejorada de limpieza
-    console.log('payload',payload)        
-    const cleanData = CleanRequestDataBeforeSend(payload, isProviderRequest, procedure);    
-    console.log('cleanData',cleanData)        
+    // Función mejorada de limpieza          
+    const cleanData = CleanRequestDataBeforeSend(payload, isProviderRequest, procedure);             
 
     if (procedure === 'create') {            
       const response = await CreateNewRequest({ data: cleanData });
@@ -170,7 +168,7 @@ const onSubmit = async (data: any) => {
     const GetDataForEditRequest = async() => {
       try{
         const response = await GetRequestDataPerID({requestID});  
-        if(response.id_proveedor){
+        if(response.id_proveedor){          
           setUseProvider(true);
           setValue('isProviderRequest', true);
         }else{
@@ -197,6 +195,7 @@ const onSubmit = async (data: any) => {
               <Step1
                 userRole={userRole as any}
                 procedure={procedure}
+                requestFormData={requestFormData}
               />
             </div>
 

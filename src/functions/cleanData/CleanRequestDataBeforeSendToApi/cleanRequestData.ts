@@ -1,4 +1,4 @@
-export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean, procedure: string): any => {  
+export const CleanRequestDataBeforeSend = (obj: any, isProviderRequest: boolean, procedure: string): any => {    
   if (obj === null || obj === undefined) {
     return undefined;
   }  

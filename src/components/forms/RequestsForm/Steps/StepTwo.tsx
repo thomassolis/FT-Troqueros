@@ -82,7 +82,8 @@ export const Step2: React.FC<StepsRequestsProps> = ({setUseProvider, useProvider
                     {...register("isProviderRequest")}
                     id="providerCheck"
                     className="accent-blue-500"
-                    disabled={isDisabled}
+                    readOnly={isDisabled}
+                    // disabled={isDisabled}
                     onChange={(e) => {                        
                         if (setUseProvider) {
                             setUseProvider(e.target.checked);
