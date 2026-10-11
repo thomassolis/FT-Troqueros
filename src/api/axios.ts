@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const instance = axios.create({    
+const instance = axios.create({
     // baseURL: 'https://localhost:5001/api',
-    baseURL: 'https://netserpro.com:3880/api',
+    baseURL: 'https://bk-troqueros.onrender.com/api',
+    // baseURL: 'https://netserpro.com:3880/api',
     withCredentials: true
 })
 

@@ -17,7 +17,7 @@ import { AuthContext } from "../../../context/auth/authProvider";
 
 interface PrevisualizationTableProps {
     headerTable: string[];
-    tabSelected?: string;    
+    tabSelected?: string;
 }
 
 interface TableData {
@@ -27,102 +27,103 @@ interface TableData {
 export const PrevisualizationTable = ({ headerTable, tabSelected }: PrevisualizationTableProps) => {
     const [tableData, setTableData] = useState<TableData[]>([]);
     const [totalRecords, setTotalRecords] = useState<number>(0);
-    const [pageSize, setPageSize] = useState<number>(10);    
-    const [isLoading, setIsLoading] = useState<boolean>(false);    
+    const [pageSize, setPageSize] = useState<number>(10);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate()
-    const {vehicleType} = useContext(vehicleTypeContext)!;
-    const {searchValue, setSearchValue, currentPage, setCurrentPage} = useContext(searchValueContext)!;
+    const { vehicleType } = useContext(vehicleTypeContext)!;
+    const { searchValue, setSearchValue, currentPage, setCurrentPage } = useContext(searchValueContext)!;
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
-    const module = pathSegments[pathSegments.length - 1];     
-    const {userRole} = useContext(AuthContext)!;
+    const module = pathSegments[pathSegments.length - 1];
+    const { userRole } = useContext(AuthContext)!;
     //arreglo que se enviará al componente select para mostrar
     const statusOptions: string[] = ["No Disponible", "Disponible"];
-    
-    useEffect(() => {       
+
+    useEffect(() => {
         const GetDataForTable = async () => {
             try {
                 setIsLoading(true);
                 setTableData([]); // Limpiar datos antes de cargar nuevos
-                if(module === 'Vehicles'){                    
+                if (module === 'Vehicles') {
                     const response = await GetDataForPrevisualizationTable({
                         tabSelected: tabSelected ?? '',
-                        page: currentPage, 
+                        page: currentPage,
                         limit: pageSize,
                         search: searchValue != null ? String(searchValue) : '',
 
-                    });                                        
+                    });
                     //Cambiar a vehiculos
-                    setTableData(response.vehiculos.data || []);             
+                    setTableData(response.vehiculos.data || []);
                     setTotalRecords(response.vehiculos.totalRegistros);
-                    setPageSize(response.vehiculos.limite);                                   
-                }else if (module === 'Customers'){                    
+                    setPageSize(response.vehiculos.limite);
+                } else if (module === 'Customers') {
                     const response = await GetDataForPrevisualizationTableCustomers({
-                        page: currentPage, 
+                        page: currentPage,
                         limit: pageSize,
                         search: searchValue != null ? String(searchValue) : '',
 
-                    });                                  
-        
+                    });
+                    console.log('RESPONSE', response)
+
                     if (!response) {
                         console.error("Error: La API no devolvió datos válidos.");
                         return;
-                    }                            
+                    }
                     //Cambiar a vehiculos
-                    setTableData(response.customers.data || []);                
+                    setTableData(response.customers.data || []);
                     setTotalRecords(response.customers.totalRegistros);
-                    setPageSize(response.customers.limite);                
-                }else if (module === 'Drivers'){                    
+                    setPageSize(response.customers.limite);
+                } else if (module === 'Drivers') {
                     const response = await GetFullDriversDataForTable({
-                        page: currentPage, 
-                        limit: pageSize,
-                        search: searchValue != null ? String(searchValue) : '',
-                    });                                     
-
-                    setTableData(response.data.data || []);  
-                    setTotalRecords(response.data.totalRegistros);                    
-                    setPageSize(response.data.limite); 
-                }else if (module === 'Providers'){
-                    const response = await GetProviders({
-                        page: currentPage, 
+                        page: currentPage,
                         limit: pageSize,
                         search: searchValue != null ? String(searchValue) : '',
                     });
-                    setTableData(response.data.data || []); 
-                    setTotalRecords(response.data.totalRegistros);                    
-                    setPageSize(response.data.limite); 
+
+                    setTableData(response.data.data || []);
+                    setTotalRecords(response.data.totalRegistros);
+                    setPageSize(response.data.limite);
+                } else if (module === 'Providers') {
+                    const response = await GetProviders({
+                        page: currentPage,
+                        limit: pageSize,
+                        search: searchValue != null ? String(searchValue) : '',
+                    });
+                    setTableData(response.data.data || []);
+                    setTotalRecords(response.data.totalRegistros);
+                    setPageSize(response.data.limite);
                 }
-                
-                
+
+
             } catch (e) {
                 console.error("Error en GetDataForPrevisualizationTable: ", e);
-            }finally{
+            } finally {
                 setIsLoading(false);
             }
-        };      
+        };
         if (currentPage > 0) {
             GetDataForTable();
         }
     }, [tabSelected, currentPage, pageSize, searchValue, module]);
-    
-    useEffect(()=>{
+
+    useEffect(() => {
         setSearchValue('');
     }, [])
 
     // Manejar cambio de página
-    const handlePageClick = (selectedPage: number) => {        
+    const handlePageClick = (selectedPage: number) => {
         setCurrentPage(selectedPage);
-    };    
+    };
 
     const deleteRow = async (id: string, nombre: string, vehicleType?: string | undefined) => {
         const vehicle = changeVehicleValue(vehicleType);
         //Función que mostrará la opción de eliminar dentro de la UI usando un modal
-        DeleteRow({vehicle, nombre, vehicleType, id, setTableData, module:module, tableData});
+        DeleteRow({ vehicle, nombre, vehicleType, id, setTableData, module: module, tableData });
     };
 
     return (
         <>
-             <div className="flex min-w-full flex-col items-center max-h-[300px] overflow-y-auto mt-5">
+            <div className="flex min-w-full flex-col items-center max-h-[300px] overflow-y-auto mt-5">
                 <table className="text-sm text-gray-500 w-full min-w-full">
                     <thead className="text-xs uppercase dark:bg-white w-full sticky top-0 shadow-2xl z-30 bg-white">
                         <tr className="w-full">
@@ -135,115 +136,116 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                     <tbody>
                         {tableData.length > 0 ? (
                             tableData.map((item, index) => (
-                                
-                                <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center ">                           
+
+                                <tr key={index} className="odd:bg-slate-300 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-300 border-gray-200 text-center ">
                                     {Object.entries(item)
-                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente" && key !== "id_conductor" && key !== "id_proveedor" && key !== "numero_cuenta" && key !== "tipo_banco")
+                                        .filter(([key]) => key !== "id_chasis" && key !== "id_furgon" && key !== "id_cabezal" && key !== "id_cliente" && key !== "id_conductor" && key !== "id_proveedor" && key !== "numero_cuenta" && key !== "tipo_banco" && key !== "totalregistros" && key !== "totalRegistros" && key !== "fechaUltimoPedido")
                                         .map(([_key, value], idx) => (
                                             <td key={idx} className="px-2 py-4 text-black min-w-[100px] max-w-[300px] break-words">
                                                 <div className="whitespace-normal">
-                                                    {headerTable[idx] === "STATUS" ? (                                                    
-                                                            <Select                                                     
-                                                                statusOptions={statusOptions} 
-                                                                apiRequest = {true} 
-                                                                id = {module === 'Drivers' && vehicleType === 'Chasises' ? (
-                                                                    item.id_conductor
-                                                                ):
-                                                                    vehicleType === 'Chasises'? (
-                                                                        item.id_chasis
-                                                                    ): vehicleType === 'Furgones' ? (
-                                                                        item.id_furgon
-                                                                    ): vehicleType === 'Cabezales' ? (
-                                                                        item.id_cabezal
-                                                                    ):
-                                                                    null} 
-                                                                // id = {item.id_chasis} 
-                                                                defaultValue = {item.status} 
-                                                                tableData = {tableData}
-                                                                module={module}
-                                                            />                                                    
-                                                    ) : value} 
+                                                    {headerTable[idx] === "STATUS" ? (
+                                                        <Select
+                                                            statusOptions={statusOptions}
+                                                            apiRequest={true}
+                                                            id={module === 'Drivers' && vehicleType === 'Chasises' ? (
+                                                                item.id_conductor
+                                                            ) :
+                                                                vehicleType === 'Chasises' ? (
+                                                                    item.id_chasis
+                                                                ) : vehicleType === 'Furgones' ? (
+                                                                    item.id_furgon
+                                                                ) : vehicleType === 'Cabezales' ? (
+                                                                    item.id_cabezal
+                                                                ) :
+                                                                    null}
+                                                            // id = {item.id_chasis} 
+                                                            defaultValue={item.status}
+                                                            tableData={tableData}
+                                                            module={module}
+                                                        />
+                                                    ) : value}
                                                 </div>
                                             </td>
                                         ))
                                     }
 
-                                    <div className="flex gap-6 justify-center items-center">                      
-                                        <td className="py-4 whitespace-nowrap text-green-800">                                  
-                                                <Icon 
-                                                    icon="mdi:eye" 
-                                                    width="24" 
-                                                    height="24" 
-                                                    className="cursor-pointer hover:text-green-500"
-                                                    onClick={() => {
+                                    <div className="flex gap-6 justify-center items-center">
+                                        <td className="py-4 whitespace-nowrap text-green-800">
+                                            <Icon
+                                                icon="mdi:eye"
+                                                width="24"
+                                                height="24"
+                                                className="cursor-pointer hover:text-green-500"
+                                                onClick={() => {
                                                     if (module === 'Vehicles') {
-                                                      const id = vehicleType === 'Chasises' ? item.id_chasis :
-                                                                 vehicleType === 'Furgones' ? item.id_furgon :
-                                                                 vehicleType === 'Cabezales' ? item.id_cabezal : '';
-                                                      navigate(`/home/Vehicles/${vehicleType}/${id}/see`);
-                                                    } else if (module === 'Drivers'){
+                                                        const id = vehicleType === 'Chasises' ? item.id_chasis :
+                                                            vehicleType === 'Furgones' ? item.id_furgon :
+                                                                vehicleType === 'Cabezales' ? item.id_cabezal : '';
+                                                        navigate(`/home/Vehicles/${vehicleType}/${id}/see`);
+                                                    } else if (module === 'Drivers') {
                                                         navigate(`/home/Drivers/${item.id_conductor}/see`);
-                                                    }else if (module === 'Customers'){
-                                                      navigate(`/home/Customers/${item.id_cliente}/see`);
-                                                    }else if (module === 'Providers'){
+                                                    } else if (module === 'Customers') {
+                                                        navigate(`/home/Customers/${item.id_cliente}/see`);
+                                                    } else if (module === 'Providers') {
                                                         navigate(`/home/Providers/${item.id_proveedor}/see`);
                                                     }
-                                                  }}
-                                                />                                             
-   
-                                        </td>                                                                        
-                                        <td className="py-4 whitespace-nowrap text-blue-800">
-                                        <Icon 
-                                            icon="uil:edit" 
-                                            width="24" 
-                                            height="24" 
-                                              className={`text-xl ${userRole!='ADM' ? 'pointer-events-none opacity-40' : 'cursor-pointer hover:text-blue-500'}`}
-                                                onClick={() => {
-                                                    if(module === 'Vehicles'){                                                    
-                                                        const vehicleID = vehicleType === 'Chasises' ? item.id_chasis :
-                                                        vehicleType === 'Furgones' ? item.id_furgon :
-                                                        vehicleType === 'Cabezales' && item.id_cabezal 
-                                                        navigate(`/home/Vehicles/${vehicleType}/${vehicleID}/modify`)
-                                                    }else if (module === 'Drivers'){
-                                                        navigate(`/home/Drivers/${item.id_conductor}/modify`)
-                                                    } else if (module === 'Providers'){
-                                                        navigate(`/home/Providers/${item.id_proveedor}/modify`)
-                                                    }
-                                                    else{
-                                                        navigate(`/home/Customers/${item.id_cliente}/modify`)
-                                                    }                                                
                                                 }}
                                             />
-                                        </td>                                                                        
+
+                                        </td>
+                                        <td className="py-4 whitespace-nowrap text-blue-800">
+                                            <Icon
+                                                icon="uil:edit"
+                                                width="24"
+                                                height="24"
+                                                className={`text-xl ${userRole != 'ADM' ? 'pointer-events-none opacity-40' : 'cursor-pointer hover:text-blue-500'}`}
+                                                onClick={() => {
+                                                    if (module === 'Vehicles') {
+                                                        const vehicleID = vehicleType === 'Chasises' ? item.id_chasis :
+                                                            vehicleType === 'Furgones' ? item.id_furgon :
+                                                                vehicleType === 'Cabezales' && item.id_cabezal
+                                                        navigate(`/home/Vehicles/${vehicleType}/${vehicleID}/modify`)
+                                                    } else if (module === 'Drivers') {
+                                                        navigate(`/home/Drivers/${item.id_conductor}/modify`)
+                                                    } else if (module === 'Providers') {
+                                                        navigate(`/home/Providers/${item.id_proveedor}/modify`)
+                                                    }
+                                                    else {
+                                                        navigate(`/home/Customers/${item.id_cliente}/modify`)
+                                                    }
+                                                }}
+                                            />
+                                        </td>
                                         <td className="py-4 whitespace-nowrap text-red-700">
-                                            <Icon 
-                                                icon="material-symbols:delete" 
-                                                width="24" 
-                                                height="24" 
-                                                className={`text-xl ${userRole!='ADM' ? 'pointer-events-none opacity-40' : 'cursor-pointer hover:text-red-500'}`}
-                                                onClick={()=>
-                                                    {module === 'Vehicles' ? (
+                                            <Icon
+                                                icon="material-symbols:delete"
+                                                width="24"
+                                                height="24"
+                                                className={`text-xl ${userRole != 'ADM' ? 'pointer-events-none opacity-40' : 'cursor-pointer hover:text-red-500'}`}
+                                                onClick={() => {
+                                                    module === 'Vehicles' ? (
                                                         deleteRow(
-                                                            vehicleType==='Chasises'?(
+                                                            vehicleType === 'Chasises' ? (
                                                                 item.id_chasis
-                                                            ): vehicleType==='Furgones'?(
+                                                            ) : vehicleType === 'Furgones' ? (
                                                                 item.id_furgon
-                                                            ):(
+                                                            ) : (
                                                                 item.id_cabezal
                                                             )
-                                                            ,item.placa, vehicleType
-                                                        )   
-                                                    ): module === 'Drivers' ? (                                                        
+                                                            , item.placa, vehicleType
+                                                        )
+                                                    ) : module === 'Drivers' ? (
                                                         deleteRow(item.id_conductor, item.nombreCompleto)
-                                                    ):(module === 'Providers') ? (
+                                                    ) : (module === 'Providers') ? (
                                                         deleteRow(item.id_proveedor, item.nombre)
-                                                    ): (
-                                                        deleteRow(item.id_cliente, item.nombre)   
-                                                    )}
+                                                    ) : (
+                                                        deleteRow(item.id_cliente, item.nombre)
+                                                    )
                                                 }
-                                            />    
-                                        </td>                                                                        
-                                    </div>                                    
+                                                }
+                                            />
+                                        </td>
+                                    </div>
                                 </tr>
                             ))
                         ) : (
@@ -256,14 +258,14 @@ export const PrevisualizationTable = ({ headerTable, tabSelected }: Previsualiza
                 </table>
 
                 {isLoading && (
-                    <div className="w-full flex items-center justify-center">                        
-                        <FadeLoader color="#000"  />                        
+                    <div className="w-full flex items-center justify-center">
+                        <FadeLoader color="#000" />
                     </div>
                 )}
-                
+
             </div>
             {/* Componente de paginación */}
-            <Paginacion totalRecords={totalRecords} pageSize={pageSize} handlePageClick={handlePageClick} currentPage={currentPage}/>
-        </>       
+            <Paginacion totalRecords={totalRecords} pageSize={pageSize} handlePageClick={handlePageClick} currentPage={currentPage} />
+        </>
     );
 };
